@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+//
+// ======================
+// ENUMS
+// ======================
+//
+
+enum UserRole {
+  admin
+  editor
+}
+
+enum EnquiryType {
+  product
+  general
+}
+
+enum EnquiryStatus {
+  unread
+  read
+  replied
+}
+
+enum HomepageSection {
+  hero
+  intro
+  quality
+  why_choose
+  cta
+}
+
+enum AboutSection {
+  story
+  heritage
+  sourcing
+  mission
+  vision
+  export
+}
+
+//
+// ======================
+// USERS (ADMIN)
+// ======================
+//
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  name       String
+  role       UserRole @default(editor)
+  avatar     String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("users")
+}
+
+//
+// ======================
+// CATEGORIES
+// ======================
+//
+
+model Category {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  description   String?
+  image         String?
+  product_count Int      @default(0)
+
+  products      Product[]
+
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([slug])
+  @@map("categories")
+}
+
+//
+// ======================
+// PRODUCTS
+// ======================
+//
+
+model Product {
+  id                String   @id @default(uuid())
+  name              String
+  slug              String   @unique
+  description       String?
+  short_description String?
+  category_id       String?
+  origin            String?
+  packaging         String[]
+  is_featured       Boolean  @default(false)
+  is_export_ready   Boolean  @default(true)
+  price_range       String?
+
+  category          Category?     @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  images            ProductImage[]
+  enquiries         Enquiry[]
+
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@index([slug])
+  @@index([category_id])
+  @@index([is_featured])
+  @@map("products")
+}
+
+//
+// ======================
+// PRODUCT IMAGES
+// ======================
+//
+
+model ProductImage {
+  id         String   @id @default(uuid())
+  product_id String
+  url        String
+  alt        String?
+  is_primary Boolean  @default(false)
+  sort_order Int      @default(0)
+
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+
+  @@index([product_id])
+  @@map("product_images")
+}
+
+//
+// ======================
+// ENQUIRIES
+// ======================
+//
+
+model Enquiry {
+  id         String         @id @default(uuid())
+  type       EnquiryType
+  product_id String?
+  name       String
+  email      String
+  phone      String?
+  company    String?
+  message    String
+  status     EnquiryStatus  @default(unread)
+
+  product    Product? @relation(fields: [product_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status])
+  @@index([created_at])
+  @@map("enquiries")
+}
+
+//
+// ======================
+// TESTIMONIALS
+// ======================
+//
+
+model Testimonial {
+  id          String   @id @default(uuid())
+  name        String
+  company     String?
+  country     String?
+  content     String
+  avatar      String?
+  rating      Int      @default(5)
+  is_featured Boolean  @default(false)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([is_featured])
+  @@map("testimonials")
+}
+
+//
+// ======================
+// HOMEPAGE CONTENT
+// ======================
+//
+
+model HomepageContent {
+  id          String          @id @default(uuid())
+  section     HomepageSection @unique
+  title       String?
+  subtitle    String?
+  content     String?
+  image       String?
+  button_text String?
+  button_link String?
+  sort_order  Int             @default(0)
+  is_active   Boolean         @default(true)
+
+  updated_at  DateTime @updatedAt
+
+  @@map("homepage_content")
+}
+
+//
+// ======================
+// ABOUT CONTENT
+// ======================
+//
+
+model AboutContent {
+  id         String       @id @default(uuid())
+  section    AboutSection @unique
+  title      String?
+  content    String?
+  image      String?
+  sort_order Int          @default(0)
+
+  updated_at DateTime @updatedAt
+
+  @@map("about_content")
+}
+
+//
+// ======================
+// CONTACT INFO
+// ======================
+//
+
+model ContactInfo {
+  id            String   @id @default(uuid())
+  address       String?
+  city          String?
+  country       String?
+  phone         String?
+  email         String?
+  working_hours String?
+  map_embed     String?
+
+  updated_at    DateTime @updatedAt
+
+  @@map("contact_info")
+}

@@ -1,0 +1,92 @@
+# ============================================
+# NODE
+# ============================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# ENV FILES (VERY IMPORTANT)
+# ============================================
+
+.env
+.env.*
+!.env.example
+
+# ============================================
+# BUILD OUTPUT
+# ============================================
+
+dist/
+build/
+.next/
+out/
+coverage/
+
+# ============================================
+# FRONTEND (VITE / REACT)
+# ============================================
+
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+frontend/.env.*
+
+# ============================================
+# BACKEND (EXPRESS / PRISMA)
+# ============================================
+
+backend/node_modules/
+backend/dist/
+backend/build/
+backend/uploads/
+backend/.env
+backend/.env.*
+
+# Prisma generated files
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+
+# ============================================
+# LOGS
+# ============================================
+
+logs
+*.log
+
+# ============================================
+# OS FILES
+# ============================================
+
+.DS_Store
+Thumbs.db
+
+# ============================================
+# IDE / EDITOR
+# ============================================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================================
+# TYPESCRIPT
+# ============================================
+
+*.tsbuildinfo
+
+# ============================================
+# TEMP FILES
+# ============================================
+
+tmp/
+temp/
+.cache/
