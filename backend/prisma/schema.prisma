@@ -80,6 +80,8 @@ model Category {
   description   String?
   image         String?
   product_count Int      @default(0)
+  is_featured   Boolean  @default(false)
+
 
   products      Product[]
 

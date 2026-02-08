@@ -1,35 +1,82 @@
-// Database Entity Types for Firehawk Imports & Exports
+// ============================================
+// FIREHAWK IMPORTS & EXPORTS — ENTITY TYPES
+// ============================================
+
+/* =====================================================
+   COMMON ENUM TYPES (SHARED ACROSS APP)
+===================================================== */
+
+export type UserRole = 'admin' | 'editor';
+
+export type EnquiryType = 'product' | 'general';
+
+export type EnquiryStatus = 'unread' | 'read' | 'replied';
+
+/* ---------- HOMEPAGE SECTIONS ---------- */
+
+export type HomepageSection =
+  | 'hero'
+  | 'intro'
+  | 'quality'
+  | 'why_choose'
+  | 'cta';
+
+/* ---------- ABOUT SECTIONS ---------- */
+
+export type AboutSection =
+  | 'story'
+  | 'heritage'
+  | 'sourcing'
+  | 'mission'
+  | 'vision'
+  | 'export';
+
+
+/* =====================================================
+   USERS
+===================================================== */
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'editor';
+  role: UserRole;
   avatar?: string;
   created_at: string;
   updated_at: string;
 }
 
+
+/* =====================================================
+   CATEGORIES
+===================================================== */
+
 export interface Category {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  image: string;
+  description?: string;
+  image?: string;
   product_count: number;
+  is_featured: boolean;
   created_at: string;
   updated_at: string;
 }
+
+
+/* =====================================================
+   PRODUCTS
+===================================================== */
 
 export interface Product {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  short_description: string;
-  category_id: string;
+  description?: string;
+  short_description?: string;
+  category_id?: string;
   category?: Category;
-  origin: string;
+  origin?: string;
   packaging: string[];
   images: ProductImage[];
   is_featured: boolean;
@@ -43,14 +90,19 @@ export interface ProductImage {
   id: string;
   product_id: string;
   url: string;
-  alt: string;
+  alt?: string;
   is_primary: boolean;
   order: number;
 }
 
+
+/* =====================================================
+   ENQUIRIES
+===================================================== */
+
 export interface Enquiry {
   id: string;
-  type: 'product' | 'general';
+  type: EnquiryType;
   product_id?: string;
   product?: Product;
   name: string;
@@ -58,16 +110,21 @@ export interface Enquiry {
   phone?: string;
   company?: string;
   message: string;
-  status: 'unread' | 'read' | 'replied';
+  status: EnquiryStatus;
   created_at: string;
   updated_at: string;
 }
 
+
+/* =====================================================
+   TESTIMONIALS
+===================================================== */
+
 export interface Testimonial {
   id: string;
   name: string;
-  company: string;
-  country: string;
+  company?: string;
+  country?: string;
   content: string;
   avatar?: string;
   rating: number;
@@ -76,10 +133,15 @@ export interface Testimonial {
   updated_at: string;
 }
 
+
+/* =====================================================
+   HOMEPAGE CONTENT (CMS)
+===================================================== */
+
 export interface HomepageContent {
   id: string;
-  section: 'hero' | 'intro' | 'quality' | 'why_choose' | 'cta';
-  title: string;
+  section: HomepageSection;
+  title?: string;
   subtitle?: string;
   content?: string;
   image?: string;
@@ -90,29 +152,56 @@ export interface HomepageContent {
   updated_at: string;
 }
 
+/* ---------- ADMIN EDIT FORM ---------- */
+
+export interface HomepageEditForm {
+  section: HomepageSection;
+  title?: string;
+  subtitle?: string;
+  content?: string;
+  image?: string;
+  button_text?: string;
+  button_link?: string;
+  imageFile?: File;
+}
+
+
+/* =====================================================
+   ABOUT CONTENT
+===================================================== */
+
 export interface AboutContent {
   id: string;
-  section: 'story' | 'heritage' | 'sourcing' | 'mission' | 'vision' | 'export';
-  title: string;
-  content: string;
+  section: AboutSection;
+  title?: string;
+  content?: string;
   image?: string;
   order: number;
   updated_at: string;
 }
 
+
+/* =====================================================
+   CONTACT INFO
+===================================================== */
+
 export interface ContactInfo {
   id: string;
-  address: string;
-  city: string;
-  country: string;
-  phone: string;
-  email: string;
-  working_hours: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  working_hours?: string;
   map_embed?: string;
   updated_at: string;
 }
 
-// Dashboard Statistics
+
+/* =====================================================
+   DASHBOARD STATS
+===================================================== */
+
 export interface DashboardStats {
   total_products: number;
   total_categories: number;

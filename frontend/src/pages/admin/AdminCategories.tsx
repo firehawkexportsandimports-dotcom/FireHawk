@@ -66,6 +66,7 @@ export default function AdminCategories() {
   const [form, setForm] = useState({
     name: "",
     description: "",
+    is_featured: false,
   });
 
   /* ============================================
@@ -93,10 +94,15 @@ export default function AdminCategories() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ name: "", description: "" });
+    setForm({
+      name: "",
+      description: "",
+      is_featured: false,
+    });
     setImage(null);
     setOpen(true);
   };
+
 
   /* ============================================
      OPEN EDIT
@@ -107,10 +113,12 @@ export default function AdminCategories() {
     setForm({
       name: category.name,
       description: category.description || "",
+      is_featured: category.is_featured || false,
     });
     setImage(null);
     setOpen(true);
   };
+
 
   /* ============================================
      CREATE / UPDATE
@@ -121,6 +129,7 @@ export default function AdminCategories() {
       const fd = new FormData();
       fd.append("name", form.name);
       fd.append("description", form.description);
+      fd.append("is_featured", String(form.is_featured));
 
       if (image) fd.append("image", image);
 
@@ -333,6 +342,28 @@ export default function AdminCategories() {
                   )
                 }
               />
+
+              <div className="flex items-center justify-between border rounded-lg p-3">
+                <div>
+                  <p className="font-medium">Featured Category</p>
+                  <p className="text-xs text-muted-foreground">
+                    Show this category on homepage
+                  </p>
+                </div>
+
+                <input
+                  type="checkbox"
+                  checked={form.is_featured}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      is_featured: e.target.checked,
+                    })
+                  }
+                  className="w-5 h-5"
+                />
+              </div>
+
 
               <Button
                 className="w-full"

@@ -5,11 +5,12 @@ import { upload } from "../middleware/upload";
 const router = Router();
 
 router.get("/", controller.getAll);
+router.get("/featured", controller.getFeatured);
 router.get("/:slug", controller.getBySlug);
 
 router.post("/", upload.single("image"), controller.create);
 router.put("/:id", upload.single("image"), controller.update);
-
 router.delete("/:id", controller.remove);
+
 
 export default router;

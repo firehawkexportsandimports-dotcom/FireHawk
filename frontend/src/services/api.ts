@@ -72,6 +72,10 @@ export const categoriesApi = {
     return fetchJson(`${API_BASE}/categories`);
   },
 
+  getFeatured: async (): Promise<Category[]> => {
+    return fetchJson(`${API_BASE}/categories/featured`);
+  },
+
   getBySlug: async (slug: string): Promise<Category> => {
     return fetchJson(`${API_BASE}/categories/${slug}`);
   },
@@ -80,7 +84,7 @@ export const categoriesApi = {
     return fetchJson(`${API_BASE}/categories/id/${id}`);
   },
 
-  /* ---------- CREATE (WITH IMAGE) ---------- */
+  /* ---------- CREATE ---------- */
 
   create: async (formData: FormData): Promise<Category> => {
     return fetchForm(`${API_BASE}/categories`, {
@@ -89,18 +93,18 @@ export const categoriesApi = {
     });
   },
 
-  /* ---------- UPDATE (WITH IMAGE) ---------- */
+  /* ---------- UPDATE ---------- */
 
-  update: async (
-    id: string,
-    formData: FormData
-  ): Promise<Category> => {
-    return fetchForm(`${API_BASE}/categories/${id}`, {
-      method: "PUT",
-      body: formData,
-    });
+  update: async (section: string, formData: FormData) => {
+    return fetchForm(
+      `${API_BASE}/content/homepage/${section}`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
   },
-
+  
   /* ---------- DELETE ---------- */
 
   delete: async (id: string): Promise<void> => {
@@ -238,5 +242,25 @@ export const enquiriesApi = {
 export const dashboardApi = {
   getStats: async (): Promise<DashboardStats> => {
     return fetchJson(`${API_BASE}/dashboard/stats`);
+  },
+};
+
+/* =====================================================
+   HOMEPAGE API
+===================================================== */
+
+export const homepageApi = {
+  getAll: async (): Promise<HomepageContent[]> => {
+    return fetchJson(`${API_BASE}/content/homepage`);
+  },
+
+  update: async (
+    section: string,
+    formData: FormData
+  ): Promise<HomepageContent> => {
+    return fetch(`${API_BASE}/content/homepage/${section}`, {
+      method: "PUT",
+      body: formData,
+    }).then(res => res.json());
   },
 };

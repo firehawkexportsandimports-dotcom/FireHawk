@@ -9,6 +9,8 @@ import { TestimonialCard } from '@/components/TestimonialCard';
 import { SectionHeader } from '@/components/SectionHeader';
 import { productsApi, categoriesApi, testimonialsApi, contentApi } from '@/services/api';
 import { Product, Category, Testimonial, HomepageContent } from '@/types';
+import { HighlightText } from '@/components/ui/HighlightText';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const features = [
   {
@@ -77,35 +79,74 @@ const origins = [
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [featuredCategories, setFeaturedCategories] = useState<Category[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [content, setContent] = useState<HomepageContent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const introContent = content.find(c => c.section === "intro");
+  const qualityContent = content.find(c => c.section === "quality");
+  const whyChooseContent = content.find(c => c.section === "why_choose");
+
+  const [loading, setLoading] = useState({
+    products: true,
+    categories: true,
+    testimonials: true,
+    content: true,
+  });
 
   useEffect(() => {
     async function fetchData() {
+      console.log("FETCH STARTED");
+      
       try {
-        const [products, cats, tests, homeContent] = await Promise.all([
-          productsApi.getFeatured(),
-          categoriesApi.getAll(),
-          testimonialsApi.getFeatured(),
-          contentApi.getHomepage(),
+        // Fetch all data in parallel
+        const [products, categories, tests, homeContent] = await Promise.all([
+          productsApi.getFeatured().catch(error => {
+            console.error("Error fetching products:", error);
+            return [];
+          }),
+          categoriesApi.getFeatured().catch(error => {
+            console.error("Error fetching categories:", error);
+            return [];
+          }),
+          testimonialsApi.getFeatured().catch(error => {
+            console.error("Error fetching testimonials:", error);
+            return [];
+          }),
+          contentApi.getHomepage().catch(error => {
+            console.error("Error fetching content:", error);
+            return [];
+          })
         ]);
-        setFeaturedProducts(products);
-        setCategories(cats);
-        setTestimonials(tests);
-        setContent(homeContent);
+
+        console.log("PRODUCTS:", products);
+        console.log("CATEGORIES:", categories);
+        console.log("TESTIMONIALS:", tests);
+        console.log("CONTENT:", homeContent);
+
+        setFeaturedProducts(products || []);
+        setFeaturedCategories(categories || []);
+        setTestimonials(tests || []);
+        setContent(homeContent || []);
+        
       } catch (error) {
-        console.error('Error fetching homepage data:', error);
+        console.error("Homepage fetch error:", error);
       } finally {
-        setLoading(false);
+        setLoading({
+          products: false,
+          categories: false,
+          testimonials: false,
+          content: false,
+        });
       }
     }
+
     fetchData();
   }, []);
 
   const heroContent = content.find(c => c.section === 'hero');
   const ctaContent = content.find(c => c.section === 'cta');
+
+  const isLoading = loading.products || loading.categories || loading.testimonials;
 
   return (
     <PublicLayout>
@@ -113,11 +154,14 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1920"
-            alt="Premium spices"
-            className="w-full h-full object-cover"
-          />
+        <img
+          src={
+            heroContent?.image ||
+            "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1920"
+          }
+          alt="Premium spices"
+          className="w-full h-full object-cover"
+        />
           {/* Dark gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/90 to-charcoal/60" />
           {/* Fire glow effect */}
@@ -136,8 +180,12 @@ export default function HomePage() {
 
             {/* Headline */}
             <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-6 animate-fade-in-up">
-              From the Heart of India,{' '}
-              <span className="text-gradient-fire">Forged in Fire</span>
+              <HighlightText
+                text={
+                  heroContent?.title ||
+                  "From the Heart of India, {Forged in Fire}"
+                }
+              />
             </h1>
 
             {/* Subheadline */}
@@ -189,9 +237,12 @@ export default function HomePage() {
         
         <div className="container relative z-10">
           <SectionHeader
-            subtitle="Our Process"
-            title="From Farm to Flame"
-            description="Every spice tells a story of tradition, quality, and passion — from the lush plantations of South India to your warehouse."
+            subtitle={introContent?.subtitle || "Our Process"}
+            title={introContent?.title || "From Farm to Flame"}
+            description={
+              introContent?.content ||
+              "Every spice tells a story of tradition, quality, and passion."
+            }
           />
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
@@ -243,10 +294,12 @@ export default function HomePage() {
         
         <div className="container relative z-10">
           <SectionHeader
-            subtitle="Our Sourcing Regions"
-            title="Spice Origins"
-            description="Two legendary regions, centuries of spice heritage"
-            className="text-white [&_p]:text-white/70 [&_.text-primary]:text-saffron"
+            subtitle={whyChooseContent?.subtitle || "Our Sourcing Regions"}
+            title={whyChooseContent?.title || "Spice Origins"}
+            description={
+              whyChooseContent?.content ||
+              "Two legendary regions, centuries of spice heritage"
+            }
           />
           
           <div className="grid md:grid-cols-2 gap-8 mt-12">
@@ -290,16 +343,39 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-warm relative">
         <div className="container">
           <SectionHeader
-            subtitle="Our Collection"
-            title="Featured Products"
-            description="Discover our most sought-after spices, handpicked for exceptional quality and authentic flavor"
+            subtitle={qualityContent?.subtitle || "Our Collection"}
+            title={qualityContent?.title || "Featured Products"}
+            description={
+              qualityContent?.content ||
+              "Discover our most sought-after spices"
+            }
           />
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.slice(0, 4).map((product, index) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading.products ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl shadow-soft overflow-hidden">
+                  <Skeleton className="h-48 w-full" />
+                  <div className="p-6">
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2 mb-4" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : featuredProducts.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.slice(0, 4).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No featured products available at the moment.</p>
+            </div>
+          )}
 
           <div className="text-center mt-12">
             <Button asChild variant="ember" size="lg">
@@ -312,7 +388,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Categories - FIXED THIS SECTION */}
       <section className="py-24 bg-sand">
         <div className="container">
           <SectionHeader
@@ -321,11 +397,30 @@ export default function HomePage() {
             description="Explore our diverse range of authentic South Indian spices"
           />
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
+          {loading.categories ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl shadow-soft overflow-hidden">
+                  <Skeleton className="h-48 w-full" />
+                  <div className="p-6">
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : featuredCategories.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredCategories.slice(0, 4).map((category) => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No categories available at the moment.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -335,13 +430,17 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Content */}
             <div>
-              <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">Why Firehawk</p>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
-                Export-Grade Quality,<br />
-                <span className="text-gradient-fire">Globally Trusted</span>
+              <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
+                {qualityContent?.subtitle || "Why Firehawk"}
+              </p>
+
+              <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
+                {qualityContent?.title || "Export-Grade Quality, Globally Trusted"}
               </h2>
-              <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                At Firehawk, quality isn't just a promise — it's our legacy. Every spice we export undergoes rigorous testing to meet the highest international standards.
+
+              <p className="text-muted-foreground text-lg mb-8">
+                {qualityContent?.content ||
+                  "At Firehawk, quality isn't just a promise — it's our legacy."}
               </p>
               
               <div className="grid grid-cols-2 gap-6">
@@ -388,11 +487,35 @@ export default function HomePage() {
             description="Trusted by leading spice importers and distributors across Europe"
           />
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-            ))}
-          </div>
+          {loading.testimonials ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl shadow-soft p-6">
+                  <Skeleton className="h-4 w-3/4 mb-4" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-2/3 mb-6" />
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-12 h-12 rounded-full" />
+                    <div>
+                      <Skeleton className="h-4 w-24 mb-2" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : testimonials.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.map((testimonial) => (
+                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No testimonials available at the moment.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -409,8 +532,14 @@ export default function HomePage() {
           </div>
           
           <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-            {ctaContent?.title || 'Ready to Source Premium Spices?'}
+            <HighlightText
+              text={
+                ctaContent?.title ||
+                "Ready to Source {Premium Spices?}"
+              }
+            />
           </h2>
+
           <p className="text-white/70 max-w-2xl mx-auto mb-10 text-lg">
             {ctaContent?.content || "Whether you're a distributor, manufacturer, or retailer, we offer flexible packaging and competitive pricing for bulk orders."}
           </p>

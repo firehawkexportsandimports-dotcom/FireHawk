@@ -1,91 +1,251 @@
-import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Edit, Image, Type } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { AdminLayout } from "@/components/layout/AdminLayout";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Edit, Image, Type, Save, X } from "lucide-react";
+import { homepageApi } from "@/services/api";
+import {
+  HomepageContent,
+  HomepageEditForm,
+  HomepageSection,
+} from "@/types";
 
-const sections = [
-  {
-    id: 'hero',
-    title: 'Hero Section',
-    description: 'Main banner with headline and call-to-action',
-    icon: Image,
-  },
-  {
-    id: 'intro',
-    title: 'Introduction',
-    description: 'Company introduction and value proposition',
-    icon: Type,
-  },
-  {
-    id: 'featured',
-    title: 'Featured Products',
-    description: 'Showcase your best spices',
-    icon: Image,
-  },
-  {
-    id: 'testimonials',
-    title: 'Testimonials',
-    description: 'Customer reviews and feedback',
-    icon: Type,
-  },
-  {
-    id: 'cta',
-    title: 'Call to Action',
-    description: 'Contact prompt section',
-    icon: Type,
-  },
+/* =========================================
+   HOMEPAGE SECTIONS
+========================================= */
+
+const sections: {
+  id: HomepageSection;
+  title: string;
+  icon: any;
+}[] = [
+  { id: "hero", title: "Hero Section", icon: Image },
+  { id: "intro", title: "Introduction", icon: Type },
+  { id: "quality", title: "Quality Section", icon: Type },
+  { id: "why_choose", title: "Why Choose Us", icon: Type },
+  { id: "cta", title: "CTA Section", icon: Type },
 ];
 
 export default function AdminHomepage() {
+  const [content, setContent] = useState<HomepageContent[]>([]);
+  const [editing, setEditing] = useState<HomepageEditForm | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  /* =========================================
+     LOAD HOMEPAGE CONTENT
+  ========================================= */
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await homepageApi.getAll();
+        setContent(data);
+      } catch (err) {
+        console.error("Homepage fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  /* =========================================
+     GET EXISTING SECTION DATA
+  ========================================= */
+
+  const getSectionData = (section: HomepageSection) =>
+    content.find((c) => c.section === section);
+
+  /* =========================================
+     SAVE SECTION
+  ========================================= */
+
+  const handleSave = async () => {
+    if (!editing) return;
+
+    try {
+      const formData = new FormData();
+
+      formData.append("title", editing.title || "");
+      formData.append("subtitle", editing.subtitle || "");
+      formData.append("content", editing.content || "");
+      formData.append("button_text", editing.button_text || "");
+      formData.append("button_link", editing.button_link || "");
+
+      if (editing.imageFile) {
+        formData.append("image", editing.imageFile);
+      }
+
+      const updated = await homepageApi.update(
+        editing.section,
+        formData
+      );
+
+      // update local state
+      setContent((prev) => {
+        const exists = prev.find(
+          (c) => c.section === updated.section
+        );
+
+        if (exists) {
+          return prev.map((c) =>
+            c.section === updated.section ? updated : c
+          );
+        }
+
+        return [...prev, updated];
+      });
+
+      setEditing(null);
+    } catch (error) {
+      console.error("Save failed:", error);
+    }
+  };
+
+  /* =========================================
+     UI
+  ========================================= */
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Homepage Content</h1>
-          <p className="text-muted-foreground mt-1">Manage your homepage sections and content</p>
-        </div>
+        <h1 className="text-2xl font-bold">
+          Homepage Content
+        </h1>
 
-        {/* Sections Grid */}
+        {/* SECTION CARDS */}
         <div className="grid md:grid-cols-2 gap-6">
-          {sections.map((section) => (
-            <Card key={section.id} className="border-border/50">
-              <CardHeader className="flex flex-row items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-hero flex items-center justify-center">
-                    <section.icon className="w-5 h-5 text-white" />
-                  </div>
+          {sections.map((section) => {
+            const data = getSectionData(section.id);
+
+            return (
+              <Card key={section.id}>
+                <CardHeader className="flex flex-row justify-between">
                   <div>
-                    <CardTitle className="font-display text-lg">{section.title}</CardTitle>
-                    <CardDescription>{section.description}</CardDescription>
+                    <CardTitle>{section.title}</CardTitle>
+                    <CardDescription>
+                      Edit homepage content
+                    </CardDescription>
                   </div>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
-              </CardHeader>
-            </Card>
-          ))}
+
+                  <Button
+                    variant="outline"
+                    disabled={loading}
+                    onClick={() =>
+                      setEditing({
+                        section: section.id,
+                        title: data?.title ?? "",
+                        subtitle: data?.subtitle ?? "",
+                        content: data?.content ?? "",
+                        image: data?.image ?? "",
+                        button_text: data?.button_text ?? "",
+                        button_link: data?.button_link ?? "",
+                      })
+                    }
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                </CardHeader>
+              </Card>
+            );
+          })}
         </div>
 
-        {/* Preview Note */}
-        <Card className="border-primary/30 bg-primary/5">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <Image className="w-5 h-5 text-primary-foreground" />
+        {/* =========================================
+           EDIT MODAL
+        ========================================= */}
+
+        {editing && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-xl space-y-4">
+              <h2 className="text-lg font-semibold">
+                Edit {editing.section}
+              </h2>
+
+              <Input
+                placeholder="Title"
+                value={editing.title || ""}
+                onChange={(e) =>
+                  setEditing({
+                    ...editing,
+                    title: e.target.value,
+                  })
+                }
+              />
+
+              <Input
+                placeholder="Subtitle"
+                value={editing.subtitle || ""}
+                onChange={(e) =>
+                  setEditing({
+                    ...editing,
+                    subtitle: e.target.value,
+                  })
+                }
+              />
+
+              <Textarea
+                placeholder="Content"
+                value={editing.content || ""}
+                onChange={(e) =>
+                  setEditing({
+                    ...editing,
+                    content: e.target.value,
+                  })
+                }
+              />
+
+              {/* IMAGE UPLOAD */}
+              <Input
+                type="file"
+                onChange={(e) =>
+                  setEditing({
+                    ...editing,
+                    imageFile: e.target.files?.[0],
+                  })
+                }
+              />
+
+              {/* OLD IMAGE PREVIEW */}
+              {editing.image && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Current Image
+                  </p>
+                  <img
+                    src={editing.image}
+                    alt="Current"
+                    className="w-full h-40 object-cover rounded-lg border"
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setEditing(null)}
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Cancel
+                </Button>
+
+                <Button onClick={handleSave}>
+                  <Save className="w-4 h-4 mr-1" />
+                  Save
+                </Button>
+              </div>
             </div>
-            <div>
-              <p className="font-medium text-foreground">Preview Changes</p>
-              <p className="text-sm text-muted-foreground">
-                Visit the homepage to see how your changes will appear to visitors.
-              </p>
-            </div>
-            <Button variant="outline" className="ml-auto">
-              View Homepage
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
