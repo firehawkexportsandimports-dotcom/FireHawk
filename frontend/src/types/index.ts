@@ -189,13 +189,6 @@ export interface Certification {
   sort_order: number;
 }
 
-export interface HomepageData {
-  sections: HomepageContent[];
-  features: Feature[];
-  journey: JourneyStep[];
-  origins: Origin[];
-  certifications: Certification[];
-}
 
 export interface HomepageResponse {
   sections: HomepageContent[];
@@ -203,6 +196,7 @@ export interface HomepageResponse {
   journey: JourneyStep[];
   origins: Origin[];
   certifications: Certification[];
+  testimonials: Testimonial[];
 }
 
 

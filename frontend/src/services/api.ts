@@ -16,7 +16,6 @@ import type {
   JourneyStep,
   Origin,
   Certification,
-  HomepageData,
 } from "@/types";
 
 /* =====================================================
@@ -144,19 +143,6 @@ export const productsApi = {
     }),
 };
 
-/* =====================================================
-   TESTIMONIALS
-===================================================== */
-
-export const testimonialsApi = {
-  getAll: () =>
-    fetchJson<Testimonial[]>(`${API_BASE}/testimonials`),
-
-  getFeatured: () =>
-    fetchJson<Testimonial[]>(
-      `${API_BASE}/testimonials/featured`
-    ),
-};
 
 /* =====================================================
    HOMEPAGE CONTENT (CMS)
@@ -164,7 +150,7 @@ export const testimonialsApi = {
 
 export const homepageApi = {
   /* ---------- GET FULL HOMEPAGE CMS DATA ---------- */
-  getAll: (): Promise<HomepageData> =>
+  getAll: (): Promise<HomepageResponse> =>
     fetchJson(`${API_BASE}/content/homepage`),
 
   /* ---------- UPDATE SECTION ---------- */
@@ -310,6 +296,38 @@ export const homepageApi = {
       }
     ),
 };
+
+  /* ---------- TESTIMONIALS ---------- */
+
+export const testimonialsApi = {
+  getAll: () =>
+    fetchJson<Testimonial[]>(`${API_BASE}/testimonials`),
+
+  getFeatured: () =>
+    fetchJson<Testimonial[]>(
+      `${API_BASE}/testimonials/featured`
+    ),
+
+  create: (data: Partial<Testimonial>) =>
+    fetchJson<Testimonial>(`${API_BASE}/testimonials`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: Partial<Testimonial>) =>
+    fetchJson<Testimonial>(`${API_BASE}/testimonials/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    fetchJson<void>(`${API_BASE}/testimonials/${id}`, {
+      method: "DELETE",
+    }),
+};
+
+
+
 
 /* =====================================================
    CONTENT API (ABOUT / CONTACT)

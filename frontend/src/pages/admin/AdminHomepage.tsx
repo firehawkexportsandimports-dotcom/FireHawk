@@ -33,7 +33,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
-import { homepageApi } from "@/services/api";
+import { homepageApi , testimonialsApi } from "@/services/api";
 import {
   HomepageContent,
   HomepageEditForm,
@@ -44,7 +44,9 @@ import {
   Origin,
   Certification,
   IconType,
+  Testimonial,
 } from "@/types";
+
 
 // All available icons
 const availableIcons: { value: IconType; label: string }[] = [
@@ -90,6 +92,9 @@ export default function AdminHomepage() {
   const [editingJourney, setEditingJourney] = useState<JourneyStepForm | null>(null);
   const [editingOrigin, setEditingOrigin] = useState<Origin | null>(null);
   const [editingCert, setEditingCert] = useState<Certification | null>(null);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [editingTestimonial, setEditingTestimonial] =  useState<Partial<Testimonial> | null>(null);
+
 
   const [loading, setLoading] = useState(true);
 
@@ -106,6 +111,7 @@ export default function AdminHomepage() {
       setJourney(data.journey || []);
       setOrigins(data.origins || []);
       setCertifications(data.certifications || []);
+      setTestimonials(data.testimonials || []);
     } catch (err) {
       console.error("Homepage fetch error:", err);
     } finally {
@@ -331,6 +337,50 @@ export default function AdminHomepage() {
       alert("Failed to delete certification. Please try again.");
     }
   };
+
+/* ===============================
+   TESTIMONIAL CRUD
+================================ */
+
+const handleSaveTestimonial = async () => {
+  if (!editingTestimonial) return;
+
+  try {
+    let updated;
+
+    if (editingTestimonial.id) {
+      updated = await testimonialsApi.update(
+        editingTestimonial.id,
+        editingTestimonial
+      );
+
+      setTestimonials((prev) =>
+        prev.map((t) => (t.id === updated.id ? updated : t))
+      );
+    } else {
+      const { id, ...data } = editingTestimonial;
+      updated = await testimonialsApi.create(data);
+      setTestimonials((prev) => [...prev, updated]);
+    }
+
+    setEditingTestimonial(null);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save testimonial");
+  }
+};
+
+const handleDeleteTestimonial = async (id: string) => {
+  try {
+    await testimonialsApi.delete(id);
+    setTestimonials((prev) => prev.filter((t) => t.id !== id));
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete testimonial");
+  }
+};
+
+
 
   if (loading) {
     return (
@@ -714,6 +764,75 @@ export default function AdminHomepage() {
           </CardContent>
         </Card>
 
+        {/* ===============================
+          TESTIMONIALS
+        ================================ */}
+
+        <Card>
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div>
+              <CardTitle>Testimonials</CardTitle>
+              <CardDescription>
+                Customer feedback and reviews
+              </CardDescription>
+            </div>
+
+            <Button
+              onClick={() =>
+                setEditingTestimonial({
+                  name: "",
+                  company: "",
+                  country: "",
+                  content: "",
+                  rating: 5,
+                  is_featured: false,
+                })
+              }
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add Testimonial
+            </Button>
+          </CardHeader>
+
+          <CardContent>
+            <div className="space-y-3">
+              {testimonials.map((t) => (
+                <div
+                  key={t.id}
+                  className="flex justify-between border rounded-lg p-4"
+                >
+                  <div>
+                    <p className="font-medium">{t.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t.company} • {t.country}
+                    </p>
+                    <p className="text-sm mt-1">{t.content}</p>
+                    <Badge className="mt-2">⭐ {t.rating}</Badge>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditingTestimonial(t)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteTestimonial(t.id!)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+
         {/* Edit Modals */}
         {/* Section Edit Modal */}
         {editingSection && (
@@ -1059,6 +1178,99 @@ export default function AdminHomepage() {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Testimonial Edit Modal */}
+        {editingTestimonial && (
+          <Dialog
+            open={!!editingTestimonial}
+            onOpenChange={() => setEditingTestimonial(null)}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingTestimonial.id ? "Edit" : "Add"} Testimonial
+                </DialogTitle>
+                <DialogDescription>
+                  Customer testimonial details
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <Input
+                  placeholder="Name"
+                  value={editingTestimonial.name}
+                  onChange={(e) =>
+                    setEditingTestimonial({
+                      ...editingTestimonial,
+                      name: e.target.value,
+                    })
+                  }
+                />
+
+                <Input
+                  placeholder="Company"
+                  value={editingTestimonial.company || ""}
+                  onChange={(e) =>
+                    setEditingTestimonial({
+                      ...editingTestimonial,
+                      company: e.target.value,
+                    })
+                  }
+                />
+
+                <Input
+                  placeholder="Country"
+                  value={editingTestimonial.country || ""}
+                  onChange={(e) =>
+                    setEditingTestimonial({
+                      ...editingTestimonial,
+                      country: e.target.value,
+                    })
+                  }
+                />
+
+                <Textarea
+                  placeholder="Testimonial content"
+                  value={editingTestimonial.content}
+                  onChange={(e) =>
+                    setEditingTestimonial({
+                      ...editingTestimonial,
+                      content: e.target.value,
+                    })
+                  }
+                />
+
+                <Input
+                  type="number"
+                  min={1}
+                  max={5}
+                  value={editingTestimonial.rating}
+                  onChange={(e) =>
+                    setEditingTestimonial({
+                      ...editingTestimonial,
+                      rating: Number(e.target.value),
+                    })
+                  }
+                />
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setEditingTestimonial(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveTestimonial}>
+                    <Save className="w-4 h-4 mr-1" />
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+
       </div>
     </AdminLayout>
   );

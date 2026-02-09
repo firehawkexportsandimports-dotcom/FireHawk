@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { homepageService } from "../services/homepage.service";
+import { testimonialService } from "../services/testimonial.service";
 
 /* =====================================================
    GET FULL HOMEPAGE DATA (PUBLIC + ADMIN)
@@ -12,12 +13,14 @@ export const getHomepage = async (_req: Request, res: Response) => {
       journey,
       origins,
       certifications,
+      testimonials,
     ] = await Promise.all([
       homepageService.getAllSections(),
       homepageService.getFeatures(),
       homepageService.getJourney(),
       homepageService.getOrigins(),
       homepageService.getCertifications(),
+      testimonialService.getFeatured(), 
     ]);
 
     res.json({
@@ -26,6 +29,7 @@ export const getHomepage = async (_req: Request, res: Response) => {
       journey,
       origins,
       certifications,
+      testimonials, 
     });
   } catch (error) {
     console.error(error);
@@ -34,6 +38,7 @@ export const getHomepage = async (_req: Request, res: Response) => {
     });
   }
 };
+
 
 /* =====================================================
    UPDATE SECTION (HERO / INTRO / QUALITY / CTA etc)
