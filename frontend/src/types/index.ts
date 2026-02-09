@@ -138,6 +138,11 @@ export interface Testimonial {
    HOMEPAGE CONTENT (CMS)
 ===================================================== */
 
+export type IconType = 
+  | 'Leaf' | 'Award' | 'Globe' | 'Shield' | 'Flame' 
+  | 'Package' | 'Truck' | 'CheckCircle' | 'MapPin' 
+  | 'Star' | 'Users' | 'Clock' | 'Trophy' | 'Heart'
+  | 'ShieldCheck' | 'Zap' | 'Coffee' | 'Spices' | 'Factory';
 export interface HomepageContent {
   id: string;
   section: HomepageSection;
@@ -151,6 +156,55 @@ export interface HomepageContent {
   is_active: boolean;
   updated_at: string;
 }
+
+export interface Feature {
+  id?: string;
+  title: string;
+  description: string;
+  icon: IconType;
+  sort_order: number;
+}
+
+export interface JourneyStep {
+  id?: string;
+  title: string;
+  description: string;
+  icon: IconType;
+  image: string;
+  sort_order: number;
+}
+
+export interface Origin {
+  id?: string;
+  name: string;
+  region: string;
+  description: string;
+  spices: string[]; // Array of spice names
+  sort_order: number;
+}
+
+export interface Certification {
+  id?: string;
+  name: string;
+  sort_order: number;
+}
+
+export interface HomepageData {
+  sections: HomepageContent[];
+  features: Feature[];
+  journey: JourneyStep[];
+  origins: Origin[];
+  certifications: Certification[];
+}
+
+export interface HomepageResponse {
+  sections: HomepageContent[];
+  features: Feature[];
+  journey: JourneyStep[];
+  origins: Origin[];
+  certifications: Certification[];
+}
+
 
 /* ---------- ADMIN EDIT FORM ---------- */
 
@@ -209,4 +263,22 @@ export interface DashboardStats {
   unread_enquiries: number;
   featured_products: number;
   recent_enquiries: Enquiry[];
+}
+
+
+// For form editing with file uploads
+export interface JourneyStepForm extends Omit<JourneyStep, 'id'> {
+  id?: string;
+  imageFile?: File;
+}
+
+export interface HomepageEditForm {
+  section: HomepageSection;
+  title?: string;
+  subtitle?: string;
+  content?: string;
+  image?: string;
+  imageFile?: File;
+  button_text?: string;
+  button_link?: string;
 }

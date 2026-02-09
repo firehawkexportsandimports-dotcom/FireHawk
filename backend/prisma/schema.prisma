@@ -219,6 +219,58 @@ model HomepageContent {
   @@map("homepage_content")
 }
 
+model HomepageFeature {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  sort_order  Int      @default(0)
+  is_active   Boolean  @default(true)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model HomepageJourney {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  image       String
+  icon        String
+  sort_order  Int      @default(0)
+  is_active   Boolean  @default(true)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model HomepageOrigin {
+  id          String   @id @default(cuid())
+  name        String
+  region      String
+  description String
+  spices      String[]   // postgres array
+  sort_order  Int      @default(0)
+  is_active   Boolean  @default(true)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+
+model HomepageCertification {
+  id          String   @id @default(cuid())
+  name        String
+  sort_order  Int      @default(0)
+  is_active   Boolean  @default(true)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+
+
+
 //
 // ======================
 // ABOUT CONTENT
