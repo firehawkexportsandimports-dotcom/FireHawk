@@ -110,6 +110,16 @@ export const deleteFeature = async (req: Request, res: Response) => {
   }
 };
 
+export const reorderFeature = async (req: Request, res: Response) => {
+  const id = String(req.params.id); 
+  const { direction } = req.body;
+
+  await homepageService.reorderFeature(id, direction);
+
+  res.json({ success: true });
+};
+
+
 /* =====================================================
    JOURNEY STEPS
 ===================================================== */
@@ -180,6 +190,24 @@ export const deleteJourney = async (req: Request, res: Response) => {
   }
 };
 
+export const reorderJourney = async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const { direction } = req.body;
+
+    const data = await homepageService.reorderJourney(
+      id,
+      direction
+    );
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to reorder journey" });
+  }
+};
+
+
 /* =====================================================
    ORIGINS
 ===================================================== */
@@ -215,6 +243,24 @@ export const deleteOrigin = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to delete origin" });
   }
 };
+
+export const reorderOrigin = async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const { direction } = req.body;
+
+    const data = await homepageService.reorderOrigin(
+      id,
+      direction
+    );
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to reorder origin" });
+  }
+};
+
 
 /* =====================================================
    CERTIFICATIONS
@@ -266,5 +312,22 @@ export const deleteCertification = async (
     res.status(500).json({
       message: "Failed to delete certification",
     });
+  }
+};
+
+export const reorderCertification = async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const { direction } = req.body;
+
+    const data = await homepageService.reorderCertification(
+      id,
+      direction
+    );
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to reorder certification" });
   }
 };

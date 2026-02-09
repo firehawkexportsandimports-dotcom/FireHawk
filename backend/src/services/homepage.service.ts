@@ -120,6 +120,7 @@ export const homepageService = {
     return this.getFeatures();
   },
 
+
   /* ======================================================
      JOURNEY STEPS (Farm → Processing → Packaging → Export)
   ====================================================== */

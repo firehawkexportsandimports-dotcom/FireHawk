@@ -14,6 +14,10 @@ import {
   createCertification,
   updateCertification,
   deleteCertification,
+  reorderFeature,
+  reorderJourney,
+  reorderOrigin,
+  reorderCertification,
 } from "../controllers/homepage.controller";
 
 import { upload } from "../middleware/upload";
@@ -52,7 +56,10 @@ router.put(
 router.post("/homepage/features", createFeature);
 router.put("/homepage/features/:id", updateFeature);
 router.delete("/homepage/features/:id", deleteFeature);
-
+router.patch("/homepage/features/:id/reorder", reorderFeature);
+router.patch("/homepage/journey/:id/reorder", reorderJourney);
+router.patch("/homepage/origins/:id/reorder", reorderOrigin);
+router.patch("/homepage/certifications/:id/reorder", reorderCertification);
 
 /* =====================================================
    JOURNEY STEPS (Farm → Export)
