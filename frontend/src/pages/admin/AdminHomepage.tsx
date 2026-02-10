@@ -76,6 +76,7 @@ const sections: { id: HomepageSection; title: string }[] = [
   { id: "intro", title: "Introduction" },
   { id: "quality", title: "Quality Section" },
   { id: "why_choose", title: "Why Choose Us" },
+  { id: "category_intro", title: "Category Section Header" },
   { id: "cta", title: "CTA Section" },
 ];
 

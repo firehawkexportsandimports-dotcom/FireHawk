@@ -19,6 +19,7 @@ export type HomepageSection =
   | 'intro'
   | 'quality'
   | 'why_choose'
+  | 'category_intro'
   | 'cta';
 
 /* ---------- ABOUT SECTIONS ---------- */

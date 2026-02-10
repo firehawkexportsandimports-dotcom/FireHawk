@@ -134,6 +134,7 @@ export default function HomePage() {
   const introContent = getSectionContent('intro');
   const qualityContent = getSectionContent('quality');
   const whyChooseContent = getSectionContent('why_choose');
+  const categoryIntroContent = getSectionContent('category_intro');
   const ctaContent = getSectionContent('cta');
 
   const isLoading = loading.products || loading.categories || loading.testimonials;
@@ -382,9 +383,18 @@ export default function HomePage() {
       <section className="py-24 bg-sand">
         <div className="container">
           <SectionHeader
-            subtitle="Browse by Category"
-            title="Spice Collections"
-            description="Explore our diverse range of authentic South Indian spices"
+            subtitle={
+              getContentValue(categoryIntroContent, 'subtitle') ||
+              "Browse by Category"
+            }
+            title={
+              getContentValue(categoryIntroContent, 'title') ||
+              "Spice Collections"
+            }
+            description={
+              getContentValue(categoryIntroContent, 'content') ||
+              "Explore our diverse range of authentic South Indian spices"
+            }
           />
           
           {loading.categories ? (
