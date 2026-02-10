@@ -82,8 +82,11 @@ const sections: {
 interface AboutEditForm {
   section: AboutSection;
   title?: string;
+  subtitle?: string;
+  badge?: string;
   content?: string;
   image?: string;
+  countries?: string[];
   imageFile?: File;
 }
 
@@ -96,6 +99,8 @@ export default function AdminAbout() {
   const [editingSection, setEditingSection] =
     useState<AboutEditForm | null>(null);
   const [loading, setLoading] = useState(true);
+  const [countryInput, setCountryInput] = useState("");
+
 
   /* ===============================
      LOAD DATA
@@ -129,7 +134,12 @@ export default function AdminAbout() {
     try {
       const formData = new FormData();
       formData.append("title", editingSection.title || "");
+      formData.append("badge", editingSection.badge || "");
+      formData.append("subtitle", editingSection.subtitle || "");
       formData.append("content", editingSection.content || "");
+      formData.append("countries", JSON.stringify(editingSection.countries || []));
+
+
 
       if (editingSection.imageFile) {
         formData.append("image", editingSection.imageFile);
@@ -222,8 +232,11 @@ export default function AdminAbout() {
                       setEditingSection({
                         section: section.id,
                         title: data?.title || "",
+                        subtitle: data?.subtitle || "",
+                        badge: data?.badge || "",
                         content: data?.content || "",
                         image: data?.image || "",
+                        countries: data?.countries || [],
                       })
                     }
                   >
@@ -283,8 +296,96 @@ export default function AdminAbout() {
                   />
                 </div>
 
+                {/* EXPORT COUNTRIES (ONLY USED FOR EXPORT SECTION) */}
+                {editingSection.section === "export" && (
+                  <div>
+                    <p className="text-sm font-medium mb-2">
+                      Export Countries
+                    </p>
+
+                    {/* COUNTRY TAGS */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {(editingSection.countries || []).map((country, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border text-sm"
+                        >
+                          <span>{country}</span>
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-red-500"
+                            onClick={() =>
+                              setEditingSection({
+                                ...editingSection,
+                                countries: editingSection.countries?.filter(
+                                  (_, i) => i !== index
+                                ),
+                              })
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* INPUT */}
+                    <Input
+                      placeholder="Type country and press Enter"
+                      value={countryInput}
+                      onChange={(e) => setCountryInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+
+                          if (!countryInput.trim()) return;
+
+                          setEditingSection({
+                            ...editingSection,
+                            countries: [
+                              ...(editingSection.countries || []),
+                              countryInput.trim(),
+                            ],
+                          });
+
+                          setCountryInput("");
+                        }
+                      }}
+                    />
+
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Press Enter to add country
+                    </p>
+                  </div>
+                )}
+
+
+
                 <div>
                   <p className="text-sm font-medium mb-1">Image</p>
+
+                  <Input
+                    placeholder="Badge"
+                    value={editingSection.badge || ""}
+                    onChange={(e) =>
+                      setEditingSection({
+                        ...editingSection,
+                        badge: e.target.value,
+                      })
+                    }
+                  />
+
+                  <Input
+                    placeholder="Subtitle"
+                    value={editingSection.subtitle || ""}
+                    onChange={(e) =>
+                      setEditingSection({
+                        ...editingSection,
+                        subtitle: e.target.value,
+                      })
+                    }
+                  />
+
                   <Input
                     type="file"
                     accept="image/*"

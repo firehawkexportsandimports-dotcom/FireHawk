@@ -16,23 +16,32 @@ class AboutService {
   async upsert(
     section: string,
     data: {
-      title?: string;
-      content?: string;
-      image?: string;
+        title?: string;
+        subtitle?: string;
+        badge?: string;
+        content?: string;
+        image?: string;
+        countries?: string[];
     }
   ) {
     return prisma.aboutContent.upsert({
       where: { section: section as any },
       update: {
         title: data.title,
+        subtitle: data.subtitle,
+        badge: data.badge,
         content: data.content,
         image: data.image,
+        countries: data.countries,
       },
       create: {
         section: section as any,
         title: data.title,
+        subtitle: data.subtitle,
+        badge: data.badge,
         content: data.content,
         image: data.image,
+        countries: data.countries,
       },
     });
   }

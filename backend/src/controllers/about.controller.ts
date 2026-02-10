@@ -22,9 +22,15 @@ export const updateAboutSection = async (
     const { section } = req.params as { section: string };
 
     const updated = await aboutService.upsert(section, {
-      title: req.body.title,
-      content: req.body.content,
-      image: req.file?.path || req.body.image,
+        title: req.body.title,
+        subtitle: req.body.subtitle,
+        badge: req.body.badge,
+        content: req.body.content,
+        image: req.file?.path || req.body.image,
+        countries: req.body.countries
+            ? JSON.parse(req.body.countries)
+            : [],
+
     });
 
     res.json(updated);

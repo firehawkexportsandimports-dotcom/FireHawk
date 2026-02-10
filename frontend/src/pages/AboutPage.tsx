@@ -60,6 +60,32 @@ export default function AboutPage() {
   const visionContent = getSection("vision");
   const exportContent = getSection("export");
 
+  const Badge = ({ text }: { text?: string }) => {
+    if (!text) return null;
+
+    return (
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
+        <Flame className="w-4 h-4 text-saffron" />
+        <span className="text-sm font-medium text-saffron">
+          {text}
+        </span>
+      </div>
+    );
+  };
+
+  const Subtitle = ({ text }: { text?: string }) => {
+    if (!text) return null;
+
+    return (
+      <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
+        {text}
+      </p>
+    );
+  };
+
+
+  
+
   return (
     <PublicLayout>
       {/* =====================================================
@@ -81,12 +107,14 @@ export default function AboutPage() {
 
         <div className="container relative z-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
-              <Flame className="w-4 h-4 text-saffron" />
-              <span className="text-sm font-medium text-saffron">
-                Our Story
-              </span>
-            </div>
+            {heroContent?.badge && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
+                <Flame className="w-4 h-4 text-saffron" />
+                <span className="text-sm font-medium text-saffron">
+                  {heroContent.badge}
+                </span>
+              </div>
+            )}
 
             <h1 className="font-display text-5xl md:text-6xl font-bold text-white mb-6">
               <HighlightText
@@ -131,9 +159,8 @@ export default function AboutPage() {
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
-                Our Journey
-              </p>
+              <Subtitle text={storyContent?.badge || "Our Journey"} />
+
 
               <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
                 <HighlightText
@@ -178,7 +205,7 @@ export default function AboutPage() {
             />
 
             <div>
-              <p className="text-sm font-semibold text-saffron uppercase tracking-wider mb-3">Rich Heritage</p>
+              <Badge text={heritageContent?.badge || "Rich Heritage"} />
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
                 <HighlightText
                   text={
@@ -202,7 +229,8 @@ export default function AboutPage() {
       <section className="py-24 bg-gradient-warm">
         <div className="container grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">Our Process</p>
+            <Subtitle text={sourcingContent?.badge || "Our Process"} />  
+
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
               {sourcingContent?.title || "Sourcing & Quality"}
             </h2>
@@ -281,7 +309,7 @@ export default function AboutPage() {
           />
 
           <div className="order-1 lg:order-2">
-            <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">Worldwide Reach</p>
+            <Subtitle text={exportContent?.badge || "Worldwide Reach"} />
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
               {exportContent?.title || 'Global Presence'}
             </h2>
@@ -289,14 +317,19 @@ export default function AboutPage() {
               {exportContent?.content || "Firehawk exports to over 15 countries across Europe, Middle East, and North America. Our logistics partners ensure timely delivery with proper documentation for seamless customs clearance."}
             </p>
             <div className="flex flex-wrap gap-3">
-              {['Germany', 'France', 'UK', 'Sweden', 'Netherlands', 'USA', 'UAE', 'Canada'].map((country) => (
-                <span 
-                  key={country}
-                  className="px-4 py-2 bg-white text-sm font-medium text-foreground rounded-full border border-border/50 shadow-sm"
-                >
-                  {country}
-                </span>
-              ))}
+              <div className="flex flex-wrap gap-3">
+                {(exportContent?.countries?.length
+                  ? exportContent.countries
+                  : ['Germany', 'France', 'UK', 'USA']
+                ).map((country) => (
+                  <span
+                    key={country}
+                    className="px-4 py-2 bg-white text-sm font-medium text-foreground rounded-full border border-border/50 shadow-sm"
+                  >
+                    {country}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>

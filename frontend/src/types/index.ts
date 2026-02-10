@@ -226,8 +226,11 @@ export interface AboutContent {
   id: string;
   section: AboutSection;
   title?: string;
+  subtitle?: string;
+  badge?: string;
   content?: string;
   image?: string;
+  countries?: string[];
   order: number;
   updated_at: string;
 }

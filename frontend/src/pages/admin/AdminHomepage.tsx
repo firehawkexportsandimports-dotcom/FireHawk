@@ -131,11 +131,15 @@ export default function AdminHomepage() {
     try {
       const formData = new FormData();
       formData.append("title", editingSection.title || "");
-      formData.append("badge", editingSection.badge || "");
       formData.append("subtitle", editingSection.subtitle || "");
       formData.append("content", editingSection.content || "");
       formData.append("button_text", editingSection.button_text || "");
       formData.append("button_link", editingSection.button_link || "");
+
+      // Only add badge for hero and cta sections
+      if (editingSection.section === "hero" || editingSection.section === "cta") {
+        formData.append("badge", editingSection.badge || "");
+      }
 
       if (editingSection.imageFile) {
         formData.append("image", editingSection.imageFile);
@@ -414,6 +418,7 @@ const handleDeleteTestimonial = async (id: string) => {
             <div className="grid md:grid-cols-2 gap-4">
               {sections.map((section) => {
                 const data = getSectionData(section.id);
+                const showBadge = section.id === "hero" || section.id === "cta";
                 return (
                   <div key={section.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
@@ -422,6 +427,11 @@ const handleDeleteTestimonial = async (id: string) => {
                         <p className="text-sm text-muted-foreground">
                           {data?.title || "No content yet"}
                         </p>
+                        {showBadge && data?.badge && (
+                          <p className="text-xs text-blue-600 mt-1">
+                            Badge: {data.badge}
+                          </p>
+                        )}
                       </div>
                       <Button
                         size="sm"
@@ -858,19 +868,24 @@ const handleDeleteTestimonial = async (id: string) => {
                     }
                   />
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Badge</p>
-                  <Input
-                    placeholder="Small label above title (e.g. Premium Spice Exporters)"
-                    value={editingSection.badge || ""}
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        badge: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                
+                {/* Only show badge field for hero and cta sections */}
+                {(editingSection.section === "hero" || editingSection.section === "cta") && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Badge</p>
+                    <Input
+                      placeholder="Small label above title (e.g. Premium Spice Exporters)"
+                      value={editingSection.badge || ""}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          badge: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Subtitle</p>
                   <Input

@@ -174,8 +174,11 @@ model AboutContent {
   id         String       @id @default(uuid())
   section    AboutSection @unique
   title      String?
+  subtitle   String?   
+  badge      String? 
   content    String?
   image      String?
+  countries  String[] 
   sort_order Int          @default(0)
   updated_at DateTime     @updatedAt
 
