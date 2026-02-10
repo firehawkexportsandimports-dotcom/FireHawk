@@ -47,23 +47,22 @@ export const updateSection = async (req: Request, res: Response) => {
   try {
     const section = req.params.section as string;
 
+    const body = req.body || {};
+
     const data: any = {
-      title: req.body.title,
-      subtitle: req.body.subtitle,
-      content: req.body.content,
-      button_text: req.body.button_text,
-      button_link: req.body.button_link,
+      title: body.title ?? null,
+      badge: body.badge ?? null,
+      subtitle: body.subtitle ?? null,
+      content: body.content ?? null,
+      button_text: body.button_text ?? null,
+      button_link: body.button_link ?? null,
     };
 
-    // Cloudinary image
     if ((req as any).file) {
       data.image = (req as any).file.path;
     }
 
-    const updated = await homepageService.upsertSection(
-      section,
-      data
-    );
+    const updated = await homepageService.upsertSection(section, data);
 
     res.json(updated);
   } catch (error) {
@@ -73,6 +72,7 @@ export const updateSection = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 /* =====================================================
    FEATURES

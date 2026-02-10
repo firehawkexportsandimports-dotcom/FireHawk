@@ -25,6 +25,7 @@ export type HomepageSection =
 /* ---------- ABOUT SECTIONS ---------- */
 
 export type AboutSection =
+  | 'hero'
   | 'story'
   | 'heritage'
   | 'sourcing'
@@ -149,6 +150,7 @@ export interface HomepageContent {
   section: HomepageSection;
   title?: string;
   subtitle?: string;
+  badge?: string;
   content?: string;
   image?: string;
   button_text?: string;
@@ -207,6 +209,7 @@ export interface HomepageEditForm {
   section: HomepageSection;
   title?: string;
   subtitle?: string;
+  badge?: string;
   content?: string;
   image?: string;
   button_text?: string;

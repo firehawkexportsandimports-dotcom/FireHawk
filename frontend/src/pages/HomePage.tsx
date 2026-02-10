@@ -106,6 +106,8 @@ export default function HomePage() {
         ]);
 
         console.log("PRODUCTS:", products);
+        console.log("CTA FOUND:", ctaContent);
+
         console.log("CATEGORIES:", categories);
         console.log("TESTIMONIALS:", tests);
         console.log("HOMEPAGE DATA:", homeContent);
@@ -156,10 +158,14 @@ export default function HomePage() {
 
         <div className="container relative z-10 py-20">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6 animate-fade-in">
-              <Flame className="w-4 h-4 text-saffron" />
-              <span className="text-sm font-medium text-saffron">Premium Spice Exporters</span>
-            </div>
+            {getContentValue(heroContent, "badge") && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6 animate-fade-in">
+                <Flame className="w-4 h-4 text-saffron" />
+                <span className="text-sm font-medium text-saffron">
+                  {getContentValue(heroContent, "badge")}
+                </span>
+              </div>
+            )}
 
             <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-6 animate-fade-in-up">
               <HighlightText
@@ -168,7 +174,8 @@ export default function HomePage() {
             </h1>
 
             <p className="text-xl text-white/80 mb-8 leading-relaxed max-w-2xl animate-fade-in-up delay-100">
-              {getContentValue(heroContent, 'subtitle') || 'Premium spices sourced from Kerala & Karnataka, delivered to European and global markets with uncompromising quality.'}
+              {getContentValue(heroContent, 'content') ||
+              'Premium spices sourced from Kerala & Karnataka, delivered to European and global markets with uncompromising quality.'}
             </p>
 
             <div className="flex flex-wrap gap-4 animate-fade-in-up delay-200">
@@ -280,8 +287,16 @@ export default function HomePage() {
         <div className="container relative z-10">
           <SectionHeader
             subtitle={getContentValue(whyChooseContent, 'subtitle') || "Our Sourcing Regions"}
-            title={getContentValue(whyChooseContent, 'title') || "Spice Origins"}
-            description={getContentValue(whyChooseContent, 'content') || "Two legendary regions, centuries of spice heritage"}
+            subtitleVariant="badge"
+            title={
+              getContentValue(whyChooseContent, 'title') ||
+              "Spice Origins from {Kerala & Karnataka}"
+            }
+            titleClassName='text-white'
+            description={
+              getContentValue(whyChooseContent, 'content') ||
+              "Two legendary regions, centuries of spice heritage"
+            }
           />
           
           {loading.content ? (
@@ -551,10 +566,14 @@ export default function HomePage() {
         <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-saffron/15 rounded-full blur-[100px]" />
         
         <div className="container relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
-            <Flame className="w-4 h-4 text-saffron" />
-            <span className="text-sm font-medium text-saffron">Partner With Us</span>
-          </div>
+          {getContentValue(ctaContent, "badge") && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
+              <Flame className="w-4 h-4 text-saffron" />
+              <span className="text-sm font-medium text-saffron">
+                {getContentValue(ctaContent, "badge")}
+              </span>
+            </div>
+          )}
           
           <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
             <HighlightText

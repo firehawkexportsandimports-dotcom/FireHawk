@@ -334,11 +334,26 @@ export const testimonialsApi = {
 ===================================================== */
 
 export const contentApi = {
+  /* ---------- HOMEPAGE ---------- */
   getHomepage: () => homepageApi.getAll(),
 
+  /* ---------- ABOUT ---------- */
   getAbout: () =>
     fetchJson<AboutContent[]>(`${API_BASE}/content/about`),
 
+  updateAboutSection: (
+    section: string,
+    formData: FormData
+  ) =>
+    fetchForm<AboutContent>(
+      `${API_BASE}/content/about/${section}`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    ),
+
+  /* ---------- CONTACT ---------- */
   getContact: () =>
     fetchJson<ContactInfo>(`${API_BASE}/content/contact`),
 };

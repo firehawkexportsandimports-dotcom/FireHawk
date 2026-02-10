@@ -12,11 +12,20 @@ export const homepageService = {
   ====================================================== */
 
   async getAllSections() {
-    return prisma.homepageContent.findMany({
+    const sections = await prisma.homepageContent.findMany({
       where: { is_active: true },
       orderBy: { sort_order: "asc" },
     });
+
+    return sections.map(section => ({
+      ...section,
+      badge: section.badge || "",
+      subtitle: section.subtitle || "",
+      title: section.title || "",
+      content: section.content || "",
+    }));
   },
+
 
   async getBySection(section: string) {
     return prisma.homepageContent.findUnique({

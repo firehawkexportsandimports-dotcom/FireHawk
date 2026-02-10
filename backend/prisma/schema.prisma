@@ -114,6 +114,7 @@ model HomepageContent {
   section     HomepageSection @unique
   title       String?
   subtitle    String?
+  badge       String? 
   content     String?
   image       String?
   button_text String?
@@ -221,6 +222,7 @@ enum HomepageSection {
 }
 
 enum AboutSection {
+  hero
   story
   heritage
   sourcing

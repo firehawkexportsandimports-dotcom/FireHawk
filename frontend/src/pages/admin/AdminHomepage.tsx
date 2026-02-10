@@ -131,6 +131,7 @@ export default function AdminHomepage() {
     try {
       const formData = new FormData();
       formData.append("title", editingSection.title || "");
+      formData.append("badge", editingSection.badge || "");
       formData.append("subtitle", editingSection.subtitle || "");
       formData.append("content", editingSection.content || "");
       formData.append("button_text", editingSection.button_text || "");
@@ -428,6 +429,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           setEditingSection({
                             section: section.id,
                             title: data?.title || "",
+                            badge: data?.badge || "",
                             subtitle: data?.subtitle || "",
                             content: data?.content || "",
                             image: data?.image || "",
@@ -853,6 +855,19 @@ const handleDeleteTestimonial = async (id: string) => {
                     value={editingSection.title || ""}
                     onChange={(e) =>
                       setEditingSection({ ...editingSection, title: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Badge</p>
+                  <Input
+                    placeholder="Small label above title (e.g. Premium Spice Exporters)"
+                    value={editingSection.badge || ""}
+                    onChange={(e) =>
+                      setEditingSection({
+                        ...editingSection,
+                        badge: e.target.value,
+                      })
                     }
                   />
                 </div>

@@ -5,8 +5,10 @@ import { HighlightText } from "@/components/ui/HighlightText";
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
+  subtitleVariant?: "default" | "badge";
   description?: string;
   align?: "left" | "center";
+  titleClassName?: string;
   className?: string;
   children?: ReactNode;
 }
@@ -15,7 +17,9 @@ export function SectionHeader({
   title,
   subtitle,
   description,
+  subtitleVariant = "default",
   align = "center",
+  titleClassName,
   className,
   children,
 }: SectionHeaderProps) {
@@ -27,15 +31,33 @@ export function SectionHeader({
         className
       )}
     >
-      {/* Subtitle */}
-      {subtitle && (
-        <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
+  {/* Subtitle */}
+  {subtitle && (
+    subtitleVariant === "badge" ? (
+      <div
+        className={cn(
+          "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6",
+          align === "center" && "mx-auto"
+        )}
+      >
+        <span className="text-sm font-medium text-saffron">
           {subtitle}
-        </p>
-      )}
+        </span>
+      </div>
+    ) : (
+      <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
+        {subtitle}
+      </p>
+    )
+  )}
 
       {/* Title with Highlight Support */}
-      <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+      <h2
+        className={cn(
+          "font-display text-3xl md:text-4xl lg:text-5xl font-bold",
+          titleClassName || "text-foreground"
+        )}
+      >
         <HighlightText text={title} />
       </h2>
 
