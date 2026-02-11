@@ -55,6 +55,21 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     navigate("/login", { replace: true });
   };
+  const storedUser = localStorage.getItem("user");
+
+  const currentUser = storedUser
+    ? JSON.parse(storedUser)
+    : null;
+
+  const displayName =
+    currentUser?.name ||
+    currentUser?.email?.split("@")[0] ||
+    "Admin";
+
+  const roleLabel =
+    currentUser?.role?.replace("_", " ") || "Administrator";
+
+
 
   return (
     <div className="min-h-screen flex bg-sand">
@@ -122,13 +137,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Footer */}
         <div className="p-4 border-t border-charcoal-light/50 space-y-1">
           <Link
-            to="/admin/settings"
-            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/60 hover:text-white hover:bg-charcoal-light rounded-xl transition-colors"
-          >
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </Link>
-          <Link
             to="/"
             className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/60 hover:text-white hover:bg-charcoal-light rounded-xl transition-colors"
           >
@@ -157,11 +165,22 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </h1>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-medium text-foreground">Rahul Kumar</p>
-              <p className="text-xs text-muted-foreground">Administrator</p>
+              <p className="text-sm font-medium text-foreground capitalize">
+                {displayName}
+              </p>
+              <p className="text-xs text-muted-foreground capitalize">
+                {roleLabel}
+              </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ember to-saffron flex items-center justify-center shadow-md">
-              <span className="text-white font-semibold text-sm">RK</span>
+              <span className="text-white font-semibold text-sm">
+                {displayName
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </span>
             </div>
           </div>
         </header>

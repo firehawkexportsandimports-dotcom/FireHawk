@@ -426,7 +426,7 @@ export const enquiriesApi = {
 export const dashboardApi = {
   getStats: () =>
     fetchJson<DashboardStats>(
-      `${API_BASE}/dashboard/stats`
+      `${API_BASE}/dashboard`
     ),
 };
 

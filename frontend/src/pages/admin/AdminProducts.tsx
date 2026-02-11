@@ -38,9 +38,7 @@ export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [open, setOpen] = useState(false);
-
-  const [editingProduct, setEditingProduct] =
-    useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const [images, setImages] = useState<File[]>([]);
   const [packagingInput, setPackagingInput] = useState("");
@@ -65,6 +63,7 @@ export default function AdminProducts() {
       productsApi.getAll(),
       categoriesApi.getAll(),
     ]);
+
     setProducts(prods);
     setCategories(cats);
   };
@@ -126,13 +125,9 @@ export default function AdminProducts() {
         fd.append(key, String(value));
       });
 
-      form.packaging.forEach((p) =>
-        fd.append("packaging", p)
-      );
+      form.packaging.forEach((p) => fd.append("packaging", p));
 
-      images.forEach((img) =>
-        fd.append("images", img)
-      );
+      images.forEach((img) => fd.append("images", img));
 
       if (editingProduct) {
         await productsApi.update(editingProduct.id, fd);
@@ -151,7 +146,7 @@ export default function AdminProducts() {
   /* ================= DELETE ================= */
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete product?")) return;
+    if (!confirm("Delete this product?")) return;
     await productsApi.delete(id);
     fetchData();
   };
@@ -161,10 +156,13 @@ export default function AdminProducts() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-
         {/* HEADER */}
-        <div className="flex justify-between">
-          <h1 className="text-2xl font-bold">Products</h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-display font-bold">Products</h1>
+            <p className="text-muted-foreground">Manage your spice catalog</p>
+          </div>
+
           <Button onClick={openCreate}>
             <Plus className="w-4 h-4 mr-2" />
             Add Product
@@ -172,88 +170,133 @@ export default function AdminProducts() {
         </div>
 
         {/* TABLE */}
-        <Card>
+        <Card className="rounded-2xl shadow-soft">
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Product</TableHead>
                   <TableHead>Origin</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead />
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {products.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell>{p.name}</TableCell>
-                    <TableCell>{p.origin}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {p.images?.[0] ? (
+                          <img
+                            src={p.images[0].url}
+                            alt={p.name}
+                            className="w-12 h-12 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                            <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                        )}
 
-                    <TableCell className="flex gap-2">
-                      {p.is_featured && (
-                        <Badge>
-                          <Star className="w-3 h-3 mr-1" />
-                          Featured
-                        </Badge>
-                      )}
-                      {p.is_export_ready && (
-                        <Badge>
-                          <Globe className="w-3 h-3 mr-1" />
-                          Export
-                        </Badge>
-                      )}
+                        <div>
+                          <p className="font-medium">{p.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {p.slug}
+                          </p>
+                        </div>
+                      </div>
                     </TableCell>
 
-                    <TableCell className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        onClick={() => openEdit(p)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
+                    <TableCell>{p.origin || "-"}</TableCell>
 
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleDelete(p.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {p.is_featured && (
+                          <Badge>
+                            <Star className="w-3 h-3 mr-1" />
+                            Featured
+                          </Badge>
+                        )}
+                        {p.is_export_ready && (
+                          <Badge variant="secondary">
+                            <Globe className="w-3 h-3 mr-1" />
+                            Export Ready
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => openEdit(p)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDelete(p.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
+
+                {products.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      No products created yet
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
 
-        {/* DIALOG */}
+        {/* PRODUCT DIALOG */}
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingProduct
-                  ? "Edit Product"
-                  : "Add Product"}
+                {editingProduct ? "Edit Product" : "Add Product"}
               </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-5">
-
-              {/* BASIC */}
               <Input
                 placeholder="Product Name"
                 value={form.name}
-                onChange={(e) =>
-                  setForm({ ...form, name: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
 
               <Input
                 placeholder="Slug"
                 value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              />
+
+              <Input
+                placeholder="Origin"
+                value={form.origin}
+                onChange={(e) => setForm({ ...form, origin: e.target.value })}
+              />
+
+              <Input
+                placeholder="Price Range (e.g., $10 - $50)"
+                value={form.price_range}
                 onChange={(e) =>
-                  setForm({ ...form, slug: e.target.value })
+                  setForm({ ...form, price_range: e.target.value })
                 }
               />
 
@@ -269,7 +312,7 @@ export default function AdminProducts() {
               />
 
               <Textarea
-                placeholder="Description"
+                placeholder="Full Description"
                 value={form.description}
                 onChange={(e) =>
                   setForm({
@@ -281,7 +324,7 @@ export default function AdminProducts() {
 
               {/* CATEGORY */}
               <select
-                className="w-full border rounded-lg p-2"
+                className="w-full border rounded-lg p-2 bg-background"
                 value={form.category_id}
                 onChange={(e) =>
                   setForm({
@@ -300,23 +343,21 @@ export default function AdminProducts() {
 
               {/* PACKAGING */}
               <div className="space-y-2">
+                <label className="text-sm font-medium">Packaging Options</label>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Add packaging"
+                    placeholder="Add packaging (e.g., 500g, 1kg)"
                     value={packagingInput}
-                    onChange={(e) =>
-                      setPackagingInput(e.target.value)
-                    }
+                    onChange={(e) => setPackagingInput(e.target.value)}
                   />
                   <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => {
-                      if (!packagingInput) return;
+                      if (!packagingInput.trim()) return;
                       setForm({
                         ...form,
-                        packaging: [
-                          ...form.packaging,
-                          packagingInput,
-                        ],
+                        packaging: [...form.packaging, packagingInput.trim()],
                       });
                       setPackagingInput("");
                     }}
@@ -325,19 +366,16 @@ export default function AdminProducts() {
                   </Button>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {form.packaging.map((p, i) => (
-                    <Badge key={i} className="flex gap-1">
+                    <Badge key={i} variant="secondary" className="flex gap-1">
                       {p}
                       <X
-                        className="w-3 h-3 cursor-pointer"
+                        className="w-3 h-3 cursor-pointer hover:text-destructive"
                         onClick={() =>
                           setForm({
                             ...form,
-                            packaging:
-                              form.packaging.filter(
-                                (_, idx) => idx !== i
-                              ),
+                            packaging: form.packaging.filter((_, idx) => idx !== i),
                           })
                         }
                       />
@@ -349,15 +387,14 @@ export default function AdminProducts() {
               {/* EXISTING IMAGES */}
               {editingProduct?.images?.length > 0 && (
                 <div>
-                  <p className="font-medium mb-2">
-                    Existing Images
-                  </p>
+                  <p className="font-medium mb-2">Existing Images</p>
                   <div className="grid grid-cols-4 gap-2">
                     {editingProduct.images.map((img) => (
                       <img
                         key={img.id}
                         src={img.url}
-                        className="h-20 rounded-lg object-cover"
+                        alt="Product"
+                        className="h-20 w-full rounded-lg object-cover"
                       />
                     ))}
                   </div>
@@ -365,20 +402,23 @@ export default function AdminProducts() {
               )}
 
               {/* NEW IMAGES */}
-              <Input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(e) =>
-                  setImages(
-                    Array.from(e.target.files || [])
-                  )
-                }
-              />
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Add New Images
+                </label>
+                <Input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) =>
+                    setImages(Array.from(e.target.files || []))
+                  }
+                />
+              </div>
 
               {/* FLAGS */}
               <div className="flex gap-6">
-                <label className="flex gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.is_featured}
@@ -388,11 +428,12 @@ export default function AdminProducts() {
                         is_featured: e.target.checked,
                       })
                     }
+                    className="w-4 h-4"
                   />
-                  Featured
+                  <span className="text-sm">Featured Product</span>
                 </label>
 
-                <label className="flex gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.is_export_ready}
@@ -402,21 +443,23 @@ export default function AdminProducts() {
                         is_export_ready: e.target.checked,
                       })
                     }
+                    className="w-4 h-4"
                   />
-                  Export Ready
+                  <span className="text-sm">Export Ready</span>
                 </label>
               </div>
 
-              <Button onClick={handleSubmit}>
-                {editingProduct
-                  ? "Update Product"
-                  : "Create Product"}
-              </Button>
-
+              <div className="flex gap-3 pt-4">
+                <Button onClick={handleSubmit} className="flex-1">
+                  {editingProduct ? "Update Product" : "Create Product"}
+                </Button>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
-
       </div>
     </AdminLayout>
   );

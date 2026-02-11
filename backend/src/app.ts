@@ -11,6 +11,8 @@ import contactRoutes from "./routes/contact.routes";
 import enquiryRoutes from "./routes/enquiry.routes";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
+
 const app = express();
 
 // ✅ MUST BE FIRST
@@ -29,6 +31,7 @@ app.use("/api/content/contact", contactRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/", (_, res) => {
   res.send("Firehawk Backend Running");

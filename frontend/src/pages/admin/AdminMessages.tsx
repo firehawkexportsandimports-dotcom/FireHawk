@@ -167,7 +167,23 @@ export default function AdminMessages() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setSelectedEnquiry(enquiry)}>
+                                <DropdownMenuItem 
+                                  onClick={async () => {
+                                    setSelectedEnquiry(enquiry);
+
+                                    if (enquiry.status === "unread") {
+                                      await enquiriesApi.markAsRead(enquiry.id);
+
+                                      setEnquiries(prev =>
+                                        prev.map(e =>
+                                          e.id === enquiry.id
+                                            ? { ...e, status: "read" }
+                                            : e
+                                        )
+                                      );
+                                    }
+                                  }}
+                                  >
                                   <Eye className="w-4 h-4 mr-2" />
                                   View
                                 </DropdownMenuItem>
@@ -191,7 +207,18 @@ export default function AdminMessages() {
                                   <CheckCheck className="w-4 h-4 mr-2" />
                                   Mark as Read
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive">
+                                <DropdownMenuItem
+                                  className="text-destructive"
+                                  onClick={async () => {
+                                    if (!confirm("Delete this message?")) return;
+
+                                    await enquiriesApi.delete(enquiry.id);
+
+                                    setEnquiries(prev =>
+                                      prev.filter(e => e.id !== enquiry.id)
+                                    );
+                                  }}
+                                >
                                   <Trash2 className="w-4 h-4 mr-2" />
                                   Delete
                                 </DropdownMenuItem>
