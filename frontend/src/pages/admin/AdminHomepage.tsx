@@ -202,8 +202,14 @@ export default function AdminHomepage() {
     }
   };
 
-  const handleReorder = async (type: 'feature' | 'journey' | 'origin' | 'certification', id: string, direction: 'up' | 'down') => {
+  const handleReorder = async (
+    type: 'feature' | 'journey' | 'origin' | 'certification',
+    id: string | undefined,
+    direction: 'up' | 'down'
+  ) => {
     try {
+      if (!id) return;
+
       const apiMap = {
         feature: homepageApi.reorderFeature,
         journey: homepageApi.reorderJourney,
@@ -212,12 +218,12 @@ export default function AdminHomepage() {
       };
 
       await apiMap[type](id, direction);
-      await loadData(); // Reload to get updated order
+      await loadData();
     } catch (error) {
       console.error("Reorder failed:", error);
-      alert("Failed to reorder. Please try again.");
     }
   };
+
 
 
   // Journey Step CRUD - TEMPORARY WORKAROUND
@@ -656,7 +662,7 @@ const handleDeleteTestimonial = async (id: string) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleReorder('origin', origin.id, 'up')}
+                          onClick={() => origin.id && handleReorder('origin', origin.id, 'up')}
                           disabled={index === 0}
                         >
                           <ChevronUp className="w-4 h-4" />
@@ -739,7 +745,9 @@ const handleDeleteTestimonial = async (id: string) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleReorder('certification', cert.id, 'up')}
+                          onClick={() =>
+                            cert.id && handleReorder('certification', cert.id, 'up')
+                          }
                           disabled={index === 0}
                         >
                           <ChevronUp className="w-4 h-4" />
@@ -747,7 +755,9 @@ const handleDeleteTestimonial = async (id: string) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleReorder('certification', cert.id, 'down')}
+                          onClick={() =>
+                            cert.id && handleReorder('certification', cert.id, 'down')
+                          }
                           disabled={index === certifications.length - 1}
                         >
                           <ChevronDown className="w-4 h-4" />

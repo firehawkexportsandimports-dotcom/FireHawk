@@ -269,39 +269,41 @@ export const homepageService = {
   },
 
   async reorderOrigin(id: string, direction: 'up' | 'down') {
-    const origin = await prisma.homepageOrigin.findUnique({ where: { id } });
-    if (!origin) throw new Error('Origin not found');
-
-    const currentOrder = origin.sort_order;
-    const newOrder = direction === 'up' ? currentOrder - 1 : currentOrder + 1;
-
-    // Find the origin that currently has the target order
-    const swapOrigin = await prisma.homepageOrigin.findFirst({
-      where: { sort_order: newOrder },
+    const origin = await prisma.homepageOrigin.findUnique({
+      where: { id },
     });
 
-    if (swapOrigin) {
-      // Swap orders
-      await prisma.$transaction([
-        prisma.homepageOrigin.update({
-          where: { id: origin.id },
-          data: { sort_order: newOrder },
-        }),
-        prisma.homepageOrigin.update({
-          where: { id: swapOrigin.id },
-          data: { sort_order: currentOrder },
-        }),
-      ]);
-    } else {
-      // Just update the current origin
-      await prisma.homepageOrigin.update({
-        where: { id },
-        data: { sort_order: newOrder },
-      });
-    }
+    if (!origin) throw new Error('Origin not found');
+
+    const swapOrigin = await prisma.homepageOrigin.findFirst({
+      where: {
+        is_active: true,
+        sort_order:
+          direction === 'up'
+            ? { lt: origin.sort_order }
+            : { gt: origin.sort_order },
+      },
+      orderBy: {
+        sort_order: direction === 'up' ? 'desc' : 'asc',
+      },
+    });
+
+    if (!swapOrigin) return this.getOrigins();
+
+    await prisma.$transaction([
+      prisma.homepageOrigin.update({
+        where: { id: origin.id },
+        data: { sort_order: swapOrigin.sort_order },
+      }),
+      prisma.homepageOrigin.update({
+        where: { id: swapOrigin.id },
+        data: { sort_order: origin.sort_order },
+      }),
+    ]);
 
     return this.getOrigins();
   },
+
 
   /* ======================================================
      CERTIFICATIONS (EU / FDA / ISO etc)
@@ -315,17 +317,20 @@ export const homepageService = {
   },
 
   async createCertification(data: any) {
-    // Convert sort_order to number
-    const processedData = {
-      ...data,
-      sort_order: parseInt(data.sort_order) || 0,
-      is_active: true,
-    };
-    
+
+    const last = await prisma.homepageCertification.findFirst({
+      orderBy: { sort_order: "desc" },
+    });
+
     return prisma.homepageCertification.create({
-      data: processedData,
+      data: {
+        ...data,
+        sort_order: (last?.sort_order || 0) + 1,
+        is_active: true,
+      },
     });
   },
+
 
   async updateCertification(id: string, data: any) {
     // Convert sort_order to number if it exists
@@ -350,36 +355,40 @@ export const homepageService = {
   },
 
   async reorderCertification(id: string, direction: 'up' | 'down') {
-    const certification = await prisma.homepageCertification.findUnique({ where: { id } });
-    if (!certification) throw new Error('Certification not found');
-
-    const currentOrder = certification.sort_order;
-    const newOrder = direction === 'up' ? currentOrder - 1 : currentOrder + 1;
-
-    // Find the certification that currently has the target order
-    const swapCert = await prisma.homepageCertification.findFirst({
-      where: { sort_order: newOrder },
-    });
-
-    if (swapCert) {
-      // Swap orders
-      await prisma.$transaction([
-        prisma.homepageCertification.update({
-          where: { id: certification.id },
-          data: { sort_order: newOrder },
-        }),
-        prisma.homepageCertification.update({
-          where: { id: swapCert.id },
-          data: { sort_order: currentOrder },
-        }),
-      ]);
-    } else {
-      // Just update the current certification
-      await prisma.homepageCertification.update({
+    const certification =
+      await prisma.homepageCertification.findUnique({
         where: { id },
-        data: { sort_order: newOrder },
       });
-    }
+
+    if (!certification)
+      throw new Error('Certification not found');
+
+    const swapCert =
+      await prisma.homepageCertification.findFirst({
+        where: {
+          is_active: true,
+          sort_order:
+            direction === 'up'
+              ? { lt: certification.sort_order }
+              : { gt: certification.sort_order },
+        },
+        orderBy: {
+          sort_order: direction === 'up' ? 'desc' : 'asc',
+        },
+      });
+
+    if (!swapCert) return this.getCertifications();
+
+    await prisma.$transaction([
+      prisma.homepageCertification.update({
+        where: { id: certification.id },
+        data: { sort_order: swapCert.sort_order },
+      }),
+      prisma.homepageCertification.update({
+        where: { id: swapCert.id },
+        data: { sort_order: certification.sort_order },
+      }),
+    ]);
 
     return this.getCertifications();
   },
