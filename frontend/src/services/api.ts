@@ -17,6 +17,7 @@ import type {
   Origin,
   Certification,
 } from "@/types";
+import type { User } from "@/types";
 
 /* =====================================================
    API BASE
@@ -33,10 +34,14 @@ async function fetchJson<T>(
   url: string,
   options?: RequestInit
 ): Promise<T> {
+
+  const token = localStorage.getItem("token");
+
   const res = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
       ...(options?.headers || {}),
     },
   });
@@ -424,3 +429,30 @@ export const dashboardApi = {
       `${API_BASE}/dashboard/stats`
     ),
 };
+
+
+/* =====================================================
+   USERS API (ADMIN)
+===================================================== */
+
+export const usersApi = {
+  getAll: () =>
+    fetchJson<User[]>(`${API_BASE}/users`),
+
+  approve: (id: string) =>
+    fetchJson(`${API_BASE}/users/${id}/approve`, {
+      method: "PATCH",
+    }),
+
+  updateRole: (id: string, role: string) =>
+    fetchJson(`${API_BASE}/users/${id}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    }),
+
+  delete: (id: string) =>
+    fetchJson(`${API_BASE}/users/${id}`, {
+      method: "DELETE",
+    }),
+};
+

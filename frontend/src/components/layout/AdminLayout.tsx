@@ -20,6 +20,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { useNavigate } from "react-router-dom";
+
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -45,6 +47,14 @@ const sidebarItems = [
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className="min-h-screen flex bg-sand">
@@ -126,6 +136,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <span>View Website</span>
           </Link>
           <button
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/60 hover:text-white hover:bg-charcoal-light rounded-xl transition-colors"
           >
             <LogOut className="w-5 h-5" />

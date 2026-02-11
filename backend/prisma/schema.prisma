@@ -13,12 +13,14 @@ model User {
   password   String
   name       String
   role       UserRole @default(editor)
+
+  is_approved Boolean @default(false)
   avatar     String?
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
-  @@map("users")
 }
+
 
 model Category {
   id            String    @id @default(uuid())
@@ -218,6 +220,7 @@ model ContactInfo {
 }
 
 enum UserRole {
+  super_admin
   admin
   editor
 }

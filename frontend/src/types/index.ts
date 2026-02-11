@@ -6,7 +6,7 @@
    COMMON ENUM TYPES (SHARED ACROSS APP)
 ===================================================== */
 
-export type UserRole = 'admin' | 'editor';
+export type UserRole = 'editor' | 'admin' | 'super_admin';
 
 export type EnquiryType = 'product' | 'general';
 
@@ -46,6 +46,7 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  is_approved: boolean;
   avatar?: string;
   created_at: string;
   updated_at: string;

@@ -11,6 +11,8 @@ import ProductsPage from "./pages/ProductsPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
+
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -21,6 +23,10 @@ import AdminHomepage from "./pages/admin/AdminHomepage";
 import AdminAbout from "./pages/admin/AdminAbout";
 import AdminProductsContent from "./pages/admin/AdminProductsContent";
 import AdminContactContent from "./pages/admin/AdminContactContent";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import AdminUsers from "./pages/admin/AdminUsers";
+
+
 
 const queryClient = new QueryClient();
 
@@ -37,16 +43,18 @@ const App = () => (
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:slug" element={<ProductDetailPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/categories" element={<AdminCategories />} />
-          <Route path="/admin/messages" element={<AdminMessages />} />
-          <Route path="/admin/homepage" element={<AdminHomepage />} />
-          <Route path="/admin/about" element={<AdminAbout />} />
-          <Route path="/admin/products-content" element={<AdminProductsContent />} />
-          <Route path="/admin/contact-content" element={<AdminContactContent />} />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
+          <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
+          <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />
+          <Route path="/admin/homepage" element={<ProtectedRoute><AdminHomepage /></ProtectedRoute>} />
+          <Route path="/admin/about" element={<ProtectedRoute><AdminAbout /></ProtectedRoute>} />
+          <Route path="/admin/products-content" element={<ProtectedRoute><AdminProductsContent /></ProtectedRoute>} />
+          <Route path="/admin/contact-content" element={<ProtectedRoute><AdminContactContent /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
 
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
