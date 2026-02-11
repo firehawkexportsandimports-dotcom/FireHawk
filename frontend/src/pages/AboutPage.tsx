@@ -83,8 +83,14 @@ export default function AboutPage() {
     );
   };
 
+  const parseBullets = (text?: string) => {
+    if (!text) return [];
 
-  
+    return text
+      .split("{")
+      .map((item) => item.replace("}", "").trim())
+      .filter(Boolean);
+  };
 
   return (
     <PublicLayout>
@@ -161,7 +167,6 @@ export default function AboutPage() {
             <div>
               <Subtitle text={storyContent?.badge || "Our Journey"} />
 
-
               <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
                 <HighlightText
                   text={
@@ -235,12 +240,9 @@ export default function AboutPage() {
               {sourcingContent?.title || "Sourcing & Quality"}
             </h2>
 
-            <p className="text-muted-foreground whitespace-pre-line">
-              {sourcingContent?.content}
-            </p>
             <ul className="space-y-4">
-              {['Direct farmer partnerships ensuring fair trade', 'Rigorous quality testing at every stage', 'Complete traceability from farm to warehouse', 'International food safety certifications'].map((item) => (
-                <li key={item} className="flex items-start gap-4">
+              {parseBullets(sourcingContent?.content).map((item, index) => (
+                <li key={index} className="flex items-start gap-4">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-r from-ember to-saffron flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-white" />
                   </div>
@@ -263,25 +265,63 @@ export default function AboutPage() {
       {/* =====================================================
           MISSION & VISION
       ===================================================== */}
-      <section className="py-24 bg-sand">
-        <div className="container">
+      <section 
+        className="py-24 bg-sand relative"
+        style={{
+          backgroundImage: missionContent?.image 
+            ? `url(${missionContent.image})` 
+            : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Background overlay for readability */}
+        {missionContent?.image && (
+          <div className="absolute inset-0 bg-white/80"></div>
+        )}
+        
+        <div className="container relative z-10">
+          {/* Mission Section Header - Using SectionHeader component */}
           <SectionHeader
-            subtitle="Our Purpose"
-            title="Mission & Vision"
-            description="Guided by tradition, driven by excellence"
+            subtitle={missionContent?.badge || "Our Purpose"}
+            title={missionContent?.title || "Mission & Vision"}
+            description={
+              missionContent?.description ||
+              "Guided by tradition, driven by excellence"
+            }
           />
 
           <div className="grid md:grid-cols-2 gap-8 mt-12">
+            {/* Mission Card */}
             <div className="bg-white rounded-3xl p-8 shadow-soft">
-              <Target className="w-7 h-7 mb-4 text-ember" />
-              <h3 className="text-2xl font-bold mb-4">
-                {missionContent?.title || "Our Mission"}
-              </h3>
+              {/* Mission Badge (showing on card) */}
+              {missionContent?.badge && (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ember/10 text-ember text-xs font-medium mb-4">
+                  <Target className="w-3 h-3" />
+                  {missionContent.badge}
+                </div>
+              )}
+              
+              <div className="flex items-start gap-3 mb-4">
+                <Target className="w-7 h-7 text-ember flex-shrink-0" />
+                <div>
+                  <h3 className="text-2xl font-bold">
+                    {missionContent?.title || "Our Mission"}
+                  </h3>
+                  {missionContent?.subtitle && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {missionContent.subtitle}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
               <p className="text-muted-foreground whitespace-pre-line">
                 {missionContent?.content}
               </p>
             </div>
 
+            {/* Vision Card */}
             <div className="bg-white rounded-3xl p-8 shadow-soft">
               <Eye className="w-7 h-7 mb-4 text-ember" />
               <h3 className="text-2xl font-bold mb-4">
@@ -313,29 +353,62 @@ export default function AboutPage() {
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
               {exportContent?.title || 'Global Presence'}
             </h2>
-            <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-              {exportContent?.content || "Firehawk exports to over 15 countries across Europe, Middle East, and North America. Our logistics partners ensure timely delivery with proper documentation for seamless customs clearance."}
+            <p className="text-muted-foreground text-lg leading-relaxed mb-8 whitespace-pre-line">
+              {exportContent?.content}
             </p>
             <div className="flex flex-wrap gap-3">
-              <div className="flex flex-wrap gap-3">
-                {(exportContent?.countries?.length
-                  ? exportContent.countries
-                  : ['Germany', 'France', 'UK', 'USA']
-                ).map((country) => (
-                  <span
-                    key={country}
-                    className="px-4 py-2 bg-white text-sm font-medium text-foreground rounded-full border border-border/50 shadow-sm"
-                  >
-                    {country}
-                  </span>
-                ))}
-              </div>
+              {(exportContent?.countries?.length
+                ? exportContent.countries
+                : ['Germany', 'France', 'UK', 'USA']
+              ).map((country) => (
+                <span
+                  key={country}
+                  className="px-4 py-2 bg-white text-sm font-medium text-foreground rounded-full border border-border/50 shadow-sm"
+                >
+                  {country}
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA stays static for now */}
+      {/* =====================================================
+          CTA SECTION
+      ===================================================== */}
+      <section className="py-24 bg-gradient-to-r from-ember via-burnt-orange to-saffron">
+        <div className="container text-center">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
+            Ready to Spice Up Your Business?
+          </h2>
+          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+            Partner with us for premium quality spices, reliable supply chains, and expert market guidance.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              variant="secondary"
+              asChild
+            >
+              <Link to="/contact">
+                Contact Us
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-transparent text-white border-white hover:bg-white/10"
+              asChild
+            >
+              <Link to="/products">
+                Browse Products
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
     </PublicLayout>
   );
 }

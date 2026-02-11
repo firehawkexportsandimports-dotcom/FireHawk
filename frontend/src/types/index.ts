@@ -229,6 +229,7 @@ export interface AboutContent {
   subtitle?: string;
   badge?: string;
   content?: string;
+  description?: string;
   image?: string;
   countries?: string[];
   order: number;

@@ -20,6 +20,7 @@ class AboutService {
         subtitle?: string;
         badge?: string;
         content?: string;
+        description?: string;
         image?: string;
         countries?: string[];
     }
@@ -31,6 +32,7 @@ class AboutService {
         subtitle: data.subtitle,
         badge: data.badge,
         content: data.content,
+        description: data.description,
         image: data.image,
         countries: data.countries,
       },
@@ -40,6 +42,7 @@ class AboutService {
         subtitle: data.subtitle,
         badge: data.badge,
         content: data.content,
+        description: data.description,
         image: data.image,
         countries: data.countries,
       },

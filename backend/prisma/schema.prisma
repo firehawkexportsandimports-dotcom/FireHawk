@@ -177,6 +177,7 @@ model AboutContent {
   subtitle   String?   
   badge      String? 
   content    String?
+  description String? 
   image      String?
   countries  String[] 
   sort_order Int          @default(0)

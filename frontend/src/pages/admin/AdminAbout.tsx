@@ -85,6 +85,7 @@ interface AboutEditForm {
   subtitle?: string;
   badge?: string;
   content?: string;
+  description?: string;
   image?: string;
   countries?: string[];
   imageFile?: File;
@@ -137,6 +138,7 @@ export default function AdminAbout() {
       formData.append("badge", editingSection.badge || "");
       formData.append("subtitle", editingSection.subtitle || "");
       formData.append("content", editingSection.content || "");
+      formData.append("description", editingSection.description || "");
       formData.append("countries", JSON.stringify(editingSection.countries || []));
 
 
@@ -235,6 +237,7 @@ export default function AdminAbout() {
                         subtitle: data?.subtitle || "",
                         badge: data?.badge || "",
                         content: data?.content || "",
+                        description: data?.description || "",
                         image: data?.image || "",
                         countries: data?.countries || [],
                       })
@@ -295,6 +298,61 @@ export default function AdminAbout() {
                     }
                   />
                 </div>
+
+                {/* Hide Badge field for Vision section */}
+                {editingSection.section !== "vision" && (
+                  <>
+                    <p className="text-sm font-medium mb-1">Badge</p>
+                    <Input
+                      placeholder="Badge"
+                      value={editingSection.badge || ""}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          badge: e.target.value,
+                        })
+                      }
+                    />
+                  </>
+                )}
+
+                {/* Hide Section title field for Vision section */}
+                {editingSection.section !== "vision" && (
+                  <>
+                    <p className="text-sm font-medium mb-1">Section title</p>
+                    <Input
+                      placeholder="Subtitle"
+                      value={editingSection.subtitle || ""}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          subtitle: e.target.value,
+                        })
+                      }
+                    />
+                  </>
+                )}
+
+                {/* SECTION DESCRIPTION (ONLY FOR MISSION SECTION) */}
+                {editingSection.section === "mission" && (
+                  <div>
+                    <p className="text-sm font-medium mb-1">
+                      Section Description 
+                    </p>
+                    <Textarea
+                      rows={3}
+                      value={editingSection.description || ""}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Guided by tradition, driven by excellence"
+                    />
+                  </div>
+                )}
+
 
                 {/* EXPORT COUNTRIES (ONLY USED FOR EXPORT SECTION) */}
                 {editingSection.section === "export" && (
@@ -359,32 +417,8 @@ export default function AdminAbout() {
                   </div>
                 )}
 
-
-
                 <div>
                   <p className="text-sm font-medium mb-1">Image</p>
-
-                  <Input
-                    placeholder="Badge"
-                    value={editingSection.badge || ""}
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        badge: e.target.value,
-                      })
-                    }
-                  />
-
-                  <Input
-                    placeholder="Subtitle"
-                    value={editingSection.subtitle || ""}
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        subtitle: e.target.value,
-                      })
-                    }
-                  />
 
                   <Input
                     type="file"

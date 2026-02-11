@@ -26,6 +26,7 @@ export const updateAboutSection = async (
         subtitle: req.body.subtitle,
         badge: req.body.badge,
         content: req.body.content,
+        description: req.body.description,
         image: req.file?.path || req.body.image,
         countries: req.body.countries
             ? JSON.parse(req.body.countries)
