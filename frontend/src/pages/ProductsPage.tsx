@@ -7,33 +7,56 @@ import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { productsApi, categoriesApi } from "@/services/api";
+import {
+  productsApi,
+  categoriesApi,
+  productsContentApi,
+} from "@/services/api";
+
 import { Product, Category } from "@/types";
+
+/* ============================================
+   TYPE (FOR CMS CONTENT)
+============================================ */
+
+type ProductsContent = {
+  section: string;
+  title?: string;
+  subtitle?: string;
+  badge?: string;
+  content?: string;
+  image?: string | null;
+};
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [productsContent, setProductsContent] =
+    useState<ProductsContent[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   const activeCategory = searchParams.get("category") || "";
 
-  // ============================================
-  // FETCH DATA
-  // ============================================
+  /* ============================================
+     FETCH DATA
+  ============================================ */
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [prods, cats] = await Promise.all([
+        const [prods, cats, content] = await Promise.all([
           productsApi.getAll(),
           categoriesApi.getAll(),
+          productsContentApi.getAll(),
         ]);
 
         setProducts(prods);
         setCategories(cats);
+        setProductsContent(content);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -44,9 +67,17 @@ export default function ProductsPage() {
     fetchData();
   }, []);
 
-  // ============================================
-  // FILTERING
-  // ============================================
+  /* ============================================
+     HERO CONTENT
+  ============================================ */
+
+  const heroContent = productsContent.find(
+    (c) => c.section === "hero"
+  );
+
+  /* ============================================
+     FILTERING
+  ============================================ */
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
@@ -65,18 +96,15 @@ export default function ProductsPage() {
     return matchesCategory && matchesSearch;
   });
 
-  // ============================================
-  // CATEGORY CLICK
-  // ============================================
+  /* ============================================
+     CATEGORY CLICK
+  ============================================ */
 
   const handleCategoryClick = (slug: string) => {
     const params = new URLSearchParams(searchParams);
 
-    if (!slug) {
-      params.delete("category");
-    } else {
-      params.set("category", slug);
-    }
+    if (!slug) params.delete("category");
+    else params.set("category", slug);
 
     setSearchParams(params);
   };
@@ -86,9 +114,9 @@ export default function ProductsPage() {
     setSearchParams({});
   };
 
-  // ============================================
-  // UI
-  // ============================================
+  /* ============================================
+     UI
+  ============================================ */
 
   return (
     <PublicLayout>
@@ -98,20 +126,27 @@ export default function ProductsPage() {
 
         <div className="container relative z-10">
           <div className="text-center max-w-3xl mx-auto">
+
+            {/* BADGE */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
               <Flame className="w-4 h-4 text-saffron" />
               <span className="text-sm font-medium text-saffron">
-                Our Collection
+                {heroContent?.badge || "Our Collection"}
               </span>
             </div>
 
+            {/* TITLE */}
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Premium <span className="text-gradient-fire">Spices</span>
+              {heroContent?.title || "Premium "}
+              <span className="text-gradient-fire">
+                {heroContent?.subtitle || "Spices"}
+              </span>
             </h1>
 
+            {/* CONTENT */}
             <p className="text-white/70 text-lg mb-10">
-              Explore our complete range of authentic South Indian spices,
-              sourced directly from Kerala and Karnataka
+              {heroContent?.content ||
+                "Explore our complete range of authentic South Indian spices, sourced directly from Kerala and Karnataka"}
             </p>
 
             {/* SEARCH */}
@@ -122,7 +157,9 @@ export default function ProductsPage() {
                   type="text"
                   placeholder="Search spices..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) =>
+                    setSearchQuery(e.target.value)
+                  }
                   className="pl-14 pr-5 py-6 text-base bg-white border-0 rounded-2xl shadow-lg"
                 />
               </div>
@@ -134,6 +171,7 @@ export default function ProductsPage() {
       {/* MAIN CONTENT */}
       <section className="py-16 bg-gradient-warm">
         <div className="container">
+
           {/* CATEGORY FILTERS */}
           <div className="flex flex-wrap items-center gap-3 mb-10">
             <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -185,12 +223,6 @@ export default function ProductsPage() {
             {filteredProducts.length === 1
               ? "product"
               : "products"}
-            {activeCategory &&
-              ` in ${
-                categories.find(
-                  (c) => c.slug === activeCategory
-                )?.name
-              }`}
           </p>
 
           {/* GRID */}

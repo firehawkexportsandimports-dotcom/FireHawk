@@ -186,6 +186,19 @@ model AboutContent {
   @@map("about_content")
 }
 
+model ProductsContent {
+  id         String          @id @default(uuid())
+  section    ProductsSection @unique
+  title      String?
+  subtitle   String?
+  badge      String?
+  content    String?
+  image      String?
+  updated_at DateTime        @updatedAt
+
+  @@map("products_content")
+}
+
 model ContactInfo {
   id            String   @id @default(uuid())
   address       String?
@@ -234,4 +247,8 @@ enum AboutSection {
   vision
   export
   cta
+}
+
+enum ProductsSection {
+  hero
 }

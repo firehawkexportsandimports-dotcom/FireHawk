@@ -19,6 +19,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminHomepage from "./pages/admin/AdminHomepage";
 import AdminAbout from "./pages/admin/AdminAbout";
+import AdminProductsContent from "./pages/admin/AdminProductsContent";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/admin/messages" element={<AdminMessages />} />
           <Route path="/admin/homepage" element={<AdminHomepage />} />
           <Route path="/admin/about" element={<AdminAbout />} />
+          <Route path="/admin/products-content" element={<AdminProductsContent />} />
 
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />

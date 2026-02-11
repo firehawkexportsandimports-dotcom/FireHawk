@@ -32,7 +32,9 @@ export type AboutSection =
   | 'mission'
   | 'vision'
   | 'export'
-  | 'cta';
+  | 'cta'
+  ;
+
 
 
 /* =====================================================

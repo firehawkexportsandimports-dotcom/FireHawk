@@ -359,6 +359,24 @@ export const contentApi = {
 };
 
 /* =====================================================
+   PRODUCTS CONTENT API
+===================================================== */
+
+export const productsContentApi = {
+  getAll: () =>
+    fetchJson<any[]>(`${API_BASE}/products-content`),
+
+  updateSection: (section: string, formData: FormData) =>
+    fetchForm<any>(
+      `${API_BASE}/products-content/${section}`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    ),
+};
+
+/* =====================================================
    ENQUIRIES
 ===================================================== */
 

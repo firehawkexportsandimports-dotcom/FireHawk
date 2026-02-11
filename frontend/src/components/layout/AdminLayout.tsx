@@ -31,8 +31,9 @@ const sidebarItems = [
     name: 'Content', 
     icon: FileText,
     children: [
-      { name: 'Homepage', href: '/admin/homepage' },
-      { name: 'About Page', href: '/admin/about' },
+        { name: 'Homepage', href: '/admin/homepage' },
+        { name: 'About Page', href: '/admin/about' },
+        { name: 'Products Page', href: '/admin/products-content' },
     ]
   },
   { name: 'Products', href: '/admin/products', icon: Package },
