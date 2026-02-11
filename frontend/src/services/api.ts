@@ -402,12 +402,17 @@ export const enquiriesApi = {
       body: JSON.stringify(data),
     }),
 
-  updateStatus: (id: string, status: string) =>
-    fetchJson<Enquiry>(`${API_BASE}/enquiries/${id}/status`, {
+  markAsRead: (id: string) =>
+    fetchJson<Enquiry>(`${API_BASE}/enquiries/${id}/read`, {
       method: "PATCH",
-      body: JSON.stringify({ status }),
+    }),
+
+  delete: (id: string) =>
+    fetchJson(`${API_BASE}/enquiries/${id}`, {
+      method: "DELETE",
     }),
 };
+
 
 /* =====================================================
    DASHBOARD

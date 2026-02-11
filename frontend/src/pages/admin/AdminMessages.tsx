@@ -171,7 +171,23 @@ export default function AdminMessages() {
                                   <Eye className="w-4 h-4 mr-2" />
                                   View
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={async () => {
+                                    try {
+                                      await enquiriesApi.markAsRead(enquiry.id);
+
+                                      setEnquiries(prev =>
+                                        prev.map(e =>
+                                          e.id === enquiry.id
+                                            ? { ...e, status: "read" }
+                                            : e
+                                        )
+                                      );
+                                    } catch (err) {
+                                      console.error(err);
+                                    }
+                                  }}
+                                >
                                   <CheckCheck className="w-4 h-4 mr-2" />
                                   Mark as Read
                                 </DropdownMenuItem>
