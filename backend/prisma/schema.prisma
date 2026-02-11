@@ -201,6 +201,10 @@ model ProductsContent {
 
 model ContactInfo {
   id            String   @id @default(uuid())
+  badge               String?   
+  title               String?  
+  description         String?
+  company_description String?
   address       String?
   city          String?
   country       String?

@@ -246,6 +246,10 @@ export interface AboutContent {
 
 export interface ContactInfo {
   id: string;
+  badge?: string;
+  title?: string;
+  description?: string;
+  company_description?: string;
   address?: string;
   city?: string;
   country?: string;

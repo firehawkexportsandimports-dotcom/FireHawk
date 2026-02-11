@@ -7,7 +7,7 @@ import homepageRoutes from "./routes/homepage.routes";
 import testimonialRoutes from "./routes/testimonial.routes";
 import aboutRoutes from "./routes/about.routes";
 import productsContentRoutes from "./routes/productsContent.routes";
-
+import contactRoutes from "./routes/contact.routes";
 const app = express();
 
 // ✅ MUST BE FIRST
@@ -22,6 +22,7 @@ app.use("/api/content", homepageRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/content", aboutRoutes);
 app.use("/api/products-content", productsContentRoutes);
+app.use("/api/content/contact", contactRoutes);
 
 app.get("/", (_, res) => {
   res.send("Firehawk Backend Running");

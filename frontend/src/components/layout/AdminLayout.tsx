@@ -34,6 +34,7 @@ const sidebarItems = [
         { name: 'Homepage', href: '/admin/homepage' },
         { name: 'About Page', href: '/admin/about' },
         { name: 'Products Page', href: '/admin/products-content' },
+        { name: 'Contact Page', href: '/admin/contact-content' },
     ]
   },
   { name: 'Products', href: '/admin/products', icon: Package },

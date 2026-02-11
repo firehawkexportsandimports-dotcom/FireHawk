@@ -356,7 +356,19 @@ export const contentApi = {
   /* ---------- CONTACT ---------- */
   getContact: () =>
     fetchJson<ContactInfo>(`${API_BASE}/content/contact`),
+
+  updateContact: (formData: FormData) =>
+    fetchForm<ContactInfo>(
+      `${API_BASE}/content/contact`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    ),
 };
+
+
+
 
 /* =====================================================
    PRODUCTS CONTENT API
