@@ -31,7 +31,8 @@ export type AboutSection =
   | 'sourcing'
   | 'mission'
   | 'vision'
-  | 'export';
+  | 'export'
+  | 'cta';
 
 
 /* =====================================================

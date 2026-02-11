@@ -59,6 +59,7 @@ export default function AboutPage() {
   const missionContent = getSection("mission");
   const visionContent = getSection("vision");
   const exportContent = getSection("export");
+  const ctaContent = getSection("cta");
 
   const Badge = ({ text }: { text?: string }) => {
     if (!text) return null;
@@ -284,7 +285,7 @@ export default function AboutPage() {
           {/* Mission Section Header - Using SectionHeader component */}
           <SectionHeader
             subtitle={missionContent?.badge || "Our Purpose"}
-            title={missionContent?.title || "Mission & Vision"}
+            title={missionContent?.subtitle || "Mission & Vision"}
             description={
               missionContent?.description ||
               "Guided by tradition, driven by excellence"
@@ -308,11 +309,6 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold">
                     {missionContent?.title || "Our Mission"}
                   </h3>
-                  {missionContent?.subtitle && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {missionContent.subtitle}
-                    </p>
-                  )}
                 </div>
               </div>
               
@@ -376,35 +372,44 @@ export default function AboutPage() {
       {/* =====================================================
           CTA SECTION
       ===================================================== */}
-      <section className="py-24 bg-gradient-to-r from-ember via-burnt-orange to-saffron">
-        <div className="container text-center">
+      <section className="py-24 bg-charcoal relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-ember/20 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-saffron/15 rounded-full blur-[100px]" />
+
+        <div className="container relative z-10 text-center">
+          {ctaContent?.badge && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
+              <Flame className="w-4 h-4 text-saffron" />
+              <span className="text-sm font-medium text-saffron">
+                {ctaContent.badge}
+              </span>
+            </div>
+          )}
+
           <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Spice Up Your Business?
+            <HighlightText
+              text={
+                ctaContent?.title ||
+                "Ready to Spice Up {Your Business?}"
+              }
+            />
           </h2>
-          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Partner with us for premium quality spices, reliable supply chains, and expert market guidance.
+
+          <p className="text-white/70 max-w-2xl mx-auto mb-10 text-lg">
+            {ctaContent?.content ||
+              "Partner with us for premium quality spices and reliable export solutions."}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              variant="secondary"
-              asChild
-            >
+
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button asChild variant="fire" size="xl">
               <Link to="/contact">
                 Contact Us
-                <ArrowRight className="ml-2 w-4 h-4" />
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-transparent text-white border-white hover:bg-white/10"
-              asChild
-            >
-              <Link to="/products">
-                Browse Products
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
+
+            <Button asChild variant="outline-gold" size="xl">
+              <Link to="/products">Browse Products</Link>
             </Button>
           </div>
         </div>

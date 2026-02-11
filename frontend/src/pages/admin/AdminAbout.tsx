@@ -73,7 +73,57 @@ const sections: {
     description: "Export destinations and capabilities",
     icon: Image,
   },
+  {
+    id: "cta",
+    title: "About CTA",
+    description: "Call to action section for About page",
+    icon: Flame,
+  },
 ];
+
+/* =====================================================
+   SECTION FIELD VISIBILITY CONFIG
+===================================================== */
+
+type AboutField =
+  | "title"
+  | "content"
+  | "badge"
+  | "subtitle"
+  | "description"
+  | "countries"
+  | "image";
+
+const sectionFields: Record<AboutSection, AboutField[]> = {
+  hero: ["title", "content", "badge", "image"],
+  story: ["title", "content", "badge", "image"],
+  heritage: ["title", "content", "badge", "image"],
+  sourcing: ["title", "content", "badge", "image"],
+  mission: [
+    "title",        // Mission card title
+    "content",      // Mission text
+    "badge",        // Our Purpose
+    "subtitle",     // Section title (Mission & Vision)
+    "description",  // Section description
+  ],
+  vision: [
+    "title",        // Vision card title
+    "content",      // Vision text
+  ],
+  export: [
+    "title",
+    "content",
+    "badge",
+    "countries",
+    "image",
+  ],
+  cta: [
+    "title",
+    "content",
+    "badge",
+    "image",
+  ],
+};
 
 /* =====================================================
    EDIT FORM TYPE
@@ -102,6 +152,13 @@ export default function AdminAbout() {
   const [loading, setLoading] = useState(true);
   const [countryInput, setCountryInput] = useState("");
 
+  /* ===============================
+     HELPER FUNCTIONS
+  =============================== */
+  
+  const hasField = (field: AboutField) =>
+    editingSection &&
+    sectionFields[editingSection.section]?.includes(field);
 
   /* ===============================
      LOAD DATA
@@ -140,8 +197,6 @@ export default function AdminAbout() {
       formData.append("content", editingSection.content || "");
       formData.append("description", editingSection.description || "");
       formData.append("countries", JSON.stringify(editingSection.countries || []));
-
-
 
       if (editingSection.imageFile) {
         formData.append("image", editingSection.imageFile);
@@ -271,37 +326,43 @@ export default function AdminAbout() {
               </DialogHeader>
 
               <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium mb-1">Title</p>
-                  <Input
-                    value={editingSection.title || ""}
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        title: e.target.value,
-                      })
-                    }
-                    placeholder="Use {word} for highlight"
-                  />
-                </div>
+                {/* Title Field */}
+                {hasField("title") && (
+                  <div>
+                    <p className="text-sm font-medium mb-1">Title</p>
+                    <Input
+                      value={editingSection.title || ""}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          title: e.target.value,
+                        })
+                      }
+                      placeholder="Use {word} for highlight"
+                    />
+                  </div>
+                )}
 
-                <div>
-                  <p className="text-sm font-medium mb-1">Content</p>
-                  <Textarea
-                    rows={6}
-                    value={editingSection.content || ""}
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        content: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                {/* Content Field */}
+                {hasField("content") && (
+                  <div>
+                    <p className="text-sm font-medium mb-1">Content</p>
+                    <Textarea
+                      rows={6}
+                      value={editingSection.content || ""}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          content: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )}
 
-                {/* Hide Badge field for Vision section */}
-                {editingSection.section !== "vision" && (
-                  <>
+                {/* Badge Field */}
+                {hasField("badge") && (
+                  <div>
                     <p className="text-sm font-medium mb-1">Badge</p>
                     <Input
                       placeholder="Badge"
@@ -313,13 +374,13 @@ export default function AdminAbout() {
                         })
                       }
                     />
-                  </>
+                  </div>
                 )}
 
-                {/* Hide Section title field for Vision section */}
-                {editingSection.section !== "vision" && (
-                  <>
-                    <p className="text-sm font-medium mb-1">Section title</p>
+                {/* Subtitle (Section Title) Field */}
+                {hasField("subtitle") && (
+                  <div>
+                    <p className="text-sm font-medium mb-1">Section Title</p>
                     <Input
                       placeholder="Subtitle"
                       value={editingSection.subtitle || ""}
@@ -330,14 +391,14 @@ export default function AdminAbout() {
                         })
                       }
                     />
-                  </>
+                  </div>
                 )}
 
-                {/* SECTION DESCRIPTION (ONLY FOR MISSION SECTION) */}
-                {editingSection.section === "mission" && (
+                {/* Section Description Field */}
+                {hasField("description") && (
                   <div>
                     <p className="text-sm font-medium mb-1">
-                      Section Description 
+                      Section Description
                     </p>
                     <Textarea
                       rows={3}
@@ -353,9 +414,8 @@ export default function AdminAbout() {
                   </div>
                 )}
 
-
-                {/* EXPORT COUNTRIES (ONLY USED FOR EXPORT SECTION) */}
-                {editingSection.section === "export" && (
+                {/* Countries Field */}
+                {hasField("countries") && (
                   <div>
                     <p className="text-sm font-medium mb-2">
                       Export Countries
@@ -417,32 +477,33 @@ export default function AdminAbout() {
                   </div>
                 )}
 
-                <div>
-                  <p className="text-sm font-medium mb-1">Image</p>
+                {/* Image Field */}
+                {hasField("image") && (
+                  <div>
+                    <p className="text-sm font-medium mb-1">Image</p>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          imageFile: e.target.files?.[0],
+                        })
+                      }
+                    />
+                  </div>
+                )}
 
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        imageFile: e.target.files?.[0],
-                      })
-                    }
-                  />
-                </div>
-
-                {(editingSection.image ||
-                  editingSection.imageFile) && (
+                {/* Image Preview */}
+                {(editingSection.image || editingSection.imageFile) && hasField("image") && (
                   <img
                     src={
                       editingSection.imageFile
-                        ? URL.createObjectURL(
-                            editingSection.imageFile
-                          )
+                        ? URL.createObjectURL(editingSection.imageFile)
                         : editingSection.image
                     }
                     className="w-full h-40 object-cover rounded"
+                    alt="Preview"
                   />
                 )}
 

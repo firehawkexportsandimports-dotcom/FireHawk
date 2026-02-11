@@ -233,4 +233,5 @@ enum AboutSection {
   mission
   vision
   export
+  cta
 }
