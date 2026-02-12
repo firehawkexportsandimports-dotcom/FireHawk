@@ -155,6 +155,8 @@ export default function AdminHomepage() {
   const [editingCert, setEditingCert] = useState<Certification | null>(null);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [editingTestimonial, setEditingTestimonial] =  useState<Partial<Testimonial> | null>(null);
+  const [spiceInput, setSpiceInput] = useState("");
+
 
 
   const [loading, setLoading] = useState(true);
@@ -409,6 +411,31 @@ export default function AdminHomepage() {
       alert("Failed to delete certification. Please try again.");
     }
   };
+
+
+  const addSpice = () => {
+  if (!spiceInput.trim() || !editingOrigin) return;
+
+  if (!editingOrigin.spices?.includes(spiceInput.trim())) {
+    setEditingOrigin({
+      ...editingOrigin,
+      spices: [...(editingOrigin.spices || []), spiceInput.trim()],
+    });
+  }
+
+  setSpiceInput("");
+};
+
+const removeSpice = (spice: string) => {
+  if (!editingOrigin) return;
+
+  setEditingOrigin({
+    ...editingOrigin,
+    spices: editingOrigin.spices.filter(s => s !== spice),
+  });
+};
+
+
 
 /* ===============================
    TESTIMONIAL CRUD
@@ -1262,17 +1289,44 @@ const handleDeleteTestimonial = async (id: string) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Spices (comma separated)</p>
-                  <Input
-                    placeholder="Black Pepper, Cardamom, Cloves"
-                    value={editingOrigin.spices?.join(", ")}
-                    onChange={(e) =>
-                      setEditingOrigin({
-                        ...editingOrigin,
-                        spices: e.target.value.split(",").map(s => s.trim()).filter(Boolean),
-                      })
-                    }
-                  />
+                  <p className="text-sm font-medium">Spices</p>
+
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Type spice and press Enter"
+                      value={spiceInput}
+                      onChange={(e) => setSpiceInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addSpice();
+                        }
+                      }}
+                    />
+                    <Button type="button" onClick={addSpice}>
+                      Add
+                    </Button>
+                  </div>
+
+                  {/* Added spices */}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {editingOrigin.spices?.map((spice) => (
+                      <Badge
+                        key={spice}
+                        variant="secondary"
+                        className="flex items-center gap-1 px-2 py-1"
+                      >
+                        {spice}
+                        <button
+                          type="button"
+                          onClick={() => removeSpice(spice)}
+                          className="ml-1 text-xs"
+                        >
+                          ✕
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-4">
                   <Button variant="ghost" onClick={() => setEditingOrigin(null)}>
