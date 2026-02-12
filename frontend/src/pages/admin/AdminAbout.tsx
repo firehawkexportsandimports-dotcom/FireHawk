@@ -269,7 +269,7 @@ export default function AdminAbout() {
                 <CardHeader className="flex flex-row items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-lg bg-cardamom flex items-center justify-center">
-                      <section.icon className="w-5 h-5 text-white" />
+                      <section.icon className="w-5 h-5 text-ember" />
                     </div>
 
                     <div>

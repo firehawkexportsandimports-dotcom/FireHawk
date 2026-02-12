@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, Phone, Mail, Flame } from 'lucide-react';
+import { Menu, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -44,15 +44,13 @@ export function PublicLayout({ children }: PublicLayoutProps) {
       <header className="sticky top-0 z-50 bg-warm-beige/95 backdrop-blur-md border-b border-border/50 shadow-sm">
         <div className="container">
           <nav className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-ember via-burnt-orange to-saffron flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-saffron/20 transition-all duration-300">
-                <Flame className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-display font-bold text-xl text-charcoal leading-tight">Firehawk</span>
-                <span className="text-xs text-muted-foreground leading-tight tracking-wide">Imports & Exports</span>
-              </div>
+            {/* Logo - Company Image */}
+            <Link to="/" className="flex items-center group">
+              <img 
+                src="https://res.cloudinary.com/dxziofxst/image/upload/v1770913924/Frame_1597882146_nckozm.png"
+                alt="Firehawk Imports and Exports"
+                className="h-14 w-auto object-contain"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -123,13 +121,14 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         
         <div className="container py-16 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            {/* Brand */}
+            {/* Brand - Footer Logo */}
             <div className="lg:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ember via-burnt-orange to-saffron flex items-center justify-center">
-                  <Flame className="w-5 h-5 text-white" />
-                </div>
-                <span className="font-display font-bold text-xl text-white">Firehawk</span>
+              <div className="mb-4">
+                <img 
+                  src="https://res.cloudinary.com/dxziofxst/image/upload/v1770913924/Frame_1597882146_nckozm.png"
+                  alt="Firehawk Imports and Exports"
+                  className="h-12 w-auto object-contain brightness-0 invert" // Makes logo white for dark footer
+                />
               </div>
               <p className="text-white/60 text-sm leading-relaxed">
                 Premium spice exporters bringing the authentic flavors of Kerala and Karnataka to the world since 1998.

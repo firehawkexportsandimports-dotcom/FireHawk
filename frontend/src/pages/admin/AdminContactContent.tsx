@@ -136,14 +136,6 @@ export default function AdminContactContent() {
           </div>
           <div className="flex items-center gap-3">
             <Button
-              variant="outline"
-              onClick={() => setPreviewMode(!previewMode)}
-              className="gap-2"
-            >
-              <Eye className="h-4 w-4" />
-              {previewMode ? "Edit Mode" : "Preview"}
-            </Button>
-            <Button
               onClick={handleSave}
               disabled={saving}
               className="gap-2"
@@ -448,59 +440,7 @@ export default function AdminContactContent() {
               </CardContent>
             </Card>
 
-            {/* Preview Card */}
-            {previewMode && (
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="text-lg">Live Preview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="rounded-lg border bg-card p-6">
-                    <div className="space-y-4">
-                      <Badge variant="secondary">{form.badge}</Badge>
-                      <h2 className="text-2xl font-bold">{form.title}</h2>
-                      <p className="text-muted-foreground">{form.description}</p>
-                      
-                      <div className="grid gap-4 pt-4 md:grid-cols-2">
-                        <div className="flex items-start gap-3">
-                          <MapPin className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium">Address</p>
-                            <p className="text-sm text-muted-foreground">
-                              {form.address}, {form.city}, {form.country}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <Phone className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium">Phone</p>
-                            <p className="text-sm text-muted-foreground">{form.phone}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <Mail className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium">Email</p>
-                            <p className="text-sm text-muted-foreground">{form.email}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <Clock className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium">Working Hours</p>
-                            <p className="text-sm text-muted-foreground">{form.working_hours}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+
           </div>
         </div>
       </div>
