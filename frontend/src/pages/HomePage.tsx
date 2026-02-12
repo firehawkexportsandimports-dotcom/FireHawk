@@ -134,6 +134,7 @@ export default function HomePage() {
 
   const heroContent = getSectionContent('hero');
   const introContent = getSectionContent('intro');
+  const productsIntroContent = getSectionContent('products_intro');
   const qualityContent = getSectionContent('quality');
   const whyChooseContent = getSectionContent('why_choose');
   const categoryIntroContent = getSectionContent('category_intro');
@@ -352,9 +353,9 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-warm relative">
         <div className="container">
           <SectionHeader
-            subtitle={getContentValue(qualityContent, 'subtitle') || "Our Collection"}
-            title={getContentValue(qualityContent, 'title') || "Featured Products"}
-            description={getContentValue(qualityContent, 'content') || "Discover our most sought-after spices"}
+            subtitle={getContentValue(productsIntroContent, 'subtitle') || "Our Collection"}
+            title={getContentValue(productsIntroContent, 'title') || "Featured Products"}
+            description={getContentValue(productsIntroContent, 'content') || "Discover our most sought-after spices"}
           />
           
           {loading.products ? (

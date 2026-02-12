@@ -17,6 +17,7 @@ export type EnquiryStatus = 'unread' | 'read' | 'replied';
 export type HomepageSection =
   | 'hero'
   | 'intro'
+  | 'products_intro'
   | 'quality'
   | 'why_choose'
   | 'category_intro'

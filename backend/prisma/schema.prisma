@@ -163,6 +163,8 @@ model HomepageOrigin {
   updated_at  DateTime @updatedAt
 }
 
+
+
 model HomepageCertification {
   id         String   @id @default(cuid())
   name       String
@@ -239,6 +241,7 @@ enum EnquiryStatus {
 enum HomepageSection {
   hero
   intro
+  products_intro
   quality
   why_choose
   cta

@@ -74,11 +74,71 @@ const availableIcons: { value: IconType; label: string }[] = [
 const sections: { id: HomepageSection; title: string }[] = [
   { id: "hero", title: "Hero Section" },
   { id: "intro", title: "Introduction" },
+  { id: "products_intro", title: "Products Introduction" },
   { id: "quality", title: "Quality Section" },
   { id: "why_choose", title: "Why Choose Us" },
   { id: "category_intro", title: "Category Section Header" },
   { id: "cta", title: "CTA Section" },
 ];
+
+const sectionFieldConfig: Record<
+  HomepageSection,
+  {
+    title?: boolean;
+    subtitle?: boolean;
+    content?: boolean;
+    image?: boolean;
+    badge?: boolean;
+    button?: boolean;
+  }
+> = {
+  hero: {
+    title: true,
+    subtitle: true,
+    content: true,
+    image: true,
+    badge: true,
+    button: true,
+  },
+
+  intro: {
+    title: true,
+    subtitle: true,
+    content: true,
+  },
+
+  products_intro: {
+    title: true,
+    content: true,
+    subtitle: true,
+  },
+
+  quality: {
+    title: true,
+    content: true,
+  },
+
+  why_choose: {
+    subtitle: true,
+    title: true,
+    content: true,
+  },
+
+  category_intro: {
+    title: true,
+    subtitle: true,
+    content: true,
+  },
+
+  cta: {
+    title: true,
+    content: true,
+    badge: true,
+    button: true,
+  },
+};
+
+
 
 export default function AdminHomepage() {
   // States
@@ -137,7 +197,7 @@ export default function AdminHomepage() {
       formData.append("button_link", editingSection.button_link || "");
 
       // Only add badge for hero and cta sections
-      if (editingSection.section === "hero" || editingSection.section === "cta") {
+      if (sectionFieldConfig[editingSection.section]?.badge) {
         formData.append("badge", editingSection.badge || "");
       }
 
@@ -408,7 +468,7 @@ const handleDeleteTestimonial = async (id: string) => {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Homepage Content Management</h1>
+          <h1 className="text-xl font-bold">Homepage Content Management</h1>
           <Button onClick={loadData} variant="outline">
             Refresh Data
           </Button>
@@ -424,7 +484,6 @@ const handleDeleteTestimonial = async (id: string) => {
             <div className="grid md:grid-cols-2 gap-4">
               {sections.map((section) => {
                 const data = getSectionData(section.id);
-                const showBadge = section.id === "hero" || section.id === "cta";
                 return (
                   <div key={section.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
@@ -433,7 +492,7 @@ const handleDeleteTestimonial = async (id: string) => {
                         <p className="text-sm text-muted-foreground">
                           {data?.title || "No content yet"}
                         </p>
-                        {showBadge && data?.badge && (
+                        {sectionFieldConfig[section.id]?.badge && data?.badge && (
                           <p className="text-xs text-blue-600 mt-1">
                             Badge: {data.badge}
                           </p>
@@ -498,7 +557,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleReorder('feature', feature.id, 'up')}
-                          disabled={index === 0}
+                          // disabled={index === 0}
                         >
                           <ChevronUp className="w-4 h-4" />
                         </Button>
@@ -506,7 +565,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleReorder('feature', feature.id, 'down')}
-                          disabled={index === features.length - 1}
+                          // disabled={index === features.length - 1}
                         >
                           <ChevronDown className="w-4 h-4" />
                         </Button>
@@ -574,7 +633,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleReorder('journey', step.id, 'up')}
-                          disabled={index === 0}
+                          // disabled={index === 0}
                         >
                           <ChevronUp className="w-4 h-4" />
                         </Button>
@@ -582,7 +641,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleReorder('journey', step.id, 'down')}
-                          disabled={index === journey.length - 1}
+                          // disabled={index === journey.length - 1}
                         >
                           <ChevronDown className="w-4 h-4" />
                         </Button>
@@ -663,7 +722,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => origin.id && handleReorder('origin', origin.id, 'up')}
-                          disabled={index === 0}
+                          // disabled={index === 0}
                         >
                           <ChevronUp className="w-4 h-4" />
                         </Button>
@@ -671,7 +730,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleReorder('origin', origin.id, 'down')}
-                          disabled={index === origins.length - 1}
+                          // disabled={index === origins.length - 1}
                         >
                           <ChevronDown className="w-4 h-4" />
                         </Button>
@@ -704,7 +763,7 @@ const handleDeleteTestimonial = async (id: string) => {
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => handleDeleteOrigin(origin.id)}
+                        onClick={() => origin.id && handleDeleteOrigin(origin.id)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -748,7 +807,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           onClick={() =>
                             cert.id && handleReorder('certification', cert.id, 'up')
                           }
-                          disabled={index === 0}
+                          // disabled={index === 0}
                         >
                           <ChevronUp className="w-4 h-4" />
                         </Button>
@@ -758,7 +817,7 @@ const handleDeleteTestimonial = async (id: string) => {
                           onClick={() =>
                             cert.id && handleReorder('certification', cert.id, 'down')
                           }
-                          disabled={index === certifications.length - 1}
+                          // disabled={index === certifications.length - 1}
                         >
                           <ChevronDown className="w-4 h-4" />
                         </Button>
@@ -858,8 +917,11 @@ const handleDeleteTestimonial = async (id: string) => {
 
         {/* Edit Modals */}
         {/* Section Edit Modal */}
-        {editingSection && (
-          <Dialog open={!!editingSection} onOpenChange={() => setEditingSection(null)}>
+        {editingSection && (() => {
+          const config = sectionFieldConfig[editingSection.section];
+
+          return (
+            <Dialog open={!!editingSection} onOpenChange={() => setEditingSection(null)}>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Edit {editingSection.section} Section</DialogTitle>
@@ -868,6 +930,7 @@ const handleDeleteTestimonial = async (id: string) => {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
+                {config?.title && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Title</p>
                   <Input
@@ -878,9 +941,10 @@ const handleDeleteTestimonial = async (id: string) => {
                     }
                   />
                 </div>
+                )}
                 
                 {/* Only show badge field for hero and cta sections */}
-                {(editingSection.section === "hero" || editingSection.section === "cta") && (
+                {config?.badge && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Badge</p>
                     <Input
@@ -896,16 +960,20 @@ const handleDeleteTestimonial = async (id: string) => {
                   </div>
                 )}
                 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Subtitle</p>
-                  <Input
-                    placeholder="Subtitle"
-                    value={editingSection.subtitle || ""}
-                    onChange={(e) =>
-                      setEditingSection({ ...editingSection, subtitle: e.target.value })
-                    }
-                  />
-                </div>
+                {config?.subtitle && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Subtitle</p>
+                    <Input
+                      placeholder="Subtitle"
+                      value={editingSection.subtitle || ""}
+                      onChange={(e) =>
+                        setEditingSection({ ...editingSection, subtitle: e.target.value })
+                      }
+                    />
+                  </div>
+                )}
+
+                {config?.content && ( 
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Content</p>
                   <Textarea
@@ -916,20 +984,55 @@ const handleDeleteTestimonial = async (id: string) => {
                     }
                   />
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Section Image</p>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        imageFile: e.target.files?.[0],
-                      })
-                    }
-                  />
-                </div>
-                {editingSection.image && (
+                )}
+
+                {config?.button && (
+                  <>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Button Text</p>
+                      <Input
+                        value={editingSection.button_text || ""}
+                        onChange={(e) =>
+                          setEditingSection({
+                            ...editingSection,
+                            button_text: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Button Link</p>
+                      <Input
+                        value={editingSection.button_link || ""}
+                        onChange={(e) =>
+                          setEditingSection({
+                            ...editingSection,
+                            button_link: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+
+
+                {config?.image && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Section Image</p>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          imageFile: e.target.files?.[0],
+                        })
+                      }
+                    />
+                  </div>
+                )}
+                {config?.image && editingSection.image && (
                   <div className="mt-2">
                     <p className="text-sm font-medium mb-2">Current Image:</p>
                     <img
@@ -951,7 +1054,9 @@ const handleDeleteTestimonial = async (id: string) => {
               </div>
             </DialogContent>
           </Dialog>
-        )}
+            );
+        })()}
+
 
         {/* Feature Edit Modal */}
         {editingFeature && (

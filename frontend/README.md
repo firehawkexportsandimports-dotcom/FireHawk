@@ -1,11 +1,9 @@
 🔥 Firehawk Imports & Exports
-
 Premium South Indian Spice Export Platform
-Built with React, Node.js, PostgreSQL (Aiven), Prisma & Cloudinary
 
-A modern, premium export-ready platform for Firehawk Imports & Exports, designed to showcase authentic South Indian spices sourced from Kerala and Karnataka for international buyers and distributors.
+A modern, export-focused digital platform built for Firehawk Imports & Exports, designed to showcase authentic South Indian spices sourced from Kerala and Karnataka for global buyers, distributors, and partners.
 
-This project includes a public product showcase website and a custom-built admin CMS for managing products, categories, homepage content, and enquiries.
+The platform combines a premium public-facing website with a custom-built Admin CMS, enabling complete content and product management without relying on heavy CMS frameworks.
 
 📑 Table of Contents
 
@@ -31,37 +29,45 @@ Backend Architecture
 
 API Endpoints
 
-Database Schema
+Database Schema Overview
 
-Reorder System (CMS Logic)
+CMS Reorder System
 
-Image Handling
+Image Handling Flow
+
+Environment Variables
 
 Getting Started
 
 Deployment
 
+Performance Considerations
+
+Future Roadmap
+
 🌿 Overview
 
-Firehawk Imports & Exports is a premium spice export showcase platform designed for international buyers.
+Firehawk Imports & Exports is a premium spice export showcase platform created to present high-quality Indian spices to international markets.
 
-The platform consists of:
+The system consists of two major parts:
 
 ✅ Public Website
 
-Homepage with dynamic CMS sections
+Dynamic homepage powered by CMS
 
-About page with company heritage
+Company story and heritage
 
-Product catalog
+Product catalog with categories
 
 Product detail pages
+
+Testimonials
 
 Enquiry system
 
 Contact page
 
-✅ Admin Dashboard
+✅ Admin Dashboard (Custom CMS)
 
 Product management
 
@@ -75,34 +81,36 @@ Testimonials management
 
 Enquiry inbox
 
-CMS reorder system
+Dynamic section reordering
 
 🎯 Project Vision
 
-The goal of Firehawk platform is to:
+The Firehawk platform was designed to:
 
 Present spices with a premium export-quality identity
 
-Allow non-technical admins to update content easily
+Allow non-technical administrators to manage content easily
 
-Support scalable backend integration
+Maintain high performance and scalability
 
-Maintain performance and SEO-friendly structure
+Avoid heavy CMS dependencies
 
-Provide enterprise-level CMS flexibility without heavy frameworks
+Provide flexible and structured content management
+
+Support future integrations and expansion
 
 🛠 Tech Stack
 Frontend
 Technology	Purpose
 React 18	UI framework
 TypeScript	Type-safe development
-Vite	Fast dev server & bundler
+Vite	Fast bundler & dev server
 React Router v6	Routing
 Tailwind CSS	Styling
 shadcn/ui	UI components
 Lucide React	Icons
-TanStack Query	Data fetching
-React Hook Form	Forms
+TanStack Query	Data fetching & caching
+React Hook Form	Form handling
 Zod	Validation
 Backend
 Technology	Purpose
@@ -110,15 +118,18 @@ Node.js	Backend runtime
 Express.js	API framework
 TypeScript	Type safety
 Prisma ORM	Database ORM
-PostgreSQL (Aiven)	Database
+PostgreSQL (Aiven)	Managed database
 Cloudinary	Image storage
-Multer	File upload handling
+Multer	File upload middleware
+JWT	Authentication (planned expansion)
 🧱 Architecture Overview
 Frontend (React)
         ↓
 Service Layer (API abstraction)
         ↓
-Express Controllers
+Express Routes
+        ↓
+Controllers
         ↓
 Service Layer (Business Logic)
         ↓
@@ -126,11 +137,13 @@ Prisma ORM
         ↓
 PostgreSQL (Aiven)
 
-Key Principle
+Core Principles
 
-✅ Frontend never talks directly to database
-✅ Controllers stay thin
+✅ Frontend never communicates directly with database
+✅ Controllers remain thin
 ✅ Business logic lives in services
+✅ Database access only via Prisma
+✅ CMS structured for scalability
 
 📁 Project Structure
 Frontend
@@ -141,17 +154,15 @@ src/
 │   └── reusable components
 │
 ├── pages/
-│   ├── public pages
-│   └── admin pages
+│   ├── public/
+│   └── admin/
 │
 ├── services/
 │   └── api.ts
 │
-├── types/
-│   └── index.ts
-│
 ├── hooks/
 ├── lib/
+├── types/
 └── data/
 
 Backend
@@ -169,17 +180,19 @@ backend/src/
 │   └── testimonial.routes.ts
 │
 ├── services/
-│   └── homepage.service.ts
+│   ├── homepage.service.ts
+│   └── testimonial.service.ts
 │
 ├── config/
 │   └── db.ts
 │
-└── app.ts
+├── middleware/
+└── server.ts
 
 🎨 Design System
 Theme Concept
 
-Fire-inspired premium palette representing:
+A fire-inspired premium palette representing:
 
 warmth
 
@@ -194,13 +207,13 @@ Name	Usage
 Ember	Primary brand color
 Burnt Orange	Accent
 Saffron	Premium highlight
-Charcoal	Admin theme
+Charcoal	Dark backgrounds / admin
 Sand / Cream	Background
 Typography
 
 Cormorant Garamond — headings
 
-System Sans — body text
+System Sans — body content
 
 🗺 Pages & Routes
 Public Routes
@@ -209,7 +222,7 @@ Route	Description
 /about	Company story
 /products	Product catalog
 /products/:slug	Product details
-/contact	Contact form
+/contact	Contact & enquiry
 Admin Routes
 Route	Description
 /admin	Dashboard
@@ -219,31 +232,33 @@ Route	Description
 /admin/homepage	Homepage CMS
 /admin/about	About CMS
 ⚙ Admin CMS Features
-Homepage CMS
+Homepage CMS Sections
 
 Admin can manage:
 
 Hero section
 
-Introduction
+Introduction section
 
 Quality section
 
-Why choose us
+Why Choose Us
+
+Category intro section
 
 CTA section
 
-Dynamic Blocks
+Dynamic CMS Blocks
 
 Features (Why Firehawk)
 
-Journey steps (Farm → Export)
+Journey Steps (Farm → Export)
 
 Origins (Kerala / Karnataka)
 
 Certifications
 
-All support:
+Each supports:
 
 ✅ Create
 ✅ Update
@@ -280,11 +295,11 @@ AboutContent
 
 ContactInfo
 
-All types shared between frontend and backend.
+Frontend and backend share aligned TypeScript types.
 
 🧠 Backend Architecture
 
-Backend follows:
+Pattern followed:
 
 Route → Controller → Service → Prisma → Database
 
@@ -292,6 +307,9 @@ Route → Controller → Service → Prisma → Database
 Example:
 
 PATCH /homepage/features/:id/reorder
+
+
+Flow:
 
 Route
   ↓
@@ -321,22 +339,22 @@ PATCH /api/content/homepage/origins/:id/reorder
 Certifications
 PATCH /api/content/homepage/certifications/:id/reorder
 
-🔄 Reorder System (CMS Logic)
+🔄 CMS Reorder System
 
-Each item has:
+Each CMS entity contains:
 
 sort_order INTEGER
 
 
-Reorder logic:
+Reordering logic:
 
 Fetch current item
 
-Calculate new order
+Calculate new position
 
-Find item with target order
+Find item occupying target position
 
-Swap using Prisma transaction
+Swap using transaction
 
 Example:
 
@@ -346,7 +364,7 @@ await prisma.$transaction([
 ]);
 
 
-This ensures consistent ordering.
+This guarantees ordering consistency.
 
 🖼 Image Handling
 
@@ -360,7 +378,7 @@ Multer Middleware
    ↓
 Cloudinary Upload
    ↓
-URL stored in PostgreSQL
+Image URL stored in PostgreSQL
 
 
 Used for:
@@ -373,8 +391,20 @@ Journey steps
 
 Testimonials
 
+🔐 Environment Variables
+Backend
+DATABASE_URL=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+JWT_SECRET=
+PORT=3000
+
+Frontend
+VITE_API_URL=http://localhost:3000/api
+
 🚀 Getting Started
-Install
+Install Dependencies
 npm install
 
 Run Frontend
@@ -386,41 +416,55 @@ npm run dev
 🌐 Deployment
 Frontend
 
-Lovable / Vercel / Netlify
+Vercel
+
+Netlify
+
+Lovable
 
 Backend
 
-VPS / Railway / Render
+VPS
+
+Railway
+
+Render
 
 Database
 
 Aiven PostgreSQL
 
-🔐 Environment Variables
-DATABASE_URL=
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-JWT_SECRET=
+⚡ Performance Considerations
 
-🏁 Current Status
+API abstraction layer reduces coupling
 
-✅ Frontend complete
-✅ Backend CMS complete
-✅ Homepage dynamic content working
-✅ Reorder system implemented
-✅ Image uploads working
-✅ Admin CMS operational
+Prisma optimized queries
 
-Next planned:
+Parallel fetching using Promise.all
 
-Authentication & roles
+Image CDN via Cloudinary
+
+Lazy loading for images
+
+Cached data via TanStack Query
+
+🧭 Future Roadmap
+
+Planned improvements:
+
+Authentication & role-based access
 
 SEO optimization
 
 Analytics integration
 
-Export enquiry workflow
+Export enquiry workflow automation
+
+Email notifications
+
+Multi-language support
+
+Product specification downloads
 
 📝 License
 

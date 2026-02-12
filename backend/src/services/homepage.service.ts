@@ -1,5 +1,46 @@
 import prisma from "../config/db";
 
+
+async function reorderItems(
+  model: any,
+  id: string,
+  direction: "up" | "down"
+) {
+  const items = await model.findMany({
+    where: { is_active: true },
+    orderBy: { sort_order: "asc" },
+  });
+
+  if (!items.length) return;
+
+  const index = items.findIndex((i: any) => i.id === id);
+  if (index === -1) return;
+
+  let swapIndex;
+
+  if (direction === "up") {
+    swapIndex = index === 0 ? items.length - 1 : index - 1;
+  } else {
+    swapIndex = index === items.length - 1 ? 0 : index + 1;
+  }
+
+  const current = items[index];
+  const swap = items[swapIndex];
+
+  // IMPORTANT: swap using actual values from DB order
+  await prisma.$transaction([
+    model.update({
+      where: { id: current.id },
+      data: { sort_order: swap.sort_order },
+    }),
+    model.update({
+      where: { id: swap.id },
+      data: { sort_order: current.sort_order },
+    }),
+  ]);
+}
+
+
 /* ======================================================
    HOMEPAGE SERVICE
    Firehawk Imports & Exports
@@ -51,6 +92,8 @@ export const homepageService = {
     });
   },
 
+
+  
   /* ======================================================
      FEATURES (Why Firehawk small cards)
   ====================================================== */
@@ -63,15 +106,16 @@ export const homepageService = {
   },
 
   async createFeature(data: any) {
-    // Convert sort_order to number
-    const processedData = {
-      ...data,
-      sort_order: parseInt(data.sort_order) || 0,
-      is_active: true,
-    };
-    
+    const last = await prisma.homepageFeature.findFirst({
+      orderBy: { sort_order: "desc" },
+    });
+
     return prisma.homepageFeature.create({
-      data: processedData,
+      data: {
+        ...data,
+        sort_order: (last?.sort_order || 0) + 1,
+        is_active: true,
+      },
     });
   },
 
@@ -94,38 +138,8 @@ export const homepageService = {
     });
   },
 
-  async reorderFeature(id: string, direction: 'up' | 'down') {
-    const feature = await prisma.homepageFeature.findUnique({ where: { id } });
-    if (!feature) throw new Error('Feature not found');
-
-    const currentOrder = feature.sort_order;
-    const newOrder = direction === 'up' ? currentOrder - 1 : currentOrder + 1;
-
-    // Find the feature that currently has the target order
-    const swapFeature = await prisma.homepageFeature.findFirst({
-      where: { sort_order: newOrder },
-    });
-
-    if (swapFeature) {
-      // Swap orders
-      await prisma.$transaction([
-        prisma.homepageFeature.update({
-          where: { id: feature.id },
-          data: { sort_order: newOrder },
-        }),
-        prisma.homepageFeature.update({
-          where: { id: swapFeature.id },
-          data: { sort_order: currentOrder },
-        }),
-      ]);
-    } else {
-      // Just update the current feature
-      await prisma.homepageFeature.update({
-        where: { id },
-        data: { sort_order: newOrder },
-      });
-    }
-
+  async reorderFeature(id: string, direction: "up" | "down") {
+    await reorderItems(prisma.homepageFeature, id, direction);
     return this.getFeatures();
   },
 
@@ -183,38 +197,8 @@ export const homepageService = {
     });
   },
 
-  async reorderJourney(id: string, direction: 'up' | 'down') {
-    const journey = await prisma.homepageJourney.findUnique({ where: { id } });
-    if (!journey) throw new Error('Journey step not found');
-
-    const currentOrder = journey.sort_order;
-    const newOrder = direction === 'up' ? currentOrder - 1 : currentOrder + 1;
-
-    // Find the journey step that currently has the target order
-    const swapJourney = await prisma.homepageJourney.findFirst({
-      where: { sort_order: newOrder },
-    });
-
-    if (swapJourney) {
-      // Swap orders
-      await prisma.$transaction([
-        prisma.homepageJourney.update({
-          where: { id: journey.id },
-          data: { sort_order: newOrder },
-        }),
-        prisma.homepageJourney.update({
-          where: { id: swapJourney.id },
-          data: { sort_order: currentOrder },
-        }),
-      ]);
-    } else {
-      // Just update the current journey step
-      await prisma.homepageJourney.update({
-        where: { id },
-        data: { sort_order: newOrder },
-      });
-    }
-
+  async reorderJourney(id: string, direction: "up" | "down") {
+    await reorderItems(prisma.homepageJourney, id, direction);
     return this.getJourney();
   },
 
@@ -263,44 +247,15 @@ export const homepageService = {
   },
 
   async deleteOrigin(id: string) {
-    return prisma.homepageOrigin.delete({
+    await prisma.homepageOrigin.deleteMany({
       where: { id },
     });
+
+    return { success: true };
   },
 
-  async reorderOrigin(id: string, direction: 'up' | 'down') {
-    const origin = await prisma.homepageOrigin.findUnique({
-      where: { id },
-    });
-
-    if (!origin) throw new Error('Origin not found');
-
-    const swapOrigin = await prisma.homepageOrigin.findFirst({
-      where: {
-        is_active: true,
-        sort_order:
-          direction === 'up'
-            ? { lt: origin.sort_order }
-            : { gt: origin.sort_order },
-      },
-      orderBy: {
-        sort_order: direction === 'up' ? 'desc' : 'asc',
-      },
-    });
-
-    if (!swapOrigin) return this.getOrigins();
-
-    await prisma.$transaction([
-      prisma.homepageOrigin.update({
-        where: { id: origin.id },
-        data: { sort_order: swapOrigin.sort_order },
-      }),
-      prisma.homepageOrigin.update({
-        where: { id: swapOrigin.id },
-        data: { sort_order: origin.sort_order },
-      }),
-    ]);
-
+  async reorderOrigin(id: string, direction: "up" | "down") {
+    await reorderItems(prisma.homepageOrigin, id, direction);
     return this.getOrigins();
   },
 
@@ -354,43 +309,11 @@ export const homepageService = {
     });
   },
 
-  async reorderCertification(id: string, direction: 'up' | 'down') {
-    const certification =
-      await prisma.homepageCertification.findUnique({
-        where: { id },
-      });
-
-    if (!certification)
-      throw new Error('Certification not found');
-
-    const swapCert =
-      await prisma.homepageCertification.findFirst({
-        where: {
-          is_active: true,
-          sort_order:
-            direction === 'up'
-              ? { lt: certification.sort_order }
-              : { gt: certification.sort_order },
-        },
-        orderBy: {
-          sort_order: direction === 'up' ? 'desc' : 'asc',
-        },
-      });
-
-    if (!swapCert) return this.getCertifications();
-
-    await prisma.$transaction([
-      prisma.homepageCertification.update({
-        where: { id: certification.id },
-        data: { sort_order: swapCert.sort_order },
-      }),
-      prisma.homepageCertification.update({
-        where: { id: swapCert.id },
-        data: { sort_order: certification.sort_order },
-      }),
-    ]);
-
+  async reorderCertification(id: string, direction: "up" | "down") {
+    await reorderItems(prisma.homepageCertification, id, direction);
     return this.getCertifications();
   },
 
 };
+
+
