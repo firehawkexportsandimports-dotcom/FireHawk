@@ -10,7 +10,6 @@ export const createEnquiry = async (req: Request, res: Response) => {
 
     res.json(enquiry);
   } catch (error) {
-    console.error("Create enquiry error:", error);
     res.status(500).json({
       message: "Failed to create enquiry",
     });
