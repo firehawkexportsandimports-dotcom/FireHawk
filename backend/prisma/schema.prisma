@@ -128,6 +128,21 @@ model HomepageContent {
   @@map("homepage_content")
 }
 
+model HomepageStat {
+  id         String   @id @default(cuid())
+  value      String   // "15+"
+  label      String   // "Export Countries"
+  icon       String?  // optional later
+  sort_order Int      @default(0)
+  is_active  Boolean  @default(true)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("homepage_stats")
+}
+
+
 model HomepageFeature {
   id          String   @id @default(cuid())
   title       String
@@ -246,6 +261,7 @@ enum HomepageSection {
   why_choose
   cta
   category_intro
+  testimonials_intro
 }
 
 enum AboutSection {

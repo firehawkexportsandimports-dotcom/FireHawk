@@ -171,6 +171,39 @@ export const homepageApi = {
       }
     ),
 
+  /* ---------- HERO STATS ---------- */
+
+  createStat: (data: any) =>
+    fetchJson(`${API_BASE}/content/homepage/stats`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateStat: (id: string, data: any) =>
+    fetchJson(
+      `${API_BASE}/content/homepage/stats/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }
+    ),
+
+  deleteStat: (id: string) =>
+    fetchJson<void>(
+      `${API_BASE}/content/homepage/stats/${id}`,
+      { method: "DELETE" }
+    ),
+
+  reorderStat: (id: string, direction: "up" | "down") =>
+    fetchJson<void>(
+      `${API_BASE}/content/homepage/stats/${id}/reorder`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ direction }),
+      }
+    ),
+
+
   /* ---------- FEATURES ---------- */
   createFeature: (data: Partial<Feature>) =>
     fetchJson<Feature>(`${API_BASE}/content/homepage/features`, {
@@ -358,6 +391,8 @@ export const contentApi = {
       }
     ),
 
+
+
   /* ---------- CONTACT ---------- */
   getContact: () =>
     fetchJson<ContactInfo>(`${API_BASE}/content/contact`),
@@ -454,5 +489,6 @@ export const usersApi = {
     fetchJson(`${API_BASE}/users/${id}`, {
       method: "DELETE",
     }),
+
 };
 

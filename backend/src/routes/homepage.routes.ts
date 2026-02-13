@@ -18,6 +18,10 @@ import {
   reorderJourney,
   reorderOrigin,
   reorderCertification,
+  reorderStat,
+  deleteStat,
+  updateStat,
+  createStat,
 } from "../controllers/homepage.controller";
 
 import { upload } from "../middleware/upload";
@@ -48,7 +52,10 @@ router.put(
   updateSection
 );
 
-
+router.post("/homepage/stats", createStat);
+router.put("/homepage/stats/:id", updateStat);
+router.delete("/homepage/stats/:id", deleteStat);
+router.patch("/homepage/stats/:id/reorder", reorderStat);
 /* =====================================================
    FEATURES (Why Firehawk items)
 ===================================================== */

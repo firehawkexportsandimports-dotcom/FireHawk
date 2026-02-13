@@ -21,7 +21,8 @@ export type HomepageSection =
   | 'quality'
   | 'why_choose'
   | 'category_intro'
-  | 'cta';
+  | 'cta'
+  | 'testimonials_intro';
 
 /* ---------- ABOUT SECTIONS ---------- */
 
@@ -165,6 +166,15 @@ export interface HomepageContent {
   updated_at: string;
 }
 
+export interface HomepageStat {
+  id: string;
+  value: string;
+  label: string;
+  icon?: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
 export interface Feature {
   id?: string;
   title: string;
@@ -205,6 +215,7 @@ export interface HomepageResponse {
   origins: Origin[];
   certifications: Certification[];
   testimonials: Testimonial[];
+  stats: HomepageStat[];
 }
 
 

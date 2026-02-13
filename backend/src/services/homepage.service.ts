@@ -314,6 +314,79 @@ export const homepageService = {
     return this.getCertifications();
   },
 
+  async updateStat(id: string, data: any) {
+    return prisma.homepageStat.update({
+      where: { id },
+      data,
+    });
+  },
+
+  /* ======================================================
+    HERO STATS (15+ Countries / 25+ Years / 500+ Farmers)
+  ====================================================== */
+
+  async getStats() {
+    return prisma.homepageStat.findMany({
+      where: { is_active: true },
+      orderBy: { sort_order: "asc" },
+    });
+  },
+
+  async createStat(data: any) {
+    const last = await prisma.homepageStat.findFirst({
+      orderBy: { sort_order: "desc" },
+    });
+
+    return prisma.homepageStat.create({
+      data: {
+        value: data.value,
+        label: data.label,
+        sort_order: (last?.sort_order || 0) + 1,
+        is_active: true,
+      },
+    });
+  },
+
+
+  async deleteStat(id: string) {
+    return prisma.homepageStat.delete({
+      where: { id },
+    });
+  },
+
+  async reorderStat(id: string, direction: "up" | "down") {
+    const current = await prisma.homepageStat.findUnique({
+      where: { id },
+    });
+
+    if (!current) return;
+
+    const swap = await prisma.homepageStat.findFirst({
+      where:
+        direction === "up"
+          ? { sort_order: { lt: current.sort_order } }
+          : { sort_order: { gt: current.sort_order } },
+      orderBy: {
+        sort_order: direction === "up" ? "desc" : "asc",
+      },
+    });
+
+    if (!swap) return;
+
+    await prisma.$transaction([
+      prisma.homepageStat.update({
+        where: { id: current.id },
+        data: { sort_order: swap.sort_order },
+      }),
+      prisma.homepageStat.update({
+        where: { id: swap.id },
+        data: { sort_order: current.sort_order },
+      }),
+    ]);
+  }
+
+
+  
 };
 
 

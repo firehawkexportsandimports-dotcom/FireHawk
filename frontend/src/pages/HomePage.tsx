@@ -8,7 +8,7 @@ import { CategoryCard } from '@/components/CategoryCard';
 import { TestimonialCard } from '@/components/TestimonialCard';
 import { SectionHeader } from '@/components/SectionHeader';
 import { productsApi, categoriesApi, testimonialsApi, contentApi } from '@/services/api';
-import { Product, Category, Testimonial, HomepageContent, Feature, JourneyStep, Origin, Certification, IconType } from '@/types';
+import { Product, Category, Testimonial, HomepageContent, Feature, JourneyStep, Origin, Certification, IconType, HomepageStat } from '@/types';
 import { HighlightText } from '@/components/ui/HighlightText';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -45,12 +45,14 @@ export default function HomePage() {
     journey: JourneyStep[];
     origins: Origin[];
     certifications: Certification[];
+    stats: HomepageStat[];
   }>({
     sections: [],
     features: [],
     journey: [],
     origins: [],
     certifications: [],
+    stats: [],
   });
 
   // Helper to get section content
@@ -101,6 +103,8 @@ export default function HomePage() {
               journey: [],
               origins: [],
               certifications: [],
+              testimonials: [],
+              stats: [],
             };
           })
         ]);
@@ -139,6 +143,8 @@ export default function HomePage() {
   const whyChooseContent = getSectionContent('why_choose');
   const categoryIntroContent = getSectionContent('category_intro');
   const ctaContent = getSectionContent('cta');
+  const testimonialsIntroContent = getSectionContent('testimonials_intro');
+
 
   const isLoading = loading.products || loading.categories || loading.testimonials;
 
@@ -192,18 +198,36 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/10 animate-fade-in delay-300">
-              <div className="text-center">
-                <p className="text-3xl font-display font-bold text-saffron">15+</p>
-                <p className="text-sm text-white/60">Export Countries</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-display font-bold text-saffron">25+</p>
-                <p className="text-sm text-white/60">Years Experience</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-display font-bold text-saffron">500+</p>
-                <p className="text-sm text-white/60">Partner Farmers</p>
-              </div>
+              {homepageData.stats.length > 0 ? (
+                homepageData.stats
+                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .map((stat) => (
+                    <div key={stat.id} className="text-center">
+                      <p className="text-3xl font-display font-bold text-saffron">
+                        {stat.value}
+                      </p>
+                      <p className="text-sm text-white/60">
+                        {stat.label}
+                      </p>
+                    </div>
+                  ))
+              ) : (
+                <>
+                  {/* fallback if DB empty */}
+                  <div className="text-center">
+                    <p className="text-3xl font-display font-bold text-saffron">15+</p>
+                    <p className="text-sm text-white/60">Export Countries</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-display font-bold text-saffron">25+</p>
+                    <p className="text-sm text-white/60">Years Experience</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-display font-bold text-saffron">500+</p>
+                    <p className="text-sm text-white/60">Partner Farmers</p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -450,7 +474,7 @@ export default function HomePage() {
               </p>
 
               <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-                {getContentValue(qualityContent, 'title') || "Export-Grade Quality, Globally Trusted"}
+                <HighlightText text = {getContentValue(qualityContent, 'title') || "Export-Grade Quality, Globally Trusted"} />
               </h2>
 
               <p className="text-muted-foreground text-lg mb-8">
@@ -524,9 +548,17 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-warm">
         <div className="container">
           <SectionHeader
-            subtitle="Client Testimonials"
-            title="What Our Partners Say"
-            description="Trusted by leading spice importers and distributors across Europe"
+            subtitle={
+              getContentValue(testimonialsIntroContent, 'subtitle') ||
+              "Client Testimonials"
+            }
+            title={
+              getContentValue(testimonialsIntroContent, 'title') 
+            }
+            description={
+              getContentValue(testimonialsIntroContent, 'content') ||
+              "Trusted by leading spice importers and distributors across Europe"
+            }
           />
           
           {loading.testimonials ? (

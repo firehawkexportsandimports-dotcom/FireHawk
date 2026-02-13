@@ -47,6 +47,7 @@ export const createTestimonial = async (
   try {
     const data = await testimonialService.create(req.body);
     res.json(data);
+    console.log("BODY:", req.body);
   } catch (error) {
     console.error(error);
     res.status(500).json({

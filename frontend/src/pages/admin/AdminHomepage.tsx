@@ -45,6 +45,7 @@ import {
   Certification,
   IconType,
   Testimonial,
+  HomepageStat,
 } from "@/types";
 
 
@@ -79,6 +80,7 @@ const sections: { id: HomepageSection; title: string }[] = [
   { id: "why_choose", title: "Why Choose Us" },
   { id: "category_intro", title: "Category Section Header" },
   { id: "cta", title: "CTA Section" },
+  { id: "testimonials_intro", title: "Testimonials Section Header" },
 ];
 
 const sectionFieldConfig: Record<
@@ -94,11 +96,9 @@ const sectionFieldConfig: Record<
 > = {
   hero: {
     title: true,
-    subtitle: true,
     content: true,
     image: true,
     badge: true,
-    button: true,
   },
 
   intro: {
@@ -115,6 +115,7 @@ const sectionFieldConfig: Record<
 
   quality: {
     title: true,
+    subtitle: true,
     content: true,
   },
 
@@ -136,6 +137,13 @@ const sectionFieldConfig: Record<
     badge: true,
     button: true,
   },
+
+  testimonials_intro: {
+    title: true,
+    subtitle: true,
+    content: true,
+  },
+  
 };
 
 
@@ -156,6 +164,9 @@ export default function AdminHomepage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [editingTestimonial, setEditingTestimonial] =  useState<Partial<Testimonial> | null>(null);
   const [spiceInput, setSpiceInput] = useState("");
+  const [stats, setStats] = useState<HomepageStat[]>([]);
+  const [editingStat, setEditingStat] = useState<HomepageStat | null>(null);
+
 
 
 
@@ -175,6 +186,7 @@ export default function AdminHomepage() {
       setOrigins(data.origins || []);
       setCertifications(data.certifications || []);
       setTestimonials(data.testimonials || []);
+      setStats(data.stats || []);
     } catch (err) {
       console.error("Homepage fetch error:", err);
     } finally {
@@ -229,6 +241,19 @@ export default function AdminHomepage() {
     }
   };
 
+  const handleDeleteStat = async (id: string) => {
+    try {
+      await homepageApi.deleteStat(id);
+
+      // update UI immediately
+      setStats(prev => prev.filter(stat => stat.id !== id));
+    } catch (error) {
+      console.error("Delete stat failed:", error);
+      alert("Failed to delete stat");
+    }
+  };
+
+
   // Feature CRUD - FIXED: Remove id field for new items
   const handleSaveFeature = async () => {
     if (!editingFeature) return;
@@ -265,7 +290,7 @@ export default function AdminHomepage() {
   };
 
   const handleReorder = async (
-    type: 'feature' | 'journey' | 'origin' | 'certification',
+    type: 'stat' | 'feature' | 'journey' | 'origin' | 'certification',
     id: string | undefined,
     direction: 'up' | 'down'
   ) => {
@@ -273,6 +298,7 @@ export default function AdminHomepage() {
       if (!id) return;
 
       const apiMap = {
+        stats: homepageApi.reorderStat,
         feature: homepageApi.reorderFeature,
         journey: homepageApi.reorderJourney,
         origin: homepageApi.reorderOrigin,
@@ -550,6 +576,94 @@ const handleDeleteTestimonial = async (id: string) => {
             </div>
           </CardContent>
         </Card>
+        {/* Stats - FIXED: Remove id field for new items */}
+        <Card>
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div>
+              <CardTitle>Hero Stats</CardTitle>
+              <CardDescription>
+                Numbers displayed in hero section
+              </CardDescription>
+            </div>
+
+            <Button
+              onClick={() =>
+                setEditingStat({
+                  value: "",
+                  label: "",
+                  suffix: "+",
+                  sort_order: stats.length + 1,
+                } as any)
+              }
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add Stat
+            </Button>
+          </CardHeader>
+
+          <CardContent>
+            <div className="space-y-3">
+              {stats
+                .sort((a, b) => a.sort_order - b.sort_order)
+                .map((stat, index) => (
+                  <div
+                    key={stat.id}
+                    className="flex items-center justify-between border rounded-lg p-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleReorder("stat", stat.id, "up")
+                          }
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleReorder("stat", stat.id, "down")
+                          }
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold text-lg">
+                          {stat.value}{stat.icon}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {stat.label}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingStat(stat)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteStat(stat.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+
 
         {/* Features - FIXED: Remove id field for new items */}
         <Card>
@@ -1083,7 +1197,69 @@ const handleDeleteTestimonial = async (id: string) => {
           </Dialog>
             );
         })()}
+        {/* StatsEdit Modal */}
+        {editingStat && (
+          <Dialog open onOpenChange={() => setEditingStat(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingStat.id ? "Edit" : "Add"} Stat
+                </DialogTitle>
+              </DialogHeader>
 
+              <div className="space-y-4">
+                <Input
+                  placeholder="Value (15)"
+                  value={editingStat.value}
+                  onChange={(e) =>
+                    setEditingStat({
+                      ...editingStat,
+                      value: e.target.value,
+                    })
+                  }
+                />
+
+                <Input
+                  placeholder="Label (Export Countries)"
+                  value={editingStat.label}
+                  onChange={(e) =>
+                    setEditingStat({
+                      ...editingStat,
+                      label: e.target.value,
+                    })
+                  }
+                />
+
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setEditingStat(null)}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    onClick={async () => {
+                      if (editingStat.id) {
+                        await homepageApi.updateStat(
+                          editingStat.id,
+                          editingStat
+                        );
+                      } else {
+                        await homepageApi.createStat(editingStat);
+                      }
+
+                      await loadData();
+                      setEditingStat(null);
+                    }}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* Feature Edit Modal */}
         {editingFeature && (

@@ -14,6 +14,7 @@ export const getHomepage = async (_req: Request, res: Response) => {
       origins,
       certifications,
       testimonials,
+      stats,
     ] = await Promise.all([
       homepageService.getAllSections(),
       homepageService.getFeatures(),
@@ -21,6 +22,7 @@ export const getHomepage = async (_req: Request, res: Response) => {
       homepageService.getOrigins(),
       homepageService.getCertifications(),
       testimonialService.getFeatured(), 
+      homepageService.getStats(),
     ]);
 
     res.json({
@@ -30,6 +32,7 @@ export const getHomepage = async (_req: Request, res: Response) => {
       origins,
       certifications,
       testimonials, 
+      stats,
     });
   } catch (error) {
     console.error(error);
@@ -70,6 +73,57 @@ export const updateSection = async (req: Request, res: Response) => {
     res.status(500).json({
       message: "Failed to update section",
     });
+  }
+};
+
+
+/* =====================================================
+   HERO STATS
+===================================================== */
+
+export const createStat = async (req: Request, res: Response) => {
+  try {
+    const stat = await homepageService.createStat(req.body);
+    res.json(stat);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to create stat" });
+  }
+};
+
+export const updateStat = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const stat = await homepageService.updateStat(id, req.body);
+    res.json(stat);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update stat" });
+  }
+};
+
+export const deleteStat = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    await homepageService.deleteStat(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to delete stat" });
+  }
+};
+
+export const reorderStat = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const { direction } = req.body;
+
+    await homepageService.reorderStat(id, direction);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to reorder stat" });
   }
 };
 
@@ -331,3 +385,5 @@ export const reorderCertification = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to reorder certification" });
   }
 };
+
+
