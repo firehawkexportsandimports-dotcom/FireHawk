@@ -1,5 +1,6 @@
 import prisma from "../config/db";
 import { enquiryEmailTemplate } from "../utils/enquiryTemplate";
+import { customerThankyouTemplate } from "../utils/customerThankyouTemplate";
 import { transporter } from "../utils/mailer"; // ✅ IMPORT THIS
 
 export const enquiryService = {
@@ -40,6 +41,14 @@ export const enquiryService = {
       replyTo: enquiry.email,
       subject: `New Enquiry from ${enquiry.name}`,
       html: enquiryEmailTemplate(enquiry),
+    });
+
+    //  CUSTOMER THANK YOU EMAIL
+    await transporter.sendMail({
+      from: `"Firehawk Imports & Exports" <${process.env.MAIL_USER}>`,
+      to: enquiry.email,
+      subject: "Thank you for contacting Firehawk Imports & Exports",
+      html: customerThankyouTemplate(enquiry),
     });
 
     // ✅ 3. Return enquiry
