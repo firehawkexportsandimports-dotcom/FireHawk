@@ -180,10 +180,10 @@ export default function ContactPage() {
             {/* Contact Info */}
             <div>
               <h2 className="font-display text-3xl font-bold text-foreground mb-6">
-                {contactInfo?.company_description || "Get in Touch with Us"}
+                  Firehawk Imports and Exports
               </h2>
               <p className="text-muted-foreground text-lg mb-10">
-                Whether you're looking for bulk spice orders, custom packaging, or want to become a distributor, our team is here to help.
+                {contactInfo?.company_description || "Get in Touch with Us"}
               </p>
 
               <div className="space-y-6">

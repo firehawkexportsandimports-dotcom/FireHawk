@@ -395,17 +395,27 @@ export default function AdminAbout() {
                 )}
 
                 {/* Content Field */}
-                {hasField("content") && editingSection.section !== "sourcing" && (
+                {hasField("content") && (
                   <div>
-                    <p className="text-sm font-medium mb-1">Content</p>
+                    <p className="text-sm font-medium mb-1">
+                      {editingSection.section === "sourcing"
+                        ? "Sourcing Description"
+                        : "Content"}
+                    </p>
+
                     <Textarea
-                      rows={6}
+                      rows={editingSection.section === "sourcing" ? 3 : 6}
                       value={editingSection.content || ""}
                       onChange={(e) =>
                         setEditingSection({
                           ...editingSection,
                           content: e.target.value,
                         })
+                      }
+                      placeholder={
+                        editingSection.section === "sourcing"
+                          ? "Short paragraph describing your sourcing process"
+                          : ""
                       }
                     />
                   </div>

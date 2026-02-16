@@ -245,6 +245,13 @@ export default function AboutPage() {
               {sourcingContent?.title || "Sourcing & Quality"}
             </h2>
 
+            {/* PARAGRAPH */}
+            {sourcingContent?.content && (
+              <p className="text-muted-foreground text-lg leading-relaxed mb-6 whitespace-pre-line">
+                {sourcingContent.content}
+              </p>
+            )}
+
             <ul className="space-y-4">
               {(sourcingContent?.bullets || []).map((item, index) => (
                 <li key={index} className="flex items-start gap-4">
@@ -304,13 +311,6 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-8 mt-12">
             {/* Mission Card */}
             <div className="bg-white rounded-3xl p-8 shadow-soft">
-              {/* Mission Badge (showing on card) */}
-              {missionContent?.badge && (
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ember/10 text-ember text-xs font-medium mb-4">
-                  <Target className="w-3 h-3" />
-                  {missionContent.badge}
-                </div>
-              )}
               
               <div className="flex items-start gap-3 mb-4">
                 <Target className="w-7 h-7 text-ember flex-shrink-0" />
@@ -364,7 +364,7 @@ export default function AboutPage() {
             <div className="flex flex-wrap gap-3">
               {(exportContent?.countries?.length
                 ? exportContent.countries
-                : ['Germany', 'France', 'UK', 'USA']
+                : []
               ).map((country) => (
                 <span
                   key={country}
