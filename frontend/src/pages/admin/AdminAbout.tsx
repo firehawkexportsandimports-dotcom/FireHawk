@@ -100,29 +100,18 @@ const sectionFields: Record<AboutSection, AboutField[]> = {
   heritage: ["title", "content", "badge", "image"],
   sourcing: ["title", "content", "badge", "image"],
   mission: [
-    "title",        // Mission card title
-    "content",      // Mission text
-    "badge",        // Our Purpose
-    "subtitle",     // Section title (Mission & Vision)
-    "description",  // Section description
+    "title", // Mission card title
+    "content", // Mission text
+    "badge", // Our Purpose
+    "subtitle", // Section title (Mission & Vision)
+    "description", // Section description
   ],
   vision: [
-    "title",        // Vision card title
-    "content",      // Vision text
+    "title", // Vision card title
+    "content", // Vision text
   ],
-  export: [
-    "title",
-    "content",
-    "badge",
-    "countries",
-    "image",
-  ],
-  cta: [
-    "title",
-    "content",
-    "badge",
-    "image",
-  ],
+  export: ["title", "content", "badge", "countries", "image"],
+  cta: ["title", "content", "badge", "image"],
 };
 
 /* =====================================================
@@ -135,6 +124,7 @@ interface AboutEditForm {
   subtitle?: string;
   badge?: string;
   content?: string;
+  bullets?: string[];
   description?: string;
   image?: string;
   countries?: string[];
@@ -147,21 +137,21 @@ interface AboutEditForm {
 
 export default function AdminAbout() {
   const [sectionsData, setSectionsData] = useState<AboutContent[]>([]);
-  const [editingSection, setEditingSection] =
-    useState<AboutEditForm | null>(null);
+  const [editingSection, setEditingSection] = useState<AboutEditForm | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [countryInput, setCountryInput] = useState("");
   const [stats, setStats] = useState<HomepageStat[]>([]);
   const [editingStat, setEditingStat] = useState<HomepageStat | null>(null);
-
+  const [bulletInput, setBulletInput] = useState("");
 
   /* ===============================
      HELPER FUNCTIONS
   =============================== */
-  
+
   const hasField = (field: AboutField) =>
-    editingSection &&
-    sectionFields[editingSection.section]?.includes(field);
+    editingSection && sectionFields[editingSection.section]?.includes(field);
 
   /* ===============================
      LOAD DATA
@@ -187,7 +177,6 @@ export default function AdminAbout() {
     }
   };
 
-
   const getSectionData = (section: AboutSection) =>
     sectionsData.find((s) => s.section === section);
 
@@ -204,8 +193,12 @@ export default function AdminAbout() {
       formData.append("badge", editingSection.badge || "");
       formData.append("subtitle", editingSection.subtitle || "");
       formData.append("content", editingSection.content || "");
+      formData.append("bullets", JSON.stringify(editingSection.bullets || []));
       formData.append("description", editingSection.description || "");
-      formData.append("countries", JSON.stringify(editingSection.countries || []));
+      formData.append(
+        "countries",
+        JSON.stringify(editingSection.countries || []),
+      );
 
       if (editingSection.imageFile) {
         formData.append("image", editingSection.imageFile);
@@ -213,18 +206,14 @@ export default function AdminAbout() {
 
       const updated = await contentApi.updateAboutSection(
         editingSection.section,
-        formData
+        formData,
       );
 
       setSectionsData((prev) => {
-        const exists = prev.find(
-          (c) => c.section === updated.section
-        );
+        const exists = prev.find((c) => c.section === updated.section);
 
         if (exists) {
-          return prev.map((c) =>
-            c.section === updated.section ? updated : c
-          );
+          return prev.map((c) => (c.section === updated.section ? updated : c));
         }
 
         return [...prev, updated];
@@ -244,9 +233,7 @@ export default function AdminAbout() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          Loading...
-        </div>
+        <div className="flex items-center justify-center h-64">Loading...</div>
       </AdminLayout>
     );
   }
@@ -301,6 +288,7 @@ export default function AdminAbout() {
                         subtitle: data?.subtitle || "",
                         badge: data?.badge || "",
                         content: data?.content || "",
+                        bullets: data?.bullets || [],
                         description: data?.description || "",
                         image: data?.image || "",
                         countries: data?.countries || [],
@@ -315,7 +303,6 @@ export default function AdminAbout() {
             );
           })}
         </div>
-
 
         <Card>
           <CardHeader>
@@ -333,9 +320,7 @@ export default function AdminAbout() {
               >
                 <div>
                   <p className="font-bold">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {stat.label}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -352,9 +337,7 @@ export default function AdminAbout() {
                     variant="destructive"
                     onClick={async () => {
                       await homepageApi.deleteStat(stat.id);
-                      setStats((prev) =>
-                        prev.filter((s) => s.id !== stat.id)
-                      );
+                      setStats((prev) => prev.filter((s) => s.id !== stat.id));
                     }}
                   >
                     Delete
@@ -380,21 +363,14 @@ export default function AdminAbout() {
           </div>
         </Card>
 
-
-
         {/* ===============================
             EDIT MODAL
         =============================== */}
         {editingSection && (
-          <Dialog
-            open={true}
-            onOpenChange={() => setEditingSection(null)}
-          >
+          <Dialog open={true} onOpenChange={() => setEditingSection(null)}>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>
-                  Edit {editingSection.section} Section
-                </DialogTitle>
+                <DialogTitle>Edit {editingSection.section} Section</DialogTitle>
                 <DialogDescription>
                   Update content for this about section
                 </DialogDescription>
@@ -419,7 +395,7 @@ export default function AdminAbout() {
                 )}
 
                 {/* Content Field */}
-                {hasField("content") && (
+                {hasField("content") && editingSection.section !== "sourcing" && (
                   <div>
                     <p className="text-sm font-medium mb-1">Content</p>
                     <Textarea
@@ -434,6 +410,68 @@ export default function AdminAbout() {
                     />
                   </div>
                 )}
+
+                {editingSection.section === "sourcing" && (
+                  <div>
+                    <p className="text-sm font-medium mb-2">Sourcing Points</p>
+
+                    {/* EXISTING BULLETS */}
+                    <div className="flex flex-col gap-2 mb-3">
+                      {(editingSection.bullets || []).map((point, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between px-3 py-2 rounded border"
+                        >
+                          <span>{point}</span>
+
+                          <button
+                            type="button"
+                            className="text-red-500"
+                            onClick={() =>
+                              setEditingSection({
+                                ...editingSection,
+                                bullets: editingSection.bullets?.filter(
+                                  (_, i) => i !== index
+                                ),
+                              })
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* INPUT + ADD BUTTON */}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Add sourcing point"
+                        value={bulletInput}
+                        onChange={(e) => setBulletInput(e.target.value)}
+                      />
+
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (!bulletInput.trim()) return;
+
+                          setEditingSection({
+                            ...editingSection,
+                            bullets: [
+                              ...(editingSection.bullets || []),
+                              bulletInput.trim(),
+                            ],
+                          });
+
+                          setBulletInput("");
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
 
                 {/* Badge Field */}
                 {hasField("badge") && (
@@ -492,34 +530,34 @@ export default function AdminAbout() {
                 {/* Countries Field */}
                 {hasField("countries") && (
                   <div>
-                    <p className="text-sm font-medium mb-2">
-                      Export Countries
-                    </p>
+                    <p className="text-sm font-medium mb-2">Export Countries</p>
 
                     {/* COUNTRY TAGS */}
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {(editingSection.countries || []).map((country, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border text-sm"
-                        >
-                          <span>{country}</span>
-                          <button
-                            type="button"
-                            className="text-muted-foreground hover:text-red-500"
-                            onClick={() =>
-                              setEditingSection({
-                                ...editingSection,
-                                countries: editingSection.countries?.filter(
-                                  (_, i) => i !== index
-                                ),
-                              })
-                            }
+                      {(editingSection.countries || []).map(
+                        (country, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border text-sm"
                           >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
+                            <span>{country}</span>
+                            <button
+                              type="button"
+                              className="text-muted-foreground hover:text-red-500"
+                              onClick={() =>
+                                setEditingSection({
+                                  ...editingSection,
+                                  countries: editingSection.countries?.filter(
+                                    (_, i) => i !== index,
+                                  ),
+                                })
+                              }
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ),
+                      )}
                     </div>
 
                     {/* INPUT */}
@@ -570,17 +608,18 @@ export default function AdminAbout() {
                 )}
 
                 {/* Image Preview */}
-                {(editingSection.image || editingSection.imageFile) && hasField("image") && (
-                  <img
-                    src={
-                      editingSection.imageFile
-                        ? URL.createObjectURL(editingSection.imageFile)
-                        : editingSection.image
-                    }
-                    className="w-full h-40 object-cover rounded"
-                    alt="Preview"
-                  />
-                )}
+                {(editingSection.image || editingSection.imageFile) &&
+                  hasField("image") && (
+                    <img
+                      src={
+                        editingSection.imageFile
+                          ? URL.createObjectURL(editingSection.imageFile)
+                          : editingSection.image
+                      }
+                      className="w-full h-40 object-cover rounded"
+                      alt="Preview"
+                    />
+                  )}
 
                 <div className="flex justify-end gap-2 pt-4">
                   <Button
@@ -598,7 +637,6 @@ export default function AdminAbout() {
               </div>
             </DialogContent>
           </Dialog>
-
         )}
         {editingStat && (
           <Dialog open onOpenChange={() => setEditingStat(null)}>
@@ -642,10 +680,7 @@ export default function AdminAbout() {
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setEditingStat(null)}
-                  >
+                  <Button variant="ghost" onClick={() => setEditingStat(null)}>
                     Cancel
                   </Button>
 
@@ -654,7 +689,7 @@ export default function AdminAbout() {
                       if (editingStat.id) {
                         await homepageApi.updateStat(
                           editingStat.id,
-                          editingStat
+                          editingStat,
                         );
                       } else {
                         await homepageApi.createStat({

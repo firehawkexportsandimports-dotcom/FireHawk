@@ -236,6 +236,8 @@ export default function AboutPage() {
       ===================================================== */}
       <section className="py-24 bg-gradient-warm">
         <div className="container grid lg:grid-cols-2 gap-16 items-center">
+          
+          {/* LEFT CONTENT */}
           <div>
             <Subtitle text={sourcingContent?.badge || "Our Process"} />  
 
@@ -244,22 +246,27 @@ export default function AboutPage() {
             </h2>
 
             <ul className="space-y-4">
-              {parseBullets(sourcingContent?.content).map((item, index) => (
+              {(sourcingContent?.bullets || []).map((item, index) => (
                 <li key={index} className="flex items-start gap-4">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-r from-ember to-saffron flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-white" />
                   </div>
-                  <span className="text-foreground">{item}</span>
+
+                  <span className="text-foreground">
+                    {item}
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
 
+          {/* RIGHT IMAGE */}
           <img
             src={
               sourcingContent?.image ||
               "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800"
             }
+            alt="Sourcing process"
             className="rounded-3xl shadow-medium"
           />
         </div>

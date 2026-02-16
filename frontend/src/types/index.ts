@@ -246,6 +246,7 @@ export interface AboutContent {
   subtitle?: string;
   badge?: string;
   content?: string;
+  bullets?: string[];
   description?: string;
   image?: string;
   countries?: string[];
