@@ -12,38 +12,41 @@ import { Link } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
-import { contentApi } from "@/services/api";
-import { AboutContent } from "@/types";
+import { contentApi, homepageApi } from "@/services/api";
+import { HomepageStat ,AboutContent } from "@/types";
 import { HighlightText } from "@/components/ui/HighlightText";
 
 /* =====================================================
    STATIC STATS (NEXT STEP: MOVE TO CMS)
 ===================================================== */
 
-const stats = [
-  { icon: Globe, value: "15+", label: "Export Countries" },
-  { icon: Users, value: "500+", label: "Partner Farmers" },
-  { icon: Award, value: "25+", label: "Years Experience" },
-  { icon: Flame, value: "100+", label: "Business Clients" },
-];
+
 
 export default function AboutPage() {
   const [content, setContent] = useState<AboutContent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<HomepageStat[]>([]);
+
+
 
   useEffect(() => {
     async function fetchData() {
       try {
         const aboutContent = await contentApi.getAbout();
+        const aboutStats = await homepageApi.getStats("about");
+
         setContent(aboutContent);
+        setStats(aboutStats);
       } catch (error) {
-        console.error("Error fetching about content:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     }
+
     fetchData();
   }, []);
+
 
   /* =====================================================
      HELPERS
@@ -147,8 +150,7 @@ export default function AboutPage() {
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
-              <div key={stat.label} className="text-center text-white">
-                <stat.icon className="w-7 h-7 mx-auto mb-2 opacity-80" />
+              <div key={stat.id} className="text-center text-white">
                 <p className="font-display text-3xl md:text-4xl font-bold">
                   {stat.value}
                 </p>
@@ -164,17 +166,14 @@ export default function AboutPage() {
       ===================================================== */}
       <section className="py-24 bg-gradient-warm">
         <div className="container">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
+          <div className="grid lg:grid-cols-2 gap-16 items-stretch">
+
+            {/* LEFT CONTENT */}
+            <div className="flex flex-col justify-center">
               <Subtitle text={storyContent?.badge || "Our Journey"} />
 
               <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-                <HighlightText
-                  text={
-                    storyContent?.title ||
-                    "Our Story"
-                  }
-                />
+                <HighlightText text={storyContent?.title || "Our Story"} />
               </h2>
 
               <p className="text-muted-foreground text-lg leading-relaxed whitespace-pre-line">
@@ -182,19 +181,22 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div>
+            {/* RIGHT IMAGE */}
+            <div className="relative h-full">
               <img
                 src={
                   storyContent?.image ||
                   "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=800"
                 }
                 alt="Our story"
-                className="rounded-3xl shadow-medium w-full"
+                className="absolute inset-0 w-full h-full object-cover rounded-3xl shadow-medium"
               />
             </div>
+
           </div>
         </div>
       </section>
+
 
       {/* =====================================================
           HERITAGE

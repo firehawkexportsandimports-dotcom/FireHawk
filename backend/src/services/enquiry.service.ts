@@ -1,4 +1,4 @@
-import prisma from "../config/db";
+import {prisma} from "../config/db";
 import { enquiryEmailTemplate } from "../utils/enquiryTemplate";
 import { customerThankyouTemplate } from "../utils/customerThankyouTemplate";
 import { transporter } from "../utils/mailer"; // ✅ IMPORT THIS

@@ -198,37 +198,20 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/10 animate-fade-in delay-300">
-              {homepageData.stats.length > 0 ? (
-                homepageData.stats
-                  .sort((a, b) => a.sort_order - b.sort_order)
-                  .map((stat) => (
-                    <div key={stat.id} className="text-center">
-                      <p className="text-3xl font-display font-bold text-saffron">
-                        {stat.value}
-                      </p>
-                      <p className="text-sm text-white/60">
-                        {stat.label}
-                      </p>
-                    </div>
-                  ))
-              ) : (
-                <>
-                  {/* fallback if DB empty */}
-                  <div className="text-center">
-                    <p className="text-3xl font-display font-bold text-saffron">15+</p>
-                    <p className="text-sm text-white/60">Export Countries</p>
+              {homepageData.stats
+                ?.sort((a, b) => a.sort_order - b.sort_order)
+                .map((stat) => (
+                  <div key={stat.id} className="text-center">
+                    <p className="text-3xl font-display font-bold text-saffron">
+                      {stat.value}
+                    </p>
+                    <p className="text-sm text-white/60">
+                      {stat.label}
+                    </p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-display font-bold text-saffron">25+</p>
-                    <p className="text-sm text-white/60">Years Experience</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-display font-bold text-saffron">500+</p>
-                    <p className="text-sm text-white/60">Partner Farmers</p>
-                  </div>
-                </>
-              )}
+                ))}
             </div>
+
           </div>
         </div>
 

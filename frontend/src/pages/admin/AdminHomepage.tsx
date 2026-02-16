@@ -1246,7 +1246,11 @@ const handleDeleteTestimonial = async (id: string) => {
                           editingStat
                         );
                       } else {
-                        await homepageApi.createStat(editingStat);
+                        await homepageApi.createStat({
+                          value: editingStat.value,
+                          label: editingStat.label,
+                          page: "home", 
+                        });
                       }
 
                       await loadData();

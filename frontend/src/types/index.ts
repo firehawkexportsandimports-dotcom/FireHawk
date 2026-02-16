@@ -171,6 +171,7 @@ export interface HomepageStat {
   value: string;
   label: string;
   icon?: string;
+  page: string;
   sort_order: number;
   is_active: boolean;
 }

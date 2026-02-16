@@ -1,4 +1,4 @@
-import prisma from "../config/db";
+import {prisma} from "../config/db";
 
 
 async function reorderItems(
@@ -325,27 +325,32 @@ export const homepageService = {
     HERO STATS (15+ Countries / 25+ Years / 500+ Farmers)
   ====================================================== */
 
-  async getStats() {
+  async getStats(page?: string) {
     return prisma.homepageStat.findMany({
-      where: { is_active: true },
+      where: {
+        is_active: true,
+        ...(page ? { page } : {}),
+      },
       orderBy: { sort_order: "asc" },
     });
   },
 
-  async createStat(data: any) {
-    const last = await prisma.homepageStat.findFirst({
-      orderBy: { sort_order: "desc" },
-    });
+async createStat(data: any) {
+  const last = await prisma.homepageStat.findFirst({
+    where: { page: data.page },
+    orderBy: { sort_order: "desc" },
+  });
 
-    return prisma.homepageStat.create({
-      data: {
-        value: data.value,
-        label: data.label,
-        sort_order: (last?.sort_order || 0) + 1,
-        is_active: true,
-      },
-    });
-  },
+  return prisma.homepageStat.create({
+    data: {
+      value: data.value,
+      label: data.label,
+      page: data.page,   
+      sort_order: (last?.sort_order || 0) + 1,
+      is_active: true,
+    },
+  });
+},
 
 
   async deleteStat(id: string) {

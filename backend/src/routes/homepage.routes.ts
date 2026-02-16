@@ -22,6 +22,8 @@ import {
   deleteStat,
   updateStat,
   createStat,
+   getStats ,
+   
 } from "../controllers/homepage.controller";
 
 import { upload } from "../middleware/upload";
@@ -51,7 +53,7 @@ router.put(
   upload.single("image"),
   updateSection
 );
-
+router.get("/homepage/stats", getStats);
 router.post("/homepage/stats", createStat);
 router.put("/homepage/stats/:id", updateStat);
 router.delete("/homepage/stats/:id", deleteStat);

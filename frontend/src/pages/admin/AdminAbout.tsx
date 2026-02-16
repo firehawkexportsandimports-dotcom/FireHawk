@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { Edit, Image, Type, Save, Flame } from "lucide-react";
 
-import { contentApi } from "@/services/api";
-import { AboutContent, AboutSection } from "@/types";
+import { contentApi, homepageApi } from "@/services/api";
+import { AboutContent, AboutSection, HomepageStat } from "@/types";
 
 /* =====================================================
    SECTION CONFIG
@@ -151,6 +151,9 @@ export default function AdminAbout() {
     useState<AboutEditForm | null>(null);
   const [loading, setLoading] = useState(true);
   const [countryInput, setCountryInput] = useState("");
+  const [stats, setStats] = useState<HomepageStat[]>([]);
+  const [editingStat, setEditingStat] = useState<HomepageStat | null>(null);
+
 
   /* ===============================
      HELPER FUNCTIONS
@@ -170,14 +173,20 @@ export default function AdminAbout() {
 
   const loadData = async () => {
     try {
-      const data = await contentApi.getAbout();
-      setSectionsData(data || []);
+      const [aboutData, aboutStats] = await Promise.all([
+        contentApi.getAbout(),
+        homepageApi.getStats("about"),
+      ]);
+
+      setSectionsData(aboutData || []);
+      setStats(aboutStats || []);
     } catch (err) {
       console.error("About fetch error:", err);
     } finally {
       setLoading(false);
     }
   };
+
 
   const getSectionData = (section: AboutSection) =>
     sectionsData.find((s) => s.section === section);
@@ -306,6 +315,72 @@ export default function AdminAbout() {
             );
           })}
         </div>
+
+
+        <Card>
+          <CardHeader>
+            <CardTitle>About Page Statistics</CardTitle>
+            <CardDescription>
+              Numbers shown in About page stats bar
+            </CardDescription>
+          </CardHeader>
+
+          <div className="p-6 space-y-3">
+            {stats.map((stat) => (
+              <div
+                key={stat.id}
+                className="flex items-center justify-between border rounded-lg p-3"
+              >
+                <div>
+                  <p className="font-bold">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {stat.label}
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingStat(stat)}
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={async () => {
+                      await homepageApi.deleteStat(stat.id);
+                      setStats((prev) =>
+                        prev.filter((s) => s.id !== stat.id)
+                      );
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            <Button
+              onClick={() =>
+                setEditingStat({
+                  id: "",
+                  value: "",
+                  label: "",
+                  sort_order: 0,
+                  page: "about",
+                  is_active: true,
+                })
+              }
+            >
+              Add Stat
+            </Button>
+          </div>
+        </Card>
+
+
 
         {/* ===============================
             EDIT MODAL
@@ -516,6 +591,83 @@ export default function AdminAbout() {
                   </Button>
 
                   <Button onClick={handleSaveSection}>
+                    <Save className="w-4 h-4 mr-1" />
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+        )}
+        {editingStat && (
+          <Dialog open onOpenChange={() => setEditingStat(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingStat.id ? "Edit Stat" : "Add Stat"}
+                </DialogTitle>
+                <DialogDescription>
+                  Update statistics shown on About page
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium mb-1">Value</p>
+                  <Input
+                    placeholder="Example: 15+"
+                    value={editingStat.value}
+                    onChange={(e) =>
+                      setEditingStat({
+                        ...editingStat,
+                        value: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium mb-1">Label</p>
+                  <Input
+                    placeholder="Export Countries"
+                    value={editingStat.label}
+                    onChange={(e) =>
+                      setEditingStat({
+                        ...editingStat,
+                        label: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setEditingStat(null)}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    onClick={async () => {
+                      if (editingStat.id) {
+                        await homepageApi.updateStat(
+                          editingStat.id,
+                          editingStat
+                        );
+                      } else {
+                        await homepageApi.createStat({
+                          value: editingStat.value,
+                          label: editingStat.label,
+                          page: "about",
+                        });
+                      }
+
+                      setEditingStat(null);
+                      loadData(); // refresh list
+                    }}
+                  >
                     <Save className="w-4 h-4 mr-1" />
                     Save
                   </Button>

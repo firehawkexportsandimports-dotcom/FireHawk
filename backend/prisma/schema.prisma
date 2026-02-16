@@ -133,6 +133,7 @@ model HomepageStat {
   value      String   // "15+"
   label      String   // "Export Countries"
   icon       String?  // optional later
+  page       String   // "home" | "about"
   sort_order Int      @default(0)
   is_active  Boolean  @default(true)
 
@@ -196,6 +197,7 @@ model AboutContent {
   subtitle   String?   
   badge      String? 
   content    String?
+  bullets     String[] 
   description String? 
   image      String?
   countries  String[] 

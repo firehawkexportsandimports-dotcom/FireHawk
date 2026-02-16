@@ -1,4 +1,4 @@
-import prisma from "../config/db";
+import {prisma} from "../config/db";
 
 export const dashboardService = {
   async getStats() {

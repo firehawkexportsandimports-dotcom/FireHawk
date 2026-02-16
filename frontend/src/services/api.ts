@@ -16,6 +16,7 @@ import type {
   JourneyStep,
   Origin,
   Certification,
+  HomepageStat, 
 } from "@/types";
 import type { User } from "@/types";
 
@@ -172,6 +173,11 @@ export const homepageApi = {
     ),
 
   /* ---------- HERO STATS ---------- */
+  getStats: (page: string) =>
+    fetchJson<HomepageStat[]>(
+      `${API_BASE}/content/homepage/stats?page=${page}`
+    ),
+
 
   createStat: (data: any) =>
     fetchJson(`${API_BASE}/content/homepage/stats`, {

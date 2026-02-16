@@ -5,8 +5,10 @@ import { testimonialService } from "../services/testimonial.service";
 /* =====================================================
    GET FULL HOMEPAGE DATA (PUBLIC + ADMIN)
 ===================================================== */
-export const getHomepage = async (_req: Request, res: Response) => {
+export const getHomepage = async (req: Request, res: Response) => {
   try {
+    const page = (req.query.page as string) || "home";
+
     const [
       sections,
       features,
@@ -21,8 +23,8 @@ export const getHomepage = async (_req: Request, res: Response) => {
       homepageService.getJourney(),
       homepageService.getOrigins(),
       homepageService.getCertifications(),
-      testimonialService.getFeatured(), 
-      homepageService.getStats(),
+      testimonialService.getFeatured(),
+      homepageService.getStats(page), 
     ]);
 
     res.json({
@@ -31,7 +33,7 @@ export const getHomepage = async (_req: Request, res: Response) => {
       journey,
       origins,
       certifications,
-      testimonials, 
+      testimonials,
       stats,
     });
   } catch (error) {
@@ -80,16 +82,51 @@ export const updateSection = async (req: Request, res: Response) => {
 /* =====================================================
    HERO STATS
 ===================================================== */
+export const getStats = async (req: Request, res: Response) => {
+  try {
+    const page = typeof req.query.page === "string"
+      ? req.query.page
+      : undefined;
+
+    const stats = await homepageService.getStats(page);
+
+    res.json(stats);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Failed to fetch stats",
+    });
+  }
+};
+
+
 
 export const createStat = async (req: Request, res: Response) => {
   try {
-    const stat = await homepageService.createStat(req.body);
+    const { value, label, page } = req.body;
+
+    if (!value || !label || !page) {
+      return res.status(400).json({
+        message: "value, label and page are required",
+      });
+    }
+
+    const stat = await homepageService.createStat({
+      value,
+      label,
+      page,
+    });
+
     res.json(stat);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to create stat" });
+    res.status(500).json({
+      message: "Failed to create stat",
+    });
   }
 };
+
+
 
 export const updateStat = async (req: Request, res: Response) => {
   try {
@@ -127,6 +164,15 @@ export const reorderStat = async (req: Request, res: Response) => {
   }
 };
 
+export const getStatsByPage = async (req: Request, res: Response) => {
+  try {
+    const page = String(req.params.page);
+    const stats = await homepageService.getStats(page);
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch stats" });
+  }
+};
 
 /* =====================================================
    FEATURES
@@ -184,9 +230,9 @@ export const createJourney = async (req: Request, res: Response) => {
     let image = '';
     
     // Handle file upload
-    if (req.file) {
-      image = `/uploads/${req.file.filename}`;
-    } else if (data.image) {
+    if ((req as any).file) {
+      image = `/uploads/${(req as any).file.filename}`;
+    }else if (data.image) {
       // If image is a URL string (from frontend)
       image = data.image;
     } else if (data.image_url) {
@@ -386,4 +432,16 @@ export const reorderCertification = async (req: Request, res: Response) => {
   }
 };
 
+
+export const getAboutPage = async (_req: Request, res: Response) => {
+  try {
+    const stats = await homepageService.getStats("about");
+
+    res.json({
+      stats,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch about stats" });
+  }
+};
 
