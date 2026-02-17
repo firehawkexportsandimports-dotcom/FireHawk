@@ -178,33 +178,40 @@ export default function ContactPage() {
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Info */}
-            <div>
-              <h2 className="font-display text-3xl font-bold text-foreground mb-6">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">
                   Firehawk Imports and Exports
-              </h2>
-              <p className="text-muted-foreground text-lg mb-10">
-                {contactInfo?.company_description || "Get in Touch with Us"}
-              </p>
+                </h2>
+                <p className="text-muted-foreground text-lg md:text-xl max-w-2xl">
+                  {contactInfo?.company_description || "Get in Touch with Us"}
+                </p>
+              </div>
 
-              <div className="space-y-6">
+              <div className="grid gap-6">
                 {contactDetails.map((detail) => (
-                  <div key={detail.label} className="flex gap-4">
+                  <div 
+                    key={detail.label} 
+                    className="flex gap-4 group"
+                  >
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-ember to-saffron flex items-center justify-center flex-shrink-0 shadow-md">
                       <detail.icon className="w-6 h-6 text-white" />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-muted-foreground mb-1">
                         {detail.label}
                       </p>
                       {detail.href ? (
                         <a 
                           href={detail.href}
-                          className="text-foreground hover:text-ember transition-colors whitespace-pre-line text-lg"
+                          className="text-foreground hover:text-ember transition-colors break-words text-base md:text-lg block"
                         >
                           {detail.value}
                         </a>
                       ) : (
-                        <p className="text-foreground whitespace-pre-line text-lg">{detail.value}</p>
+                        <p className="text-foreground break-words text-base md:text-lg">
+                          {detail.value}
+                        </p>
                       )}
                     </div>
                   </div>

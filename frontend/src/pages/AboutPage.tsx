@@ -311,16 +311,10 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-8 mt-12">
             {/* Mission Card */}
             <div className="bg-white rounded-3xl p-8 shadow-soft">
-              
-              <div className="flex items-start gap-3 mb-4">
-                <Target className="w-7 h-7 text-ember flex-shrink-0" />
-                <div>
-                  <h3 className="text-2xl font-bold">
-                    {missionContent?.title || "Our Mission"}
-                  </h3>
-                </div>
-              </div>
-              
+              <Target className="w-7 h-7 mb-4 text-ember" />
+              <h3 className="text-2xl font-bold mb-4">
+                {missionContent?.title || "Our Mission"}
+              </h3>
               <p className="text-muted-foreground whitespace-pre-line">
                 {missionContent?.content}
               </p>
