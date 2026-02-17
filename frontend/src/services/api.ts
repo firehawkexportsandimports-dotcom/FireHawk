@@ -113,6 +113,10 @@ export const categoriesApi = {
    PRODUCTS API
 ===================================================== */
 
+/* =====================================================
+   PRODUCTS API
+===================================================== */
+
 export const productsApi = {
   getAll: () =>
     fetchJson<Product[]>(`${API_BASE}/products`),

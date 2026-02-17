@@ -47,6 +47,9 @@ export default function ProductDetailPage() {
       try {
         const data = await productsApi.getBySlug(slug);
         setProduct(data || null);
+        
+        // Always start with the first image (which will be the primary after sorting)
+        setSelectedImage(0);
       } catch (err) {
         console.error("Product fetch error:", err);
       } finally {
@@ -133,11 +136,16 @@ export default function ProductDetailPage() {
 
   const images = product.images || [];
 
-  const primaryImage =
-    images[selectedImage] || images[0];
+  // Create a new array with primary image first, then others in original order
+  const sortedImages = [
+    ...images.filter(img => img.is_primary),
+    ...images.filter(img => !img.is_primary)
+  ];
 
-  const imageUrl = primaryImage?.url
-    ? primaryImage.url.replace(
+  const currentImage = sortedImages[selectedImage] || sortedImages[0];
+
+  const imageUrl = currentImage?.url
+    ? currentImage.url.replace(
         "/upload/",
         "/upload/f_auto,q_auto/"
       )
@@ -168,37 +176,45 @@ export default function ProductDetailPage() {
               <div className="aspect-square rounded-3xl overflow-hidden bg-white shadow-medium">
                 <img
                   src={imageUrl}
-                  alt={primaryImage?.alt || product.name}
+                  alt={currentImage?.alt || product.name}
                   className="w-full h-full object-cover"
                 />
               </div>
 
-              {images.length > 1 && (
-                <div className="flex gap-3">
-                  {images.map((img, i) => (
+              {sortedImages.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {sortedImages.map((img, i) => (
                     <button
                       key={img.id}
                       onClick={() => setSelectedImage(i)}
                       className={cn(
-                        "w-20 h-20 rounded-xl overflow-hidden border-2",
+                        "w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all",
                         selectedImage === i
-                          ? "border-ember"
-                          : "border-transparent opacity-70"
+                          ? "border-ember ring-2 ring-ember/20"
+                          : "border-transparent opacity-70 hover:opacity-100 hover:border-ember/50"
                       )}
                     >
                       <img
                         src={img.url}
+                        alt={img.alt || product.name}
                         className="w-full h-full object-cover"
                       />
                     </button>
                   ))}
                 </div>
               )}
+
+              {/* If no images, show placeholder */}
+              {sortedImages.length === 0 && (
+                <div className="w-20 h-20 rounded-xl bg-muted flex items-center justify-center">
+                  <span className="text-2xl">🌶️</span>
+                </div>
+              )}
             </div>
 
             {/* ================= DETAILS ================= */}
             <div>
-              <div className="flex gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-4">
                 {product.category && (
                   <Badge className="bg-ember/10 text-ember border-0">
                     {product.category.name}
@@ -208,6 +224,12 @@ export default function ProductDetailPage() {
                 {product.is_export_ready && (
                   <Badge className="bg-charcoal text-white">
                     Export Ready
+                  </Badge>
+                )}
+
+                {product.is_featured && (
+                  <Badge className="bg-gradient-to-r from-ember to-saffron text-white">
+                    Featured
                   </Badge>
                 )}
               </div>
@@ -223,9 +245,28 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
-              <p className="text-muted-foreground text-lg mb-8">
-                {product.description}
-              </p>
+              {/* Price Range if available */}
+              {product.price_range && (
+                <div className="mb-6">
+                  <span className="text-2xl font-bold text-ember">
+                    {product.price_range}
+                  </span>
+                </div>
+              )}
+
+              {/* Short Description if available */}
+              {product.short_description && (
+                <p className="text-muted-foreground text-lg mb-4">
+                  {product.short_description}
+                </p>
+              )}
+
+              {/* Full Description */}
+              {product.description && (
+                <p className="text-muted-foreground mb-8">
+                  {product.description}
+                </p>
+              )}
 
               {/* PACKAGING */}
               {product.packaging?.length > 0 && (
@@ -239,7 +280,7 @@ export default function ProductDetailPage() {
                     {product.packaging.map((pkg) => (
                       <span
                         key={pkg}
-                        className="px-4 py-2 bg-white rounded-xl border text-sm"
+                        className="px-4 py-2 bg-white rounded-xl border text-sm hover:border-ember transition-colors"
                       >
                         {pkg}
                       </span>
