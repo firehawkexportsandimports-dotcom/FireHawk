@@ -55,10 +55,12 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [editedRoles, setEditedRoles] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "approved" | "pending">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "approved" | "pending"
+  >("all");
 
   const currentUser: User | null = JSON.parse(
-    localStorage.getItem("user") || "null"
+    localStorage.getItem("user") || "null",
   );
 
   useEffect(() => {
@@ -102,7 +104,11 @@ export default function AdminUsers() {
      DELETE USER
   ========================= */
   const deleteUser = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) 
+    if (
+      !confirm(
+        "Are you sure you want to delete this user? This action cannot be undone.",
+      )
+    )
       return;
     await usersApi.delete(id);
     loadUsers();
@@ -112,15 +118,15 @@ export default function AdminUsers() {
      FILTERED USERS
   ========================= */
   const filteredUsers = users.filter((user) => {
-    const matchesSearch = 
+    const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = 
+
+    const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "approved" && user.is_approved) ||
       (statusFilter === "pending" && !user.is_approved);
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -208,7 +214,9 @@ export default function AdminUsers() {
               <div className="w-full sm:w-48">
                 <Select
                   value={statusFilter}
-                  onValueChange={(value: typeof statusFilter) => setStatusFilter(value)}
+                  onValueChange={(value: typeof statusFilter) =>
+                    setStatusFilter(value)
+                  }
                 >
                   <SelectTrigger>
                     <Filter className="w-4 h-4 mr-2" />
@@ -230,7 +238,8 @@ export default function AdminUsers() {
           <CardHeader className="bg-gray-50/50 border-b px-6 py-4">
             <CardTitle className="text-base font-semibold">Users</CardTitle>
             <CardDescription>
-              {filteredUsers.length} {filteredUsers.length === 1 ? 'user' : 'users'} found
+              {filteredUsers.length}{" "}
+              {filteredUsers.length === 1 ? "user" : "users"} found
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
@@ -250,7 +259,10 @@ export default function AdminUsers() {
                   const isCurrentUser = currentUser?.id === user.id;
 
                   return (
-                    <TableRow key={user.id} className="group hover:bg-gray-50/50">
+                    <TableRow
+                      key={user.id}
+                      className="group hover:bg-gray-50/50"
+                    >
                       {/* USER INFO */}
                       <TableCell>
                         <div className="flex items-center gap-3">
@@ -263,7 +275,10 @@ export default function AdminUsers() {
                             <div className="flex items-center gap-2">
                               <p className="font-medium text-sm">{user.name}</p>
                               {isCurrentUser && (
-                                <Badge variant="outline" className="text-xs bg-blue-50">
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs bg-blue-50"
+                                >
                                   You
                                 </Badge>
                               )}
@@ -316,7 +331,7 @@ export default function AdminUsers() {
                           ) : (
                             getRoleBadge(user.role)
                           )}
-                          
+
                           {hasRoleChange && isSuperAdmin && !isCurrentUser && (
                             <div className="text-xs text-muted-foreground">
                               Changed from {user.role}
@@ -333,7 +348,10 @@ export default function AdminUsers() {
                             Approved
                           </Badge>
                         ) : (
-                          <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-200 border-red-200">
+                          <Badge
+                            variant="destructive"
+                            className="bg-red-100 text-red-700 hover:bg-red-200 border-red-200"
+                          >
                             <XCircle className="w-3 h-3 mr-1" />
                             Pending
                           </Badge>
@@ -360,7 +378,9 @@ export default function AdminUsers() {
                           {hasRoleChange && isSuperAdmin && !isCurrentUser && (
                             <Button
                               size="sm"
-                              onClick={() => changeRole(user.id, editedRoles[user.id])}
+                              onClick={() =>
+                                changeRole(user.id, editedRoles[user.id])
+                              }
                               className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700"
                             >
                               <Save className="w-3.5 h-3.5 mr-1" />
@@ -381,9 +401,11 @@ export default function AdminUsers() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuLabel>Delete User</DropdownMenuLabel>
+                                <DropdownMenuLabel>
+                                  Delete User
+                                </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   onClick={() => deleteUser(user.id)}
                                   className="text-red-600 focus:text-red-600 focus:bg-red-50"
                                 >
@@ -418,8 +440,8 @@ export default function AdminUsers() {
                           No users found
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {searchTerm || statusFilter !== "all" 
-                            ? "Try adjusting your filters" 
+                          {searchTerm || statusFilter !== "all"
+                            ? "Try adjusting your filters"
                             : "Users will appear here once they register"}
                         </p>
                       </div>
@@ -442,11 +464,13 @@ export default function AdminUsers() {
                     Super Admin Privileges
                   </p>
                   <p className="text-xs text-blue-700">
-                    You can manage all users, change roles, approve pending users, and delete accounts.
-                    Your own role cannot be modified, and you cannot delete your own account.
+                    You can manage all users, change roles, approve pending
+                    users, and delete accounts. Your own role cannot be
+                    modified, and you cannot delete your own account.
                   </p>
                 </div>
               </div>
+              00.
             </CardContent>
           </Card>
         )}
