@@ -243,7 +243,7 @@ export default function AdminCategories() {
                       </TableCell>
 
                       <TableCell className="font-medium">
-                        {category.product_count}
+                        {category._count?.products ?? 0}
                       </TableCell>
 
                       <TableCell>

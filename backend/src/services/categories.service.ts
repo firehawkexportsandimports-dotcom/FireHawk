@@ -18,8 +18,16 @@ const slugify = (text: string) =>
 export const getAllCategories = async () => {
   return prisma.category.findMany({
     orderBy: { created_at: "desc" },
+    include: {
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+    },
   });
 };
+
 
 /* ======================================================
    GET FEATURED CATEGORIES (Homepage)
@@ -27,10 +35,15 @@ export const getAllCategories = async () => {
 
 export const getFeaturedCategories = async () => {
   return prisma.category.findMany({
-    where: {
-      is_featured: true,
-    },
+    where: { is_featured: true },
     orderBy: { created_at: "desc" },
+    include: {
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+    },
   });
 };
 

@@ -24,9 +24,10 @@ export function CategoryCard({
 
   // product count fallback
   const productCount =
-    typeof category?.product_count === "number"
-      ? category.product_count
+    typeof category?._count?.products === "number"
+      ? category._count.products
       : 0;
+
 
   // slug fallback (prevents broken navigation)
   const categorySlug = category?.slug || "";

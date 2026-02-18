@@ -69,6 +69,9 @@ export interface Category {
   is_featured: boolean;
   created_at: string;
   updated_at: string;
+  _count?: {
+    products: number;
+  };
 }
 
 

@@ -88,10 +88,10 @@ export default function AdminProductsContent() {
               onClick={() =>
                 setEditing({
                   section: "hero",
-                  title: heroContent.title || "",
-                  subtitle: heroContent.subtitle || "",
-                  badge: heroContent.badge || "",
-                  content: heroContent.content || "",
+                  title: heroContent?.title || "",
+                  subtitle: heroContent?.subtitle || "",
+                  badge: heroContent?.badge || "",
+                  content: heroContent?.content || "",
                 })
               }
             >
