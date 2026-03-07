@@ -17,7 +17,6 @@ import { productsContentApi } from "@/services/api";
 interface ProductsContent {
   section: string;
   title?: string;
-  subtitle?: string;
   badge?: string;
   content?: string;
 }
@@ -47,7 +46,6 @@ export default function AdminProductsContent() {
 
     const formData = new FormData();
     formData.append("title", editing.title || "");
-    formData.append("subtitle", editing.subtitle || "");
     formData.append("badge", editing.badge || "");
     formData.append("content", editing.content || "");
 
@@ -89,7 +87,6 @@ export default function AdminProductsContent() {
                 setEditing({
                   section: "hero",
                   title: heroContent?.title || "",
-                  subtitle: heroContent?.subtitle || "",
                   badge: heroContent?.badge || "",
                   content: heroContent?.content || "",
                 })
@@ -132,16 +129,6 @@ export default function AdminProductsContent() {
                   }
                 />
 
-                <Input
-                  placeholder="Subtitle"
-                  value={editing.subtitle || ""}
-                  onChange={(e) =>
-                    setEditing({
-                      ...editing,
-                      subtitle: e.target.value,
-                    })
-                  }
-                />
 
                 <Textarea
                   rows={4}

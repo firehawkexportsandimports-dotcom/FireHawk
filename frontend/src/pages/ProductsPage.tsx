@@ -14,6 +14,8 @@ import {
 } from "@/services/api";
 
 import { Product, Category } from "@/types";
+import { HighlightText } from "@/components/ui/HighlightText";
+
 
 /* ============================================
    TYPE (FOR CMS CONTENT)
@@ -137,12 +139,10 @@ export default function ProductsPage() {
 
             {/* TITLE */}
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-              {heroContent?.title || "Premium "}
-              <span className="text-gradient-fire">
-                {heroContent?.subtitle || "Spices"}
-              </span>
+              <HighlightText
+                text={heroContent?.title || "Premium {Spices}"}
+              />
             </h1>
-
             {/* CONTENT */}
             <p className="text-white/70 text-lg mb-10">
               {heroContent?.content ||
