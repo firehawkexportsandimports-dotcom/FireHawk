@@ -135,7 +135,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               alt="Firehawk Imports and Exports"
               className="h-9 w-auto object-contain invert"
             />
-            <span className="font-display font-semibold text-white">
+            <span className="h-12 lg:h-16 w-auto object-contain">
               Admin Panel
             </span>
           </Link>
