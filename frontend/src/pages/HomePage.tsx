@@ -78,7 +78,7 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
-      // console.log("FETCH STARTED");
+      console.log("FETCH STARTED");
       
       try {
         // Fetch all data in parallel
@@ -109,12 +109,12 @@ export default function HomePage() {
           })
         ]);
 
-        // console.log("PRODUCTS:", products);
-        // console.log("CTA FOUND:", ctaContent);
+        console.log("PRODUCTS:", products);
+        console.log("CTA FOUND:", ctaContent);
 
-        // console.log("CATEGORIES:", categories);
-        // console.log("TESTIMONIALS:", tests);
-        // console.log("HOMEPAGE DATA:", homeContent);
+        console.log("CATEGORIES:", categories);
+        console.log("TESTIMONIALS:", tests);
+        console.log("HOMEPAGE DATA:", homeContent);
 
         setFeaturedProducts(products || []);
         setFeaturedCategories(categories || []);
@@ -154,7 +154,7 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={getContentValue(heroContent, 'image')}
+            src={getContentValue(heroContent, 'image') || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1920"}
             alt="Premium spices"
             className="w-full h-full object-cover"
           />
@@ -176,12 +176,13 @@ export default function HomePage() {
 
             <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-6 animate-fade-in-up">
               <HighlightText
-                text={getContentValue(heroContent, 'title') }
+                text={getContentValue(heroContent, 'title') || "From the Heart of India, {Forged in Fire}"}
               />
             </h1>
 
             <p className="text-xl text-white/80 mb-8 leading-relaxed max-w-2xl animate-fade-in-up delay-100">
-              {getContentValue(heroContent, 'content')}
+              {getContentValue(heroContent, 'content') ||
+              'Premium spices sourced from Kerala & Karnataka, delivered to European and global markets with uncompromising quality.'}
             </p>
 
             <div className="flex flex-wrap gap-4 animate-fade-in-up delay-200">
@@ -225,9 +226,9 @@ export default function HomePage() {
         
         <div className="container relative z-10">
           <SectionHeader
-            subtitle={getContentValue(introContent, 'subtitle') }
-            title={getContentValue(introContent, 'title') }
-            description={getContentValue(introContent, 'content') }
+            subtitle={getContentValue(introContent, 'subtitle') || "Our Process"}
+            title={getContentValue(introContent, 'title') || "From Farm to Flame"}
+            description={getContentValue(introContent, 'content') || "Every spice tells a story of tradition, quality, and passion."}
           />
           
           {loading.content ? (
@@ -293,13 +294,18 @@ export default function HomePage() {
         
         <div className="container relative z-10">
           <SectionHeader
-            subtitle={getContentValue(whyChooseContent, 'subtitle') }
+            subtitle={getContentValue(whyChooseContent, 'subtitle') || "Our Sourcing Regions"}
             subtitleVariant="badge"
             title={
-              getContentValue(whyChooseContent, 'title') 
+              getContentValue(whyChooseContent, 'title') ||
+              "Spice Origins from {Kerala & Karnataka}"
             }
             titleClassName='text-white'
-            description={getContentValue(whyChooseContent, 'content')} />
+            description={
+              getContentValue(whyChooseContent, 'content') ||
+              "Two legendary regions, centuries of spice heritage"
+            }
+          />
           
           {loading.content ? (
             <div className="grid md:grid-cols-2 gap-8 mt-12">
@@ -354,9 +360,9 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-warm relative">
         <div className="container">
           <SectionHeader
-            subtitle={getContentValue(productsIntroContent, 'subtitle') }
-            title={getContentValue(productsIntroContent, 'title') }
-            description={getContentValue(productsIntroContent, 'content') }
+            subtitle={getContentValue(productsIntroContent, 'subtitle') || "Our Collection"}
+            title={getContentValue(productsIntroContent, 'title') || "Featured Products"}
+            description={getContentValue(productsIntroContent, 'content') || "Discover our most sought-after spices"}
           />
           
           {loading.products ? (
@@ -401,13 +407,16 @@ export default function HomePage() {
         <div className="container">
           <SectionHeader
             subtitle={
-              getContentValue(categoryIntroContent, 'subtitle') 
+              getContentValue(categoryIntroContent, 'subtitle') ||
+              "Browse by Category"
             }
             title={
-              getContentValue(categoryIntroContent, 'title') 
+              getContentValue(categoryIntroContent, 'title') ||
+              "Spice Collections"
             }
             description={
-              getContentValue(categoryIntroContent, 'content') 
+              getContentValue(categoryIntroContent, 'content') ||
+              "Explore our diverse range of authentic South Indian spices"
             }
           />
           
@@ -444,15 +453,15 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
-                {getContentValue(qualityContent, 'subtitle')}
+                {getContentValue(qualityContent, 'subtitle') || "Why Firehawk"}
               </p>
 
               <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-                <HighlightText text = {getContentValue(qualityContent, 'title') } />
+                <HighlightText text = {getContentValue(qualityContent, 'title') || "Export-Grade Quality, Globally Trusted"} />
               </h2>
 
               <p className="text-muted-foreground text-lg mb-8">
-                {getContentValue(qualityContent, 'content') }
+                {getContentValue(qualityContent, 'content') || "At Firehawk, quality isn't just a promise — it's our legacy."}
               </p>
               
               {loading.content ? (
@@ -523,13 +532,15 @@ export default function HomePage() {
         <div className="container">
           <SectionHeader
             subtitle={
-              getContentValue(testimonialsIntroContent, 'subtitle') 
+              getContentValue(testimonialsIntroContent, 'subtitle') ||
+              "Client Testimonials"
             }
             title={
               getContentValue(testimonialsIntroContent, 'title') 
             }
             description={
-              getContentValue(testimonialsIntroContent, 'content') 
+              getContentValue(testimonialsIntroContent, 'content') ||
+              "Trusted by leading spice importers and distributors across Europe"
             }
           />
           
@@ -582,12 +593,12 @@ export default function HomePage() {
           
           <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
             <HighlightText
-              text={getContentValue(ctaContent, 'title') }
+              text={getContentValue(ctaContent, 'title') || "Ready to Source {Premium Spices?}"}
             />
           </h2>
 
           <p className="text-white/70 max-w-2xl mx-auto mb-10 text-lg">
-            {getContentValue(ctaContent, 'content') }
+            {getContentValue(ctaContent, 'content') || "Whether you're a distributor, manufacturer, or retailer, we offer flexible packaging and competitive pricing for bulk orders."}
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
