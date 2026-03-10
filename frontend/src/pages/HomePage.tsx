@@ -78,7 +78,7 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
-      console.log("FETCH STARTED");
+
       
       try {
         // Fetch all data in parallel
@@ -109,12 +109,6 @@ export default function HomePage() {
           })
         ]);
 
-        console.log("PRODUCTS:", products);
-        console.log("CTA FOUND:", ctaContent);
-
-        console.log("CATEGORIES:", categories);
-        console.log("TESTIMONIALS:", tests);
-        console.log("HOMEPAGE DATA:", homeContent);
 
         setFeaturedProducts(products || []);
         setFeaturedCategories(categories || []);
