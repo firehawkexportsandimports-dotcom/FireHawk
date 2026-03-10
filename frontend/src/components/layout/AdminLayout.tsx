@@ -131,7 +131,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             onClick={handleLinkClick}
           >
             <img
-              src="https://res.cloudinary.com/dxziofxst/image/upload/v1770913924/Frame_1597882146_nckozm.png"
+              src="https://res.cloudinary.com/ddmqz9gk0/image/upload/v1773163189/LOGO_1_veo5dy.png"
               alt="Firehawk Imports and Exports"
               className="h-9 w-auto object-contain invert"
             />
