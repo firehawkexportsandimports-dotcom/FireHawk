@@ -4,16 +4,20 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-export const prisma =
-  global.prisma ||
+const createPrismaClient = () =>
   new PrismaClient({
-    log: ["error"],
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL + "&connection_limit=5&pool_timeout=30&connect_timeout=30",
+        url: process.env.DATABASE_URL,
       },
     },
   });
+
+export const prisma = global.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   global.prisma = prisma;
