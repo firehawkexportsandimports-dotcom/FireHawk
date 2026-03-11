@@ -1,7 +1,7 @@
-import {prisma} from "../config/db";
+import { prisma } from "../config/db";
 import { enquiryEmailTemplate } from "../utils/enquiryTemplate";
 import { customerThankyouTemplate } from "../utils/customerThankyouTemplate";
-import { transporter } from "../utils/mailer"; // ✅ IMPORT THIS
+import { transporter } from "../utils/mailer";
 
 export const enquiryService = {
 
@@ -18,75 +18,107 @@ export const enquiryService = {
     product_id?: string;
   }) {
 
-    //  Save enquiry in DB
-    const enquiry = await prisma.enquiry.create({
-      data: {
-        type: data.type,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        company: data.company,
-        message: data.message,
-        product_id: data.product_id || null,
-      },
-      include: {
-        product: true,
-      },
-    });
+    try {
 
-    // Send Email AFTER saving
-    await transporter.sendMail({
-      from: `"Firehawk Website" <${process.env.MAIL_USER}>`,
-      to: process.env.ADMIN_MAIL,
-      replyTo: enquiry.email,
-      subject: `New Enquiry from ${enquiry.name}`,
-      html: enquiryEmailTemplate(enquiry),
-    });
+      // 1️⃣ Save enquiry in database
+      const enquiry = await prisma.enquiry.create({
+        data: {
+          type: data.type,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          company: data.company,
+          message: data.message,
+          product_id: data.product_id || null,
+        },
+        include: {
+          product: true,
+        },
+      });
 
-    //  CUSTOMER THANK YOU EMAIL
-    await transporter.sendMail({
-      from: `"Firehawk Imports & Exports" <${process.env.MAIL_USER}>`,
-      to: enquiry.email,
-      subject: "Thank you for contacting Firehawk Imports & Exports",
-      html: customerThankyouTemplate(enquiry),
-    });
+      /* =====================================
+         SEND ADMIN EMAIL (BACKGROUND)
+      ===================================== */
 
-    // ✅ 3. Return enquiry
-    return enquiry;
+      transporter.sendMail({
+        from: `"Firehawk Website" <${process.env.MAIL_USER}>`,
+        to: process.env.ADMIN_MAIL,
+        replyTo: enquiry.email,
+        subject: `New Enquiry from ${enquiry.name}`,
+        html: enquiryEmailTemplate(enquiry),
+      }).catch((err) => {
+        console.error("Admin email failed:", err);
+      });
+
+      /* =====================================
+         SEND CUSTOMER THANK YOU EMAIL
+      ===================================== */
+
+      transporter.sendMail({
+        from: `"Firehawk Imports & Exports" <${process.env.MAIL_USER}>`,
+        to: enquiry.email,
+        subject: "Thank you for contacting Firehawk Imports & Exports",
+        html: customerThankyouTemplate(enquiry),
+      }).catch((err) => {
+        console.error("Customer email failed:", err);
+      });
+
+      // 3️⃣ Return enquiry immediately
+      return enquiry;
+
+    } catch (error) {
+      console.error("Create enquiry error:", error);
+      throw error;
+    }
   },
 
   /* =====================================
      GET ALL ENQUIRIES (ADMIN)
   ===================================== */
   async getAll() {
-    return prisma.enquiry.findMany({
-      orderBy: {
-        created_at: "desc",
-      },
-      include: {
-        product: true,
-      },
-    });
+    try {
+      return await prisma.enquiry.findMany({
+        orderBy: {
+          created_at: "desc",
+        },
+        include: {
+          product: true,
+        },
+      });
+    } catch (error) {
+      console.error("Fetch enquiries error:", error);
+      throw error;
+    }
   },
 
   /* =====================================
      MARK AS READ
   ===================================== */
   async markAsRead(id: string) {
-    return prisma.enquiry.update({
-      where: { id },
-      data: {
-        status: "read",
-      },
-    });
+    try {
+      return await prisma.enquiry.update({
+        where: { id },
+        data: {
+          status: "read",
+        },
+      });
+    } catch (error) {
+      console.error("Mark enquiry read error:", error);
+      throw error;
+    }
   },
 
   /* =====================================
      DELETE ENQUIRY
   ===================================== */
   async delete(id: string) {
-    return prisma.enquiry.delete({
-      where: { id },
-    });
+    try {
+      return await prisma.enquiry.delete({
+        where: { id },
+      });
+    } catch (error) {
+      console.error("Delete enquiry error:", error);
+      throw error;
+    }
   },
 };
