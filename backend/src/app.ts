@@ -21,6 +21,8 @@ app.use(
     origin: [
       "http://localhost:8080",
       "https://fire-hawk.vercel.app",
+      "https://firehawk.in",
+      "https://www.firehawk.in",
     ],
     credentials: true,
   })
