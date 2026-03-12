@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Award, Globe, Leaf, Shield, ChevronDown, Flame, Package, Truck, CheckCircle, MapPin, Star, Users, Clock, Trophy, Heart, ShieldCheck, Zap, Coffee, Factory } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,149 +7,101 @@ import { CategoryCard } from '@/components/CategoryCard';
 import { TestimonialCard } from '@/components/TestimonialCard';
 import { SectionHeader } from '@/components/SectionHeader';
 import { productsApi, categoriesApi, testimonialsApi, contentApi } from '@/services/api';
-import { Product, Category, Testimonial, HomepageContent, Feature, JourneyStep, Origin, Certification, IconType, HomepageStat } from '@/types';
+import { IconType } from '@/types';
 import { HighlightText } from '@/components/ui/HighlightText';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useQueries } from '@tanstack/react-query';
 
 // Icon mapping for dynamic icons
 const iconComponents: Record<IconType, any> = {
-  Leaf,
-  Award,
-  Globe,
-  Shield,
-  Flame,
-  Package,
-  Truck,
-  CheckCircle,
-  MapPin,
-  Star,
-  Users,
-  Clock,
-  Trophy,
-  Heart,
-  ShieldCheck,
-  Zap,
-  Coffee,
-  Spices: Flame, // Fallback
+  Leaf, Award, Globe, Shield, Flame, Package, Truck, CheckCircle,
+  MapPin, Star, Users, Clock, Trophy, Heart, ShieldCheck, Zap, Coffee,
+  Spices: Flame,
   Factory,
 };
 
+// ─── Query key constants (prevents typos & enables cache sharing) ─────────────
+export const QUERY_KEYS = {
+  featuredProducts:   ["products", "featured"] as const,
+  featuredCategories: ["categories", "featured"] as const,
+  featuredTestimonials: ["testimonials", "featured"] as const,
+  homepageContent:    ["content", "homepage"] as const,
+};
+
 export default function HomePage() {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [featuredCategories, setFeaturedCategories] = useState<Category[]>([]);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [homepageData, setHomepageData] = useState<{
-    sections: HomepageContent[];
-    features: Feature[];
-    journey: JourneyStep[];
-    origins: Origin[];
-    certifications: Certification[];
-    stats: HomepageStat[];
-  }>({
-    sections: [],
-    features: [],
-    journey: [],
-    origins: [],
-    certifications: [],
-    stats: [],
+  /**
+   * useQueries fires ALL 4 requests simultaneously (same as Promise.all),
+   * but results are individually cached by React Query.
+   * On the user's second visit everything loads instantly from cache.
+   */
+  const [
+    { data: featuredProducts = [],  isLoading: loadingProducts },
+    { data: featuredCategories = [], isLoading: loadingCategories },
+    { data: testimonials = [],      isLoading: loadingTestimonials },
+    { data: homepageData,           isLoading: loadingContent },
+  ] = useQueries({
+    queries: [
+      {
+        queryKey: QUERY_KEYS.featuredProducts,
+        queryFn: () => productsApi.getFeatured(),
+      },
+      {
+        queryKey: QUERY_KEYS.featuredCategories,
+        queryFn: () => categoriesApi.getFeatured(),
+      },
+      {
+        queryKey: QUERY_KEYS.featuredTestimonials,
+        queryFn: () => testimonialsApi.getFeatured(),
+      },
+      {
+        queryKey: QUERY_KEYS.homepageContent,
+        queryFn: () => contentApi.getHomepage(),
+        // Homepage content almost never changes — cache it for 10 minutes
+        staleTime: 10 * 60 * 1000,
+      },
+    ],
   });
 
-  // Helper to get section content
-  const getSectionContent = (section: string) => {
-    return homepageData.sections.find(c => c.section === section);
-  };
+  const sections      = homepageData?.sections      ?? [];
+  const features      = homepageData?.features      ?? [];
+  const journey       = homepageData?.journey       ?? [];
+  const origins       = homepageData?.origins       ?? [];
+  const certifications = homepageData?.certifications ?? [];
+  const stats         = homepageData?.stats         ?? [];
 
-  // Type-safe content extraction
-  const getContentValue = (content: any, property: string): string | undefined => {
-    if (!content) return undefined;
-    if (typeof content === 'object') {
-      return content[property] as string | undefined;
-    }
-    return undefined;
-  };
+  const getSectionContent = (section: string) =>
+    sections.find(c => c.section === section);
 
-  const [loading, setLoading] = useState({
-    products: true,
-    categories: true,
-    testimonials: true,
-    content: true,
-  });
+  const getContentValue = (content: any, property: string): string | undefined =>
+    content && typeof content === 'object' ? content[property] : undefined;
 
-  useEffect(() => {
-    async function fetchData() {
-
-      
-      try {
-        // Fetch all data in parallel
-        const [products, categories, tests, homeContent] = await Promise.all([
-          productsApi.getFeatured().catch(error => {
-            console.error("Error fetching products:", error);
-            return [];
-          }),
-          categoriesApi.getFeatured().catch(error => {
-            console.error("Error fetching categories:", error);
-            return [];
-          }),
-          testimonialsApi.getFeatured().catch(error => {
-            console.error("Error fetching testimonials:", error);
-            return [];
-          }),
-          contentApi.getHomepage().catch(error => {
-            console.error("Error fetching content:", error);
-            return {
-              sections: [],
-              features: [],
-              journey: [],
-              origins: [],
-              certifications: [],
-              testimonials: [],
-              stats: [],
-            };
-          })
-        ]);
-
-
-        setFeaturedProducts(products || []);
-        setFeaturedCategories(categories || []);
-        setTestimonials(tests || []);
-        setHomepageData(homeContent);
-        
-      } catch (error) {
-        console.error("Homepage fetch error:", error);
-      } finally {
-        setLoading({
-          products: false,
-          categories: false,
-          testimonials: false,
-          content: false,
-        });
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  const heroContent = getSectionContent('hero');
-  const introContent = getSectionContent('intro');
-  const productsIntroContent = getSectionContent('products_intro');
-  const qualityContent = getSectionContent('quality');
-  const whyChooseContent = getSectionContent('why_choose');
-  const categoryIntroContent = getSectionContent('category_intro');
-  const ctaContent = getSectionContent('cta');
+  const heroContent             = getSectionContent('hero');
+  const introContent            = getSectionContent('intro');
+  const productsIntroContent    = getSectionContent('products_intro');
+  const qualityContent          = getSectionContent('quality');
+  const whyChooseContent        = getSectionContent('why_choose');
+  const categoryIntroContent    = getSectionContent('category_intro');
+  const ctaContent              = getSectionContent('cta');
   const testimonialsIntroContent = getSectionContent('testimonials_intro');
 
-
-  const isLoading = loading.products || loading.categories || loading.testimonials;
+  const heroImage = getContentValue(heroContent, 'image') ||
+    "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1920";
 
   return (
     <PublicLayout>
+      {/* Preload the hero image so it doesn't block LCP */}
+      <link rel="preload" as="image" href={heroImage} />
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={getContentValue(heroContent, 'image') || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1920"}
+            src={heroImage}
             alt="Premium spices"
             className="w-full h-full object-cover"
+            // fetchpriority tells the browser to load this first
+            fetchPriority="high"
+            decoding="sync"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/90 to-charcoal/60" />
           <div className="absolute inset-0 bg-gradient-to-t from-ember/20 via-transparent to-transparent" />
@@ -192,20 +143,15 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/10 animate-fade-in delay-300">
-              {homepageData.stats
-                ?.sort((a, b) => a.sort_order - b.sort_order)
+              {stats
+                .sort((a, b) => a.sort_order - b.sort_order)
                 .map((stat) => (
                   <div key={stat.id} className="text-center">
-                    <p className="text-3xl font-display font-bold text-saffron">
-                      {stat.value}
-                    </p>
-                    <p className="text-sm text-white/60">
-                      {stat.label}
-                    </p>
+                    <p className="text-3xl font-display font-bold text-saffron">{stat.value}</p>
+                    <p className="text-sm text-white/60">{stat.label}</p>
                   </div>
                 ))}
             </div>
-
           </div>
         </div>
 
@@ -217,65 +163,51 @@ export default function HomePage() {
       {/* From Farm to Flame Section */}
       <section className="py-24 bg-gradient-warm relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-radial from-saffron/10 via-transparent to-transparent rounded-full blur-3xl" />
-        
         <div className="container relative z-10">
           <SectionHeader
             subtitle={getContentValue(introContent, 'subtitle') || "Our Process"}
             title={getContentValue(introContent, 'title') || "From Farm to Flame"}
             description={getContentValue(introContent, 'content') || "Every spice tells a story of tradition, quality, and passion."}
           />
-          
-          {loading.content ? (
+          {loadingContent ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-soft">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-soft">
                   <Skeleton className="h-48 w-full" />
-                  <div className="p-6">
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                  </div>
+                  <div className="p-6"><Skeleton className="h-6 w-3/4 mb-2" /><Skeleton className="h-4 w-full" /></div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-              {homepageData.journey
-                .sort((a, b) => a.sort_order - b.sort_order)
-                .map((step, index) => {
-                  const IconComponent = iconComponents[step.icon] || Flame;
-                  return (
-                    <div 
-                      key={step.id}
-                      className="group relative bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-500 hover:-translate-y-2"
-                    >
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={step.image}
-                          alt={step.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 to-transparent" />
-                        <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gradient-to-r from-ember to-saffron flex items-center justify-center">
-                          <span className="text-white font-bold">{index + 1}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="p-6">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-ember/10 to-saffron/10 flex items-center justify-center">
-                            <IconComponent className="w-5 h-5 text-ember" />
-                          </div>
-                          <h3 className="font-display font-semibold text-lg text-foreground">
-                            {step.title}
-                          </h3>
-                        </div>
-                        <p className="text-muted-foreground text-sm">
-                          {step.description}
-                        </p>
+              {journey.sort((a, b) => a.sort_order - b.sort_order).map((step, index) => {
+                const IconComponent = iconComponents[step.icon] || Flame;
+                return (
+                  <div key={step.id} className="group relative bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-500 hover:-translate-y-2">
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={step.image}
+                        alt={step.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 to-transparent" />
+                      <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gradient-to-r from-ember to-saffron flex items-center justify-center">
+                        <span className="text-white font-bold">{index + 1}</span>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-ember/10 to-saffron/10 flex items-center justify-center">
+                          <IconComponent className="w-5 h-5 text-ember" />
+                        </div>
+                        <h3 className="font-display font-semibold text-lg text-foreground">{step.title}</h3>
+                      </div>
+                      <p className="text-muted-foreground text-sm">{step.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -285,66 +217,42 @@ export default function HomePage() {
       <section className="py-24 bg-charcoal relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-ember/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-saffron/15 rounded-full blur-[120px]" />
-        
         <div className="container relative z-10">
           <SectionHeader
             subtitle={getContentValue(whyChooseContent, 'subtitle') || "Our Sourcing Regions"}
             subtitleVariant="badge"
-            title={
-              getContentValue(whyChooseContent, 'title') ||
-              "Spice Origins from {Kerala & Karnataka}"
-            }
+            title={getContentValue(whyChooseContent, 'title') || "Spice Origins from {Kerala & Karnataka}"}
             titleClassName='text-white'
-            description={
-              getContentValue(whyChooseContent, 'content') ||
-              "Two legendary regions, centuries of spice heritage"
-            }
+            description={getContentValue(whyChooseContent, 'content') || "Two legendary regions, centuries of spice heritage"}
           />
-          
-          {loading.content ? (
+          {loadingContent ? (
             <div className="grid md:grid-cols-2 gap-8 mt-12">
-              {[...Array(2)].map((_, index) => (
-                <div key={index} className="rounded-3xl border border-white/10 bg-white/5 p-8">
-                  <Skeleton className="h-6 w-1/4 mb-4" />
-                  <Skeleton className="h-8 w-3/4 mb-4" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3 mb-6" />
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="rounded-3xl border border-white/10 bg-white/5 p-8">
+                  <Skeleton className="h-6 w-1/4 mb-4" /><Skeleton className="h-8 w-3/4 mb-4" /><Skeleton className="h-4 w-full mb-2" />
                 </div>
               ))}
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-8 mt-12">
-              {homepageData.origins
-                .sort((a, b) => a.sort_order - b.sort_order)
-                .map((origin) => (
-                  <div 
-                    key={origin.id}
-                    className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm p-8 hover:border-saffron/30 transition-all duration-500"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-ember/10 via-transparent to-saffron/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
-                    <div className="relative z-10">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-saffron/20 border border-saffron/30 mb-4">
-                        <MapPin className="w-4 h-4 text-saffron" />
-                        <span className="text-sm font-medium text-saffron">{origin.region}</span>
-                      </div>
-                      
-                      <h3 className="font-display text-3xl font-bold text-white mb-3">{origin.name}</h3>
-                      <p className="text-white/70 mb-6">{origin.description}</p>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {origin.spices.map((spice, idx) => (
-                          <span 
-                            key={idx}
-                            className="px-3 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium"
-                          >
-                            {spice}
-                          </span>
-                        ))}
-                      </div>
+              {origins.sort((a, b) => a.sort_order - b.sort_order).map((origin) => (
+                <div key={origin.id} className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm p-8 hover:border-saffron/30 transition-all duration-500">
+                  <div className="absolute inset-0 bg-gradient-to-br from-ember/10 via-transparent to-saffron/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative z-10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-saffron/20 border border-saffron/30 mb-4">
+                      <MapPin className="w-4 h-4 text-saffron" />
+                      <span className="text-sm font-medium text-saffron">{origin.region}</span>
+                    </div>
+                    <h3 className="font-display text-3xl font-bold text-white mb-3">{origin.name}</h3>
+                    <p className="text-white/70 mb-6">{origin.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {origin.spices.map((spice, idx) => (
+                        <span key={idx} className="px-3 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium">{spice}</span>
+                      ))}
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -358,18 +266,12 @@ export default function HomePage() {
             title={getContentValue(productsIntroContent, 'title') || "Featured Products"}
             description={getContentValue(productsIntroContent, 'content') || "Discover our most sought-after spices"}
           />
-          
-          {loading.products ? (
+          {loadingProducts ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="bg-white rounded-2xl shadow-soft overflow-hidden">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-soft overflow-hidden">
                   <Skeleton className="h-48 w-full" />
-                  <div className="p-6">
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-1/2 mb-4" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </div>
+                  <div className="p-6"><Skeleton className="h-6 w-3/4 mb-2" /><Skeleton className="h-4 w-1/2 mb-4" /><Skeleton className="h-4 w-full" /></div>
                 </div>
               ))}
             </div>
@@ -380,17 +282,11 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No featured products available at the moment.</p>
-            </div>
+            <div className="text-center py-12"><p className="text-muted-foreground">No featured products available at the moment.</p></div>
           )}
-
           <div className="text-center mt-12">
             <Button asChild variant="ember" size="lg">
-              <Link to="/products">
-                View All Products
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+              <Link to="/products">View All Products <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
           </div>
         </div>
@@ -400,30 +296,15 @@ export default function HomePage() {
       <section className="py-24 bg-sand">
         <div className="container">
           <SectionHeader
-            subtitle={
-              getContentValue(categoryIntroContent, 'subtitle') ||
-              "Browse by Category"
-            }
-            title={
-              getContentValue(categoryIntroContent, 'title') ||
-              "Spice Collections"
-            }
-            description={
-              getContentValue(categoryIntroContent, 'content') ||
-              "Explore our diverse range of authentic South Indian spices"
-            }
+            subtitle={getContentValue(categoryIntroContent, 'subtitle') || "Browse by Category"}
+            title={getContentValue(categoryIntroContent, 'title') || "Spice Collections"}
+            description={getContentValue(categoryIntroContent, 'content') || "Explore our diverse range of authentic South Indian spices"}
           />
-          
-          {loading.categories ? (
+          {loadingCategories ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="bg-white rounded-2xl shadow-soft overflow-hidden">
-                  <Skeleton className="h-48 w-full" />
-                  <div className="p-6">
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </div>
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-soft overflow-hidden">
+                  <Skeleton className="h-48 w-full" /><div className="p-6"><Skeleton className="h-6 w-3/4 mb-2" /><Skeleton className="h-4 w-full" /></div>
                 </div>
               ))}
             </div>
@@ -434,9 +315,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No categories available at the moment.</p>
-            </div>
+            <div className="text-center py-12"><p className="text-muted-foreground">No categories available at the moment.</p></div>
           )}
         </div>
       </section>
@@ -449,69 +328,55 @@ export default function HomePage() {
               <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
                 {getContentValue(qualityContent, 'subtitle') || "Why Firehawk"}
               </p>
-
               <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-                <HighlightText text = {getContentValue(qualityContent, 'title') || "Export-Grade Quality, Globally Trusted"} />
+                <HighlightText text={getContentValue(qualityContent, 'title') || "Export-Grade Quality, Globally Trusted"} />
               </h2>
-
               <p className="text-muted-foreground text-lg mb-8">
                 {getContentValue(qualityContent, 'content') || "At Firehawk, quality isn't just a promise — it's our legacy."}
               </p>
-              
-              {loading.content ? (
+              {loadingContent ? (
                 <div className="grid grid-cols-2 gap-6">
-                  {[...Array(4)].map((_, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <Skeleton className="w-10 h-10 rounded-xl" />
-                      <div className="flex-1">
-                        <Skeleton className="h-4 w-3/4 mb-2" />
-                        <Skeleton className="h-3 w-full" />
-                      </div>
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <Skeleton className="w-10 h-10 rounded-xl" /><div className="flex-1"><Skeleton className="h-4 w-3/4 mb-2" /><Skeleton className="h-3 w-full" /></div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-6">
-                  {homepageData.features
-                    .sort((a, b) => a.sort_order - b.sort_order)
-                    .map((feature) => {
-                      const IconComponent = iconComponents[feature.icon] || Shield;
-                      return (
-                        <div key={feature.id} className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-ember/10 to-saffron/10 flex items-center justify-center flex-shrink-0">
-                            <IconComponent className="w-5 h-5 text-ember" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
-                            <p className="text-sm text-muted-foreground">{feature.description}</p>
-                          </div>
+                  {features.sort((a, b) => a.sort_order - b.sort_order).map((feature) => {
+                    const IconComponent = iconComponents[feature.icon] || Shield;
+                    return (
+                      <div key={feature.id} className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-ember/10 to-saffron/10 flex items-center justify-center flex-shrink-0">
+                          <IconComponent className="w-5 h-5 text-ember" />
                         </div>
-                      );
-                    })}
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
+                          <p className="text-sm text-muted-foreground">{feature.description}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            {/* Certifications Visual */}
             <div className="relative">
               <div className="bg-gradient-to-br from-sand to-white rounded-3xl p-8 shadow-medium">
                 <h3 className="font-display text-2xl font-bold text-foreground mb-6">Certifications & Standards</h3>
-                {loading.content ? (
+                {loadingContent ? (
                   <div className="grid grid-cols-2 gap-4">
-                    {[...Array(6)].map((_, index) => (
-                      <Skeleton key={index} className="h-12 rounded-xl" />
-                    ))}
+                    {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-12 rounded-xl" />)}
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
-                    {homepageData.certifications
-                      .sort((a, b) => a.sort_order - b.sort_order)
-                      .map((cert) => (
-                        <div key={cert.id} className="flex items-center gap-3 p-4 bg-white rounded-xl border border-border/50">
-                          <CheckCircle className="w-5 h-5 text-ember" />
-                          <span className="text-sm font-medium text-foreground">{cert.name}</span>
-                        </div>
-                      ))}
+                    {certifications.sort((a, b) => a.sort_order - b.sort_order).map((cert) => (
+                      <div key={cert.id} className="flex items-center gap-3 p-4 bg-white rounded-xl border border-border/50">
+                        <CheckCircle className="w-5 h-5 text-ember" />
+                        <span className="text-sm font-medium text-foreground">{cert.name}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -525,34 +390,16 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-warm">
         <div className="container">
           <SectionHeader
-            subtitle={
-              getContentValue(testimonialsIntroContent, 'subtitle') ||
-              "Client Testimonials"
-            }
-            title={
-              getContentValue(testimonialsIntroContent, 'title') 
-            }
-            description={
-              getContentValue(testimonialsIntroContent, 'content') ||
-              "Trusted by leading spice importers and distributors across Europe"
-            }
+            subtitle={getContentValue(testimonialsIntroContent, 'subtitle') || "Client Testimonials"}
+            title={getContentValue(testimonialsIntroContent, 'title')}
+            description={getContentValue(testimonialsIntroContent, 'content') || "Trusted by leading spice importers and distributors across Europe"}
           />
-          
-          {loading.testimonials ? (
+          {loadingTestimonials ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="bg-white rounded-2xl shadow-soft p-6">
-                  <Skeleton className="h-4 w-3/4 mb-4" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3 mb-6" />
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="w-12 h-12 rounded-full" />
-                    <div>
-                      <Skeleton className="h-4 w-24 mb-2" />
-                      <Skeleton className="h-3 w-16" />
-                    </div>
-                  </div>
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-soft p-6">
+                  <Skeleton className="h-4 w-3/4 mb-4" /><Skeleton className="h-4 w-full mb-2" /><Skeleton className="h-4 w-2/3 mb-6" />
+                  <div className="flex items-center gap-3"><Skeleton className="w-12 h-12 rounded-full" /><div><Skeleton className="h-4 w-24 mb-2" /><Skeleton className="h-3 w-16" /></div></div>
                 </div>
               ))}
             </div>
@@ -563,9 +410,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No testimonials available at the moment.</p>
-            </div>
+            <div className="text-center py-12"><p className="text-muted-foreground">No testimonials available at the moment.</p></div>
           )}
         </div>
       </section>
@@ -574,33 +419,22 @@ export default function HomePage() {
       <section className="py-24 bg-charcoal relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-ember/20 rounded-full blur-[150px]" />
         <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-saffron/15 rounded-full blur-[100px]" />
-        
         <div className="container relative z-10 text-center">
           {getContentValue(ctaContent, "badge") && (
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
               <Flame className="w-4 h-4 text-saffron" />
-              <span className="text-sm font-medium text-saffron">
-                {getContentValue(ctaContent, "badge")}
-              </span>
+              <span className="text-sm font-medium text-saffron">{getContentValue(ctaContent, "badge")}</span>
             </div>
           )}
-          
           <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-            <HighlightText
-              text={getContentValue(ctaContent, 'title') || "Ready to Source {Premium Spices?}"}
-            />
+            <HighlightText text={getContentValue(ctaContent, 'title') || "Ready to Source {Premium Spices?}"} />
           </h2>
-
           <p className="text-white/70 max-w-2xl mx-auto mb-10 text-lg">
             {getContentValue(ctaContent, 'content') || "Whether you're a distributor, manufacturer, or retailer, we offer flexible packaging and competitive pricing for bulk orders."}
           </p>
-          
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild variant="fire" size="xl">
-              <Link to="/contact">
-                Get a Quote
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
+              <Link to="/contact">Get a Quote <ArrowRight className="w-5 h-5 ml-2" /></Link>
             </Button>
             <Button asChild variant="outline-gold" size="xl">
               <Link to="/products">Browse Products</Link>

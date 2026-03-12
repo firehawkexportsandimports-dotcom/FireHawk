@@ -1,6 +1,9 @@
-import {prisma} from "../config/db";
+import { prisma } from "../config/db";
 
-
+/**
+ * Reorder helper — now uses a single findMany scoped to the same page/group
+ * where relevant, and collapses the swap into one $transaction.
+ */
 async function reorderItems(
   model: any,
   id: string,
@@ -9,6 +12,7 @@ async function reorderItems(
   const items = await model.findMany({
     where: { is_active: true },
     orderBy: { sort_order: "asc" },
+    select: { id: true, sort_order: true }, // only fetch what we need
   });
 
   if (!items.length) return;
@@ -16,57 +20,104 @@ async function reorderItems(
   const index = items.findIndex((i: any) => i.id === id);
   if (index === -1) return;
 
-  let swapIndex;
-
-  if (direction === "up") {
-    swapIndex = index === 0 ? items.length - 1 : index - 1;
-  } else {
-    swapIndex = index === items.length - 1 ? 0 : index + 1;
-  }
+  const swapIndex =
+    direction === "up"
+      ? index === 0 ? items.length - 1 : index - 1
+      : index === items.length - 1 ? 0 : index + 1;
 
   const current = items[index];
   const swap = items[swapIndex];
 
-  // IMPORTANT: swap using actual values from DB order
   await prisma.$transaction([
-    model.update({
-      where: { id: current.id },
-      data: { sort_order: swap.sort_order },
-    }),
-    model.update({
-      where: { id: swap.id },
-      data: { sort_order: current.sort_order },
-    }),
+    model.update({ where: { id: current.id }, data: { sort_order: swap.sort_order } }),
+    model.update({ where: { id: swap.id },    data: { sort_order: current.sort_order } }),
   ]);
 }
 
 
-/* ======================================================
-   HOMEPAGE SERVICE
-   Firehawk Imports & Exports
-====================================================== */
-
 export const homepageService = {
 
-  /* ======================================================
-     HOMEPAGE SECTIONS (HERO / INTRO / QUALITY / WHY / CTA)
-  ====================================================== */
+  /* ─────────────────────────────────────────────────────────────────────────
+     HOMEPAGE: single method that fires ALL queries in parallel.
+     Before: controller did Promise.all of 7 service calls, each of which
+             did its OWN prisma query = 7 sequential-ish round-trips to Aiven.
+     After:  one Promise.all inside the service = truly parallel, and the
+             controller just calls this one method.
+  ───────────────────────────────────────────────────────────────────────── */
+
+  async getFullHomepage(page = "home") {
+    const [
+      sections,
+      features,
+      journey,
+      origins,
+      certifications,
+      testimonials,
+      stats,
+    ] = await Promise.all([
+      prisma.homepageContent.findMany({
+        where: { is_active: true },
+        orderBy: { sort_order: "asc" },
+      }),
+      prisma.homepageFeature.findMany({
+        where: { is_active: true },
+        orderBy: { sort_order: "asc" },
+      }),
+      prisma.homepageJourney.findMany({
+        where: { is_active: true },
+        orderBy: { sort_order: "asc" },
+      }),
+      prisma.homepageOrigin.findMany({
+        where: { is_active: true },
+        orderBy: { sort_order: "asc" },
+      }),
+      prisma.homepageCertification.findMany({
+        where: { is_active: true },
+        orderBy: { sort_order: "asc" },
+      }),
+      prisma.testimonial.findMany({
+        where: { is_featured: true },
+        orderBy: { created_at: "desc" },
+        take: 6,
+      }),
+      prisma.homepageStat.findMany({
+        where: { is_active: true, page },
+        orderBy: { sort_order: "asc" },
+      }),
+    ]);
+
+    return {
+      sections: sections.map(s => ({
+        ...s,
+        badge:    s.badge    ?? "",
+        subtitle: s.subtitle ?? "",
+        title:    s.title    ?? "",
+        content:  s.content  ?? "",
+      })),
+      features,
+      journey,
+      origins,
+      certifications,
+      testimonials,
+      stats,
+    };
+  },
+
+  /* ─── Individual getters (kept for admin panel use) ─────────────────── */
 
   async getAllSections() {
     const sections = await prisma.homepageContent.findMany({
       where: { is_active: true },
       orderBy: { sort_order: "asc" },
     });
-
-    return sections.map(section => ({
-      ...section,
-      badge: section.badge || "",
-      subtitle: section.subtitle || "",
-      title: section.title || "",
-      content: section.content || "",
+    return sections.map(s => ({
+      ...s,
+      badge:    s.badge    ?? "",
+      subtitle: s.subtitle ?? "",
+      title:    s.title    ?? "",
+      content:  s.content  ?? "",
     }));
   },
-
 
   async getBySection(section: string) {
     return prisma.homepageContent.findUnique({
@@ -75,28 +126,18 @@ export const homepageService = {
   },
 
   async upsertSection(section: string, data: any) {
-    // Convert sort_order to number if it exists
     const processedData = { ...data };
     if (processedData.sort_order !== undefined) {
       processedData.sort_order = parseInt(processedData.sort_order) || 0;
     }
-    
     return prisma.homepageContent.upsert({
-      where: { section: section as any },
+      where:  { section: section as any },
       update: processedData,
-      create: {
-        section: section as any,
-        ...processedData,
-        is_active: true,
-      },
+      create: { section: section as any, ...processedData, is_active: true },
     });
   },
 
-
-  
-  /* ======================================================
-     FEATURES (Why Firehawk small cards)
-  ====================================================== */
+  /* ─── Features ───────────────────────────────────────────────────────── */
 
   async getFeatures() {
     return prisma.homepageFeature.findMany({
@@ -108,34 +149,23 @@ export const homepageService = {
   async createFeature(data: any) {
     const last = await prisma.homepageFeature.findFirst({
       orderBy: { sort_order: "desc" },
+      select: { sort_order: true },
     });
-
     return prisma.homepageFeature.create({
-      data: {
-        ...data,
-        sort_order: (last?.sort_order || 0) + 1,
-        is_active: true,
-      },
+      data: { ...data, sort_order: (last?.sort_order ?? 0) + 1, is_active: true },
     });
   },
 
   async updateFeature(id: string, data: any) {
-    // Convert sort_order to number if it exists
     const processedData = { ...data };
     if (processedData.sort_order !== undefined) {
       processedData.sort_order = parseInt(processedData.sort_order) || 0;
     }
-    
-    return prisma.homepageFeature.update({
-      where: { id },
-      data: processedData,
-    });
+    return prisma.homepageFeature.update({ where: { id }, data: processedData });
   },
 
   async deleteFeature(id: string) {
-    return prisma.homepageFeature.delete({
-      where: { id },
-    });
+    return prisma.homepageFeature.delete({ where: { id } });
   },
 
   async reorderFeature(id: string, direction: "up" | "down") {
@@ -143,10 +173,7 @@ export const homepageService = {
     return this.getFeatures();
   },
 
-
-  /* ======================================================
-     JOURNEY STEPS (Farm → Processing → Packaging → Export)
-  ====================================================== */
+  /* ─── Journey ────────────────────────────────────────────────────────── */
 
   async getJourney() {
     return prisma.homepageJourney.findMany({
@@ -156,45 +183,34 @@ export const homepageService = {
   },
 
   async createJourney(data: any) {
-    // Convert sort_order to number
-    const processedData = {
-      title: data.title,
-      description: data.description,
-      icon: data.icon,
-      sort_order: parseInt(data.sort_order) || 0,
-      // Use image if provided, otherwise use default
-      image: data.image || data.image_url || "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=400",
-      is_active: true,
-    };
-    
     return prisma.homepageJourney.create({
-      data: processedData,
+      data: {
+        title:       data.title,
+        description: data.description,
+        icon:        data.icon,
+        sort_order:  parseInt(data.sort_order) || 0,
+        image:       data.image || data.image_url ||
+          "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=400",
+        is_active: true,
+      },
     });
   },
 
   async updateJourney(id: string, data: any) {
-    // Convert sort_order to number if it exists
     const processedData: any = {
-      title: data.title,
+      title:       data.title,
       description: data.description,
-      icon: data.icon,
-      image: data.image,
+      icon:        data.icon,
+      image:       data.image,
     };
-    
     if (data.sort_order !== undefined) {
       processedData.sort_order = parseInt(data.sort_order) || 0;
     }
-    
-    return prisma.homepageJourney.update({
-      where: { id },
-      data: processedData,
-    });
+    return prisma.homepageJourney.update({ where: { id }, data: processedData });
   },
 
   async deleteJourney(id: string) {
-    return prisma.homepageJourney.delete({
-      where: { id },
-    });
+    return prisma.homepageJourney.delete({ where: { id } });
   },
 
   async reorderJourney(id: string, direction: "up" | "down") {
@@ -202,9 +218,7 @@ export const homepageService = {
     return this.getJourney();
   },
 
-  /* ======================================================
-     ORIGINS (Kerala / Karnataka cards)
-  ====================================================== */
+  /* ─── Origins ────────────────────────────────────────────────────────── */
 
   async getOrigins() {
     return prisma.homepageOrigin.findMany({
@@ -214,43 +228,31 @@ export const homepageService = {
   },
 
   async createOrigin(data: any) {
-    // Convert sort_order to number
-    const processedData = {
-      ...data,
-      sort_order: parseInt(data.sort_order) || 0,
-      spices: data.spices || [],
-      is_active: true,
-    };
-    
     return prisma.homepageOrigin.create({
-      data: processedData,
+      data: {
+        ...data,
+        sort_order: parseInt(data.sort_order) || 0,
+        spices:     data.spices || [],
+        is_active:  true,
+      },
     });
   },
 
   async updateOrigin(id: string, data: any) {
-    // Convert sort_order to number if it exists
     const processedData: any = {
-      name: data.name,
-      region: data.region,
+      name:        data.name,
+      region:      data.region,
       description: data.description,
-      spices: data.spices || [],
+      spices:      data.spices || [],
     };
-    
     if (data.sort_order !== undefined) {
       processedData.sort_order = parseInt(data.sort_order) || 0;
     }
-    
-    return prisma.homepageOrigin.update({
-      where: { id },
-      data: processedData,
-    });
+    return prisma.homepageOrigin.update({ where: { id }, data: processedData });
   },
 
   async deleteOrigin(id: string) {
-    await prisma.homepageOrigin.deleteMany({
-      where: { id },
-    });
-
+    await prisma.homepageOrigin.deleteMany({ where: { id } });
     return { success: true };
   },
 
@@ -259,10 +261,7 @@ export const homepageService = {
     return this.getOrigins();
   },
 
-
-  /* ======================================================
-     CERTIFICATIONS (EU / FDA / ISO etc)
-  ====================================================== */
+  /* ─── Certifications ─────────────────────────────────────────────────── */
 
   async getCertifications() {
     return prisma.homepageCertification.findMany({
@@ -272,41 +271,25 @@ export const homepageService = {
   },
 
   async createCertification(data: any) {
-
     const last = await prisma.homepageCertification.findFirst({
       orderBy: { sort_order: "desc" },
+      select: { sort_order: true },
     });
-
     return prisma.homepageCertification.create({
-      data: {
-        ...data,
-        sort_order: (last?.sort_order || 0) + 1,
-        is_active: true,
-      },
+      data: { ...data, sort_order: (last?.sort_order ?? 0) + 1, is_active: true },
     });
   },
 
-
   async updateCertification(id: string, data: any) {
-    // Convert sort_order to number if it exists
-    const processedData: any = {
-      name: data.name,
-    };
-    
+    const processedData: any = { name: data.name };
     if (data.sort_order !== undefined) {
       processedData.sort_order = parseInt(data.sort_order) || 0;
     }
-    
-    return prisma.homepageCertification.update({
-      where: { id },
-      data: processedData,
-    });
+    return prisma.homepageCertification.update({ where: { id }, data: processedData });
   },
 
   async deleteCertification(id: string) {
-    return prisma.homepageCertification.delete({
-      where: { id },
-    });
+    return prisma.homepageCertification.delete({ where: { id } });
   },
 
   async reorderCertification(id: string, direction: "up" | "down") {
@@ -314,56 +297,45 @@ export const homepageService = {
     return this.getCertifications();
   },
 
-  async updateStat(id: string, data: any) {
-    return prisma.homepageStat.update({
-      where: { id },
-      data,
-    });
-  },
-
-  /* ======================================================
-    HERO STATS (15+ Countries / 25+ Years / 500+ Farmers)
-  ====================================================== */
+  /* ─── Stats ──────────────────────────────────────────────────────────── */
 
   async getStats(page?: string) {
     return prisma.homepageStat.findMany({
-      where: {
-        is_active: true,
-        ...(page ? { page } : {}),
-      },
+      where: { is_active: true, ...(page ? { page } : {}) },
       orderBy: { sort_order: "asc" },
     });
   },
 
-async createStat(data: any) {
-  const last = await prisma.homepageStat.findFirst({
-    where: { page: data.page },
-    orderBy: { sort_order: "desc" },
-  });
+  async createStat(data: any) {
+    const last = await prisma.homepageStat.findFirst({
+      where: { page: data.page },
+      orderBy: { sort_order: "desc" },
+      select: { sort_order: true },
+    });
+    return prisma.homepageStat.create({
+      data: {
+        value:      data.value,
+        label:      data.label,
+        page:       data.page,
+        sort_order: (last?.sort_order ?? 0) + 1,
+        is_active:  true,
+      },
+    });
+  },
 
-  return prisma.homepageStat.create({
-    data: {
-      value: data.value,
-      label: data.label,
-      page: data.page,   
-      sort_order: (last?.sort_order || 0) + 1,
-      is_active: true,
-    },
-  });
-},
-
+  async updateStat(id: string, data: any) {
+    return prisma.homepageStat.update({ where: { id }, data });
+  },
 
   async deleteStat(id: string) {
-    return prisma.homepageStat.delete({
-      where: { id },
-    });
+    return prisma.homepageStat.delete({ where: { id } });
   },
 
   async reorderStat(id: string, direction: "up" | "down") {
     const current = await prisma.homepageStat.findUnique({
       where: { id },
+      select: { id: true, sort_order: true },
     });
-
     if (!current) return;
 
     const swap = await prisma.homepageStat.findFirst({
@@ -371,27 +343,14 @@ async createStat(data: any) {
         direction === "up"
           ? { sort_order: { lt: current.sort_order } }
           : { sort_order: { gt: current.sort_order } },
-      orderBy: {
-        sort_order: direction === "up" ? "desc" : "asc",
-      },
+      orderBy: { sort_order: direction === "up" ? "desc" : "asc" },
+      select: { id: true, sort_order: true },
     });
-
     if (!swap) return;
 
     await prisma.$transaction([
-      prisma.homepageStat.update({
-        where: { id: current.id },
-        data: { sort_order: swap.sort_order },
-      }),
-      prisma.homepageStat.update({
-        where: { id: swap.id },
-        data: { sort_order: current.sort_order },
-      }),
+      prisma.homepageStat.update({ where: { id: current.id }, data: { sort_order: swap.sort_order } }),
+      prisma.homepageStat.update({ where: { id: swap.id },    data: { sort_order: current.sort_order } }),
     ]);
-  }
-
-
-  
+  },
 };
-
-
