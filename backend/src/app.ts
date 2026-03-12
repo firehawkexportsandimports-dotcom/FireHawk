@@ -29,6 +29,16 @@ app.use(
   })
 );
 
+// TEMPORARY - test before any DB routes load
+app.get("/api/ping", (_, res) => {
+  res.json({ 
+    alive: true,
+    db_url_set: !!process.env.DATABASE_URL,
+    db_url_preview: process.env.DATABASE_URL?.slice(0, 50)
+  });
+});
+
+
 app.use(express.json());
 
 // routes
