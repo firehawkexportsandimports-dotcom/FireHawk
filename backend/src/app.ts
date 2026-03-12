@@ -18,12 +18,13 @@ const app = express();
 // ✅ MUST BE FIRST
 app.use(
   cors({
-    origin: [
-      "http://localhost:8080",
-      "https://fire-hawk.vercel.app",
-      "https://firehawk.in",
-      "https://www.firehawk.in",
-    ],
+      origin: [
+        "http://localhost:8080",
+        "https://fire-hawk.vercel.app",
+        "https://firehawk.in",
+        "https://www.firehawk.in",
+        "https://fire-hawk-s17n.vercel.app"
+      ],
     credentials: true,
   })
 );
@@ -44,7 +45,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/", (_, res) => {
-  res.send("Firehawk Backend Running");
+  res.json({
+    status: "OK",
+    service: "Firehawk API",
+  });
 });
 
 export default app;
