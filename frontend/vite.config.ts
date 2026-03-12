@@ -11,48 +11,7 @@ export default defineConfig({
     },
   },
 
-  server: {
-    port: 8080,
-    proxy: {
-      "/api": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-      },
-    },
-  },
-
   build: {
-    chunkSizeWarningLimit: 600,
-
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-
-            if (id.includes("react")) {
-              return "vendor-react";
-            }
-
-            if (id.includes("@radix-ui")) {
-              return "vendor-radix";
-            }
-
-            if (id.includes("react-router")) {
-              return "vendor-router";
-            }
-
-            if (id.includes("@tanstack")) {
-              return "vendor-query";
-            }
-
-            return "vendor-ui";
-          }
-
-          if (id.includes("/pages/admin/")) {
-            return "admin";
-          }
-        },
-      },
-    },
-  },
+    chunkSizeWarningLimit: 600
+  }
 });
