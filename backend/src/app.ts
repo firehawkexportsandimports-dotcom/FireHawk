@@ -32,7 +32,6 @@ app.use(
   })
 );
 
-app.options("*", cors());
 
 // TEMPORARY - test before any DB routes load
 app.get("/api/ping", (_, res) => {

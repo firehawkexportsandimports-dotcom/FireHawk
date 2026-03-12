@@ -19,7 +19,7 @@ export default function LoginPage() {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/api/auth/login",
+        "/api/auth/login",
         {
           method: "POST",
           body: JSON.stringify({ email, password }),
@@ -51,7 +51,7 @@ export default function LoginPage() {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/api/auth/register",
+        "/api/auth/register",
         {
           method: "POST",
           body: JSON.stringify({ name, email, password }),
