@@ -18,17 +18,21 @@ const app = express();
 // ✅ MUST BE FIRST
 app.use(
   cors({
-      origin: [
-        "http://localhost:8080",
-        "http://localhost:3000",
-        "https://fire-hawk.vercel.app",
-        "https://firehawk.in",
-        "https://www.firehawk.in",
-        "https://fire-hawk-s17n.vercel.app"
-      ],
+    origin: [
+      "http://localhost:8080",
+      "http://localhost:3000",
+      "https://fire-hawk.vercel.app",
+      "https://firehawk.in",
+      "https://www.firehawk.in",
+      "https://fire-hawk-s17n.vercel.app"
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+app.options("*", cors());
 
 // TEMPORARY - test before any DB routes load
 app.get("/api/ping", (_, res) => {

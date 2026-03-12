@@ -14,7 +14,7 @@
  *   useDbWakeup(); // call inside App or main layout
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const PING_URL = `${API_BASE}/ping`;
 const RETRY_INTERVAL_MS = 10 * 60 * 1000; // re-ping every 10 min to keep connection warm
 
