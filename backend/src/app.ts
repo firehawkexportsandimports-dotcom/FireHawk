@@ -19,7 +19,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:8080",
+      "http://localhost:5173",
       "http://localhost:3000",
       "https://fire-hawk.vercel.app",
       "https://firehawk.in",
@@ -31,7 +31,7 @@ app.use(
     credentials: true,
   })
 );
-
+app.use(cors());
 
 // TEMPORARY - test before any DB routes load
 app.get("/api/ping", (_, res) => {
