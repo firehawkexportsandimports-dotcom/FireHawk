@@ -44,7 +44,6 @@ frontend/.env.*
 # ============================================
 
 backend/node_modules/
-backend/src/server.ts
 backend/dist/
 backend/build/
 backend/uploads/
