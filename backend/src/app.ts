@@ -51,4 +51,8 @@ app.get("/", (_, res) => {
   });
 });
 
+app.get("/api/health", (_, res) => {
+  res.json({ status: "OK", service: "Firehawk API" });
+});
+
 export default app;
