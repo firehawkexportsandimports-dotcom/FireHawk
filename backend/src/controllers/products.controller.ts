@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as productService from "../services/products.service";
 
+
 /* ================= GET ALL ================= */
 export const getAll = async (_req: Request, res: Response) => {
   try {
