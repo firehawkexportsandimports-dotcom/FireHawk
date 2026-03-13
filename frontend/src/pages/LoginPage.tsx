@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
 
@@ -18,14 +20,11 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch(
-        "/api/auth/login",
-        {
-          method: "POST",
-          body: JSON.stringify({ email, password }),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
 
       const data = await res.json();
 
@@ -50,22 +49,17 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch(
-        "/api/auth/register",
-        {
-          method: "POST",
-          body: JSON.stringify({ name, email, password }),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: "POST",
+        body: JSON.stringify({ name, email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
 
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.message);
 
-      alert(
-        "Registration successful. Wait for admin approval before login."
-      );
+      alert("Registration successful. Wait for admin approval before login.");
 
       setMode("login");
       setPassword("");
@@ -75,7 +69,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-charcoal via-black to-charcoal">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
