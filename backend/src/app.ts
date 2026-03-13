@@ -16,11 +16,20 @@ import dashboardRoutes from "./routes/dashboard.routes";
 const app = express();
 
 // ✅ MUST BE FIRST
-app.use(cors({
-  origin: "*",
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"]
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://firehawk.in",
+      "https://www.firehawk.in",
+      "https://fire-hawk.vercel.app",
+      "https://fire-hawk-s17n.vercel.app"
+    ],
+    credentials: true
+  })
+);
+
 
 app.options("*", cors());
 
