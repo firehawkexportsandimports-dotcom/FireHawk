@@ -1,107 +1,159 @@
 export const enquiryEmailTemplate = (enquiry: any) => `
-  <div style="background:#f5f5f5;padding:30px 0;font-family:Arial,Helvetica,sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0">
-      <tr>
-        <td align="center">
+<div style="background:#f5f1e8;padding:40px 0;font-family:Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td align="center">
 
-          <!-- MAIN CONTAINER -->
-          <table width="600" cellpadding="0" cellspacing="0"
-            style="background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #eee;">
+<table width="640" cellpadding="0" cellspacing="0"
+style="background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e8dcc7;box-shadow:0 10px 40px rgba(0,0,0,0.08);">
 
-            <!-- HEADER -->
-            <tr>
-              <td style="background:linear-gradient(90deg,#b45309,#f59e0b);padding:20px;color:#ffffff;">
-                <tr>
-                <td style="background:linear-gradient(90deg,#b45309,#f59e0b);padding:20px;text-align:center;">
+<!-- HEADER -->
+<tr>
+<td style="background:linear-gradient(135deg,#7c2d12,#b45309,#f59e0b);text-align:center;padding:40px 20px;">
 
-                    <img 
-                    src="https://res.cloudinary.com/ddmqz9gk0/image/upload/v1773163189/LOGO_1_veo5dy.png"
-                    alt="Firehawk Imports & Exports"
-                    width="160"
-                    style="display:block;margin:auto;"
-                    />
+<img 
+src="https://res.cloudinary.com/ddmqz9gk0/image/upload/v1773163189/LOGO_1_veo5dy.png"
+width="190"
+style="display:block;margin:auto;filter:drop-shadow(0 3px 12px rgba(0,0,0,0.35));"
+/>
 
-                    <p style="margin:10px 0 0;font-size:13px;color:#ffffff;opacity:0.9;">
-                    New Enquiry Received
-                    </p>
+<p style="
+margin-top:18px;
+color:#fde68a;
+letter-spacing:3px;
+font-size:12px;
+text-transform:uppercase;
+font-family:Helvetica,Arial,sans-serif;
+">
+NEW WEBSITE ENQUIRY
+</p>
 
-                </td>
-                </tr>
-                <p style="margin:5px 0 0;font-size:13px;opacity:0.9;">
-                  New Enquiry Received
-                </p>
-              </td>
-            </tr>
+</td>
+</tr>
 
-            <!-- BODY -->
-            <tr>
-              <td style="padding:25px;">
+<!-- BODY -->
+<tr>
+<td style="padding:40px 40px 30px;">
 
-                <h3 style="margin-top:0;color:#111;">Customer Details</h3>
+<h2 style="
+margin:0 0 25px;
+font-family:Georgia,serif;
+color:#7c2d12;
+font-size:20px;
+letter-spacing:1px;
+">
+Customer Details
+</h2>
 
-                <table width="100%" cellpadding="8" cellspacing="0"
-                  style="border-collapse:collapse;font-size:14px;">
-                  <tr>
-                    <td width="140" style="color:#666;"><b>Name</b></td>
-                    <td>${enquiry.name}</td>
-                  </tr>
-                  <tr>
-                    <td style="color:#666;"><b>Email</b></td>
-                    <td>${enquiry.email}</td>
-                  </tr>
-                  ${enquiry.phone ? `
-                  <tr>
-                    <td style="color:#666;"><b>Phone</b></td>
-                    <td>${enquiry.phone}</td>
-                  </tr>` : ""}
+<table width="100%" cellpadding="10" cellspacing="0"
+style="border-collapse:collapse;font-size:14px;">
 
-                  ${enquiry.company ? `
-                  <tr>
-                    <td style="color:#666;"><b>Company</b></td>
-                    <td>${enquiry.company}</td>
-                  </tr>` : ""}
-                </table>
+<tr style="background:#faf8f3;">
+<td width="150" style="color:#9a7a4b;"><b>Name</b></td>
+<td style="color:#333;">${enquiry.name}</td>
+</tr>
 
-                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+<tr>
+<td style="color:#9a7a4b;"><b>Email</b></td>
+<td style="color:#333;">${enquiry.email}</td>
+</tr>
 
-                <h3 style="margin-top:0;color:#111;">Enquiry Details</h3>
+${enquiry.phone ? `
+<tr style="background:#faf8f3;">
+<td style="color:#9a7a4b;"><b>Phone</b></td>
+<td style="color:#333;">${enquiry.phone}</td>
+</tr>` : ""}
 
-                <table width="100%" cellpadding="8" cellspacing="0"
-                  style="border-collapse:collapse;font-size:14px;">
-                  <tr>
-                    <td width="140" style="color:#666;"><b>Type</b></td>
-                    <td style="text-transform:capitalize;">${enquiry.type}</td>
-                  </tr>
+${enquiry.company ? `
+<tr>
+<td style="color:#9a7a4b;"><b>Company</b></td>
+<td style="color:#333;">${enquiry.company}</td>
+</tr>` : ""}
 
-                  ${enquiry.product?.name ? `
-                  <tr>
-                    <td style="color:#666;"><b>Product</b></td>
-                    <td>${enquiry.product.name}</td>
-                  </tr>` : ""}
-                </table>
+</table>
 
-                <div style="margin-top:15px;padding:15px;background:#fafafa;border-radius:6px;">
-                  <b>Message</b>
-                  <p style="margin:8px 0 0;line-height:1.6;">
-                    ${enquiry.message}
-                  </p>
-                </div>
+<h2 style="
+margin:35px 0 20px;
+font-family:Georgia,serif;
+color:#7c2d12;
+font-size:20px;
+letter-spacing:1px;
+">
+Enquiry Details
+</h2>
 
-              </td>
-            </tr>
+<table width="100%" cellpadding="10" cellspacing="0"
+style="border-collapse:collapse;font-size:14px;">
 
-            <!-- FOOTER -->
-            <tr>
-              <td style="background:#111;color:#bbb;padding:15px;font-size:12px;text-align:center;">
-                Firehawk Imports & Exports<br/>
-                Premium South Indian Spice Exporters
-              </td>
-            </tr>
+<tr style="background:#faf8f3;">
+<td width="150" style="color:#9a7a4b;"><b>Type</b></td>
+<td style="color:#333;text-transform:capitalize;">${enquiry.type}</td>
+</tr>
 
-          </table>
+${enquiry.product?.name ? `
+<tr>
+<td style="color:#9a7a4b;"><b>Product</b></td>
+<td style="color:#333;">${enquiry.product.name}</td>
+</tr>` : ""}
 
-        </td>
-      </tr>
-    </table>
-  </div>
+</table>
+
+<!-- MESSAGE BOX -->
+
+<div style="
+margin-top:30px;
+background:#fbfaf6;
+border-left:5px solid #f59e0b;
+padding:20px 22px;
+border-radius:6px;
+">
+
+<p style="
+margin:0 0 10px;
+font-size:12px;
+letter-spacing:2px;
+text-transform:uppercase;
+color:#9a7a4b;
+">
+Customer Message
+</p>
+
+<p style="
+margin:0;
+font-size:15px;
+line-height:1.7;
+color:#444;
+">
+${enquiry.message}
+</p>
+
+</div>
+
+</td>
+</tr>
+
+<!-- FOOTER -->
+
+<tr>
+<td style="
+background:#1c0c02;
+padding:22px;
+text-align:center;
+color:#c4a27a;
+font-size:12px;
+letter-spacing:1px;
+">
+
+<b style="color:#fbbf24;">Firehawk Imports & Exports</b><br>
+Premium South Indian Spice Exporters
+
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+</div>
 `;
