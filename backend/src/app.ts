@@ -26,11 +26,12 @@ app.use(
       "https://www.firehawk.in",
       "https://fire-hawk-s17n.vercel.app"
     ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+    methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+    allowedHeaders: ["Content-Type","Authorization"],
+    credentials: true
   })
 );
+
 app.use(cors());
 
 // TEMPORARY - test before any DB routes load
