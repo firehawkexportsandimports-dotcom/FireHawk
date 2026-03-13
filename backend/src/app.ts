@@ -30,7 +30,9 @@ app.use(
   })
 );
 
+app.use(cors());
 app.options("*", cors());
+
 
 
 // TEMPORARY - test before any DB routes load
