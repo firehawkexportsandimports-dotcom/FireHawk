@@ -20,7 +20,7 @@ export const enquiryService = {
 
     try {
 
-      // 1️⃣ Save enquiry in database
+      // Save enquiry in database
       const enquiry = await prisma.enquiry.create({
         data: {
           type: data.type,
@@ -36,34 +36,42 @@ export const enquiryService = {
         },
       });
 
-      /* =====================================
-         SEND ADMIN EMAIL (BACKGROUND)
-      ===================================== */
+      const mailUser = process.env.MAIL_USER;
+      const adminMail = process.env.ADMIN_MAIL;
 
-      transporter.sendMail({
-        from: `"Firehawk Website" <${process.env.MAIL_USER}>`,
-        to: process.env.ADMIN_MAIL,
-        replyTo: enquiry.email,
-        subject: `New Enquiry from ${enquiry.name}`,
-        html: enquiryEmailTemplate(enquiry),
-      }).catch((err) => {
-        console.error("Admin email failed:", err);
-      });
+      if (!mailUser || !adminMail) {
+        console.error("Enquiry email skipped: MAIL_USER or ADMIN_MAIL is missing.");
+        return enquiry;
+      }
 
       /* =====================================
-         SEND CUSTOMER THANK YOU EMAIL
+         SEND EMAILS
       ===================================== */
 
-      transporter.sendMail({
-        from: `"Firehawk Imports & Exports" <${process.env.MAIL_USER}>`,
-        to: enquiry.email,
-        subject: "Thank you for contacting Firehawk Imports & Exports",
-        html: customerThankyouTemplate(enquiry),
-      }).catch((err) => {
-        console.error("Customer email failed:", err);
-      });
+      const [adminEmailResult, customerEmailResult] = await Promise.allSettled([
+        transporter.sendMail({
+          from: `"Firehawk Website" <${mailUser}>`,
+          to: adminMail,
+          replyTo: enquiry.email,
+          subject: `New Enquiry from ${enquiry.name}`,
+          html: enquiryEmailTemplate(enquiry),
+        }),
+        transporter.sendMail({
+          from: `"Firehawk Imports & Exports" <${mailUser}>`,
+          to: enquiry.email,
+          subject: "Thank you for contacting Firehawk Imports & Exports",
+          html: customerThankyouTemplate(enquiry),
+        }),
+      ]);
 
-      // 3️⃣ Return enquiry immediately
+      if (adminEmailResult.status === "rejected") {
+        console.error("Admin email failed:", adminEmailResult.reason);
+      }
+
+      if (customerEmailResult.status === "rejected") {
+        console.error("Customer email failed:", customerEmailResult.reason);
+      }
+
       return enquiry;
 
     } catch (error) {
