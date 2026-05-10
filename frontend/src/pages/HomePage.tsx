@@ -11,6 +11,7 @@ import { IconType } from '@/types';
 import { HighlightText } from '@/components/ui/HighlightText';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQueries } from '@tanstack/react-query';
+import { HomePageSkeleton } from '@/components/loading/PageSkeletons';
 
 // Icon mapping for dynamic icons
 const iconComponents: Record<IconType, any> = {
@@ -84,25 +85,35 @@ export default function HomePage() {
   const ctaContent              = getSectionContent('cta');
   const testimonialsIntroContent = getSectionContent('testimonials_intro');
 
-  const heroImage = getContentValue(heroContent, 'image') ||
-    "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1920";
+  const heroImage = getContentValue(heroContent, 'image');
+  const pageLoading =
+    loadingContent ||
+    loadingProducts ||
+    loadingCategories ||
+    loadingTestimonials;
+
+  if (pageLoading) {
+    return <HomePageSkeleton />;
+  }
 
   return (
     <PublicLayout>
       {/* Preload the hero image so it doesn't block LCP */}
-      <link rel="preload" as="image" href={heroImage} />
+      {heroImage && <link rel="preload" as="image" href={heroImage} />}
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="Premium spices"
-            className="w-full h-full object-cover"
-            // fetchpriority tells the browser to load this first
-            fetchPriority="high"
-            decoding="sync"
-          />
+          {heroImage && (
+            <img
+              src={heroImage}
+              alt={getContentValue(heroContent, 'title') ?? ""}
+              className="w-full h-full object-cover"
+              // fetchpriority tells the browser to load this first
+              fetchPriority="high"
+              decoding="sync"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/90 to-charcoal/60" />
           <div className="absolute inset-0 bg-gradient-to-t from-ember/20 via-transparent to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-saffron/10 via-burnt-orange/5 to-transparent animate-fire-glow" />
@@ -121,13 +132,12 @@ export default function HomePage() {
 
             <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-6 animate-fade-in-up">
               <HighlightText
-                text={getContentValue(heroContent, 'title') || "From the Heart of India, {Forged in Fire}"}
+                text={getContentValue(heroContent, 'title') ?? ""}
               />
             </h1>
 
             <p className="text-xl text-white/80 mb-8 leading-relaxed max-w-2xl animate-fade-in-up delay-100">
-              {getContentValue(heroContent, 'content') ||
-              'Premium spices sourced from Kerala & Karnataka, delivered to European and global markets with uncompromising quality.'}
+              {getContentValue(heroContent, 'content')}
             </p>
 
             <div className="flex flex-wrap gap-4 animate-fade-in-up delay-200">
@@ -165,9 +175,9 @@ export default function HomePage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-radial from-saffron/10 via-transparent to-transparent rounded-full blur-3xl" />
         <div className="container relative z-10">
           <SectionHeader
-            subtitle={getContentValue(introContent, 'subtitle') || "Our Process"}
-            title={getContentValue(introContent, 'title') || "From Farm to Flame"}
-            description={getContentValue(introContent, 'content') || "Every spice tells a story of tradition, quality, and passion."}
+            subtitle={getContentValue(introContent, 'subtitle')}
+            title={getContentValue(introContent, 'title') ?? ""}
+            description={getContentValue(introContent, 'content')}
           />
           {loadingContent ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
@@ -181,7 +191,7 @@ export default function HomePage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
               {journey.sort((a, b) => a.sort_order - b.sort_order).map((step, index) => {
-                const IconComponent = iconComponents[step.icon] || Flame;
+                const IconComponent = iconComponents[step.icon] ?? Flame;
                 return (
                   <div key={step.id} className="group relative bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-500 hover:-translate-y-2">
                     <div className="relative h-48 overflow-hidden">
@@ -219,11 +229,11 @@ export default function HomePage() {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-saffron/15 rounded-full blur-[120px]" />
         <div className="container relative z-10">
           <SectionHeader
-            subtitle={getContentValue(whyChooseContent, 'subtitle') || "Our Sourcing Regions"}
+            subtitle={getContentValue(whyChooseContent, 'subtitle')}
             subtitleVariant="badge"
-            title={getContentValue(whyChooseContent, 'title') || "Spice Origins from {Kerala & Karnataka}"}
+            title={getContentValue(whyChooseContent, 'title') ?? ""}
             titleClassName='text-white'
-            description={getContentValue(whyChooseContent, 'content') || "Two legendary regions, centuries of spice heritage"}
+            description={getContentValue(whyChooseContent, 'content')}
           />
           {loadingContent ? (
             <div className="grid md:grid-cols-2 gap-8 mt-12">
@@ -262,9 +272,9 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-warm relative">
         <div className="container">
           <SectionHeader
-            subtitle={getContentValue(productsIntroContent, 'subtitle') || "Our Collection"}
-            title={getContentValue(productsIntroContent, 'title') || "Featured Products"}
-            description={getContentValue(productsIntroContent, 'content') || "Discover our most sought-after spices"}
+            subtitle={getContentValue(productsIntroContent, 'subtitle')}
+            title={getContentValue(productsIntroContent, 'title') ?? ""}
+            description={getContentValue(productsIntroContent, 'content')}
           />
           {loadingProducts ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -296,9 +306,9 @@ export default function HomePage() {
       <section className="py-24 bg-sand">
         <div className="container">
           <SectionHeader
-            subtitle={getContentValue(categoryIntroContent, 'subtitle') || "Browse by Category"}
-            title={getContentValue(categoryIntroContent, 'title') || "Spice Collections"}
-            description={getContentValue(categoryIntroContent, 'content') || "Explore our diverse range of authentic South Indian spices"}
+            subtitle={getContentValue(categoryIntroContent, 'subtitle')}
+            title={getContentValue(categoryIntroContent, 'title') ?? ""}
+            description={getContentValue(categoryIntroContent, 'content')}
           />
           {loadingCategories ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -326,13 +336,13 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <p className="text-sm font-semibold text-ember uppercase tracking-wider mb-3">
-                {getContentValue(qualityContent, 'subtitle') || "Why Firehawk"}
+                {getContentValue(qualityContent, 'subtitle')}
               </p>
               <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-                <HighlightText text={getContentValue(qualityContent, 'title') || "Export-Grade Quality, Globally Trusted"} />
+                <HighlightText text={getContentValue(qualityContent, 'title') ?? ""} />
               </h2>
               <p className="text-muted-foreground text-lg mb-8">
-                {getContentValue(qualityContent, 'content') || "At Firehawk, quality isn't just a promise — it's our legacy."}
+                {getContentValue(qualityContent, 'content')}
               </p>
               {loadingContent ? (
                 <div className="grid grid-cols-2 gap-6">
@@ -345,7 +355,7 @@ export default function HomePage() {
               ) : (
                 <div className="grid grid-cols-2 gap-6">
                   {features.sort((a, b) => a.sort_order - b.sort_order).map((feature) => {
-                    const IconComponent = iconComponents[feature.icon] || Shield;
+                    const IconComponent = iconComponents[feature.icon] ?? Shield;
                     return (
                       <div key={feature.id} className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-ember/10 to-saffron/10 flex items-center justify-center flex-shrink-0">
@@ -390,9 +400,9 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-warm">
         <div className="container">
           <SectionHeader
-            subtitle={getContentValue(testimonialsIntroContent, 'subtitle') || "Client Testimonials"}
+            subtitle={getContentValue(testimonialsIntroContent, 'subtitle')}
             title={getContentValue(testimonialsIntroContent, 'title')}
-            description={getContentValue(testimonialsIntroContent, 'content') || "Trusted by leading spice importers and distributors across Europe"}
+            description={getContentValue(testimonialsIntroContent, 'content')}
           />
           {loadingTestimonials ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -427,10 +437,10 @@ export default function HomePage() {
             </div>
           )}
           <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-            <HighlightText text={getContentValue(ctaContent, 'title') || "Ready to Source {Premium Spices?}"} />
+            <HighlightText text={getContentValue(ctaContent, 'title') ?? ""} />
           </h2>
           <p className="text-white/70 max-w-2xl mx-auto mb-10 text-lg">
-            {getContentValue(ctaContent, 'content') || "Whether you're a distributor, manufacturer, or retailer, we offer flexible packaging and competitive pricing for bulk orders."}
+            {getContentValue(ctaContent, 'content')}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild variant="fire" size="xl">

@@ -29,6 +29,7 @@ import {
 import { enquiriesApi } from '@/services/api';
 import { Enquiry } from '@/types';
 import { cn } from '@/lib/utils';
+import { AdminTableRowsSkeleton } from '@/components/loading/PageSkeletons';
 
 export default function AdminMessages() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
@@ -104,13 +105,7 @@ export default function AdminMessages() {
                   </TableHeader>
                   <TableBody>
                     {loading ? (
-                      Array.from({ length: 5 }).map((_, i) => (
-                        <TableRow key={i}>
-                          <TableCell colSpan={6}>
-                            <div className="h-12 bg-muted rounded animate-pulse" />
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      <AdminTableRowsSkeleton rows={5} columns={6} />
                     ) : filteredEnquiries.length > 0 ? (
                       filteredEnquiries.map((enquiry) => (
                         <TableRow 

@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { productsApi, enquiriesApi } from "@/services/api";
 import { Product } from "@/types";
 import { cn } from "@/lib/utils";
+import { ProductDetailSkeleton } from "@/components/loading/PageSkeletons";
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -106,13 +107,7 @@ export default function ProductDetailPage() {
   ============================================ */
 
   if (loading) {
-    return (
-      <PublicLayout>
-        <div className="container py-20 text-center">
-          <p className="text-muted-foreground">Loading product...</p>
-        </div>
-      </PublicLayout>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {

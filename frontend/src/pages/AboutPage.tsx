@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { contentApi, homepageApi } from "@/services/api";
 import { HomepageStat ,AboutContent } from "@/types";
 import { HighlightText } from "@/components/ui/HighlightText";
+import { AboutPageSkeleton } from "@/components/loading/PageSkeletons";
 
 /* =====================================================
    STATIC STATS (NEXT STEP: MOVE TO CMS)
@@ -63,6 +64,10 @@ export default function AboutPage() {
   const visionContent = getSection("vision");
   const exportContent = getSection("export");
   const ctaContent = getSection("cta");
+
+  if (loading) {
+    return <AboutPageSkeleton />;
+  }
 
   const Badge = ({ text }: { text?: string }) => {
     if (!text) return null;

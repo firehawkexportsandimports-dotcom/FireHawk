@@ -35,6 +35,7 @@ import {
 
 import { productsApi, categoriesApi } from "@/services/api";
 import { Product, Category, ProductImage } from "@/types";
+import { AdminTableRowsSkeleton } from "@/components/loading/PageSkeletons";
 
 // Local type to track main image separately
 interface LocalImage {
@@ -46,6 +47,7 @@ interface LocalImage {
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -75,13 +77,19 @@ export default function AdminProducts() {
   /* ================= FETCH ================= */
 
   const fetchData = async () => {
-    const [prods, cats] = await Promise.all([
-      productsApi.getAll(),
-      categoriesApi.getAll(),
-    ]);
+    try {
+      const [prods, cats] = await Promise.all([
+        productsApi.getAll(),
+        categoriesApi.getAll(),
+      ]);
 
-    setProducts(prods);
-    setCategories(cats);
+      setProducts(prods);
+      setCategories(cats);
+    } catch (err) {
+      console.error("Failed to load products:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -384,7 +392,9 @@ export default function AdminProducts() {
               </TableHeader>
 
               <TableBody>
-                {products.map((p) => {
+                {loading ? (
+                  <AdminTableRowsSkeleton rows={6} columns={4} />
+                ) : products.map((p) => {
                   // Find the primary image for display in the table
                   const primaryImage = p.images?.find(img => img.is_primary) || p.images?.[0];
                   
@@ -455,7 +465,7 @@ export default function AdminProducts() {
                   );
                 })}
 
-                {products.length === 0 && (
+                {!loading && products.length === 0 && (
                   <TableRow>
                     <TableCell
                       colSpan={4}

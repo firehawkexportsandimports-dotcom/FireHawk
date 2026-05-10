@@ -50,9 +50,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "@/types";
+import { AdminTableRowsSkeleton } from "@/components/loading/PageSkeletons";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editedRoles, setEditedRoles] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<
@@ -76,6 +78,8 @@ export default function AdminUsers() {
       setUsers(data);
     } catch (err) {
       console.error("Failed to load users", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -253,7 +257,9 @@ export default function AdminUsers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => {
+                {loading ? (
+                  <AdminTableRowsSkeleton rows={6} columns={4} />
+                ) : filteredUsers.map((user) => {
                   const editedRole = editedRoles[user.id] || user.role;
                   const hasRoleChange = editedRoles[user.id] !== undefined;
                   const isCurrentUser = currentUser?.id === user.id;
@@ -431,7 +437,7 @@ export default function AdminUsers() {
                   );
                 })}
 
-                {filteredUsers.length === 0 && (
+                {!loading && filteredUsers.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-12">
                       <div className="flex flex-col items-center gap-2">

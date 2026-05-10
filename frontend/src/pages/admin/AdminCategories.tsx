@@ -39,6 +39,7 @@ import {
 
 import { categoriesApi } from "@/services/api";
 import { Category } from "@/types";
+import { AdminTableRowsSkeleton } from "@/components/loading/PageSkeletons";
 
 /* ============================================
    HELPERS
@@ -206,13 +207,7 @@ export default function AdminCategories() {
 
               <TableBody>
                 {loading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={5}>
-                        <div className="h-12 bg-muted rounded animate-pulse" />
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  <AdminTableRowsSkeleton rows={4} columns={5} />
                 ) : categories.length > 0 ? (
                   categories.map((category) => (
                     <TableRow key={category.id}>

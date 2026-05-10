@@ -15,6 +15,7 @@ import {
 
 import { Product, Category } from "@/types";
 import { HighlightText } from "@/components/ui/HighlightText";
+import { ProductsPageSkeleton } from "@/components/loading/PageSkeletons";
 
 
 /* ============================================
@@ -116,6 +117,10 @@ export default function ProductsPage() {
     setSearchParams({});
   };
 
+  if (loading) {
+    return <ProductsPageSkeleton />;
+  }
+
   /* ============================================
      UI
   ============================================ */
@@ -130,24 +135,28 @@ export default function ProductsPage() {
           <div className="text-center max-w-3xl mx-auto">
 
             {/* BADGE */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
-              <Flame className="w-4 h-4 text-saffron" />
-              <span className="text-sm font-medium text-saffron">
-                {heroContent?.badge || "Our Collection"}
-              </span>
-            </div>
+            {heroContent?.badge && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-saffron/20 border border-saffron/30 mb-6">
+                <Flame className="w-4 h-4 text-saffron" />
+                <span className="text-sm font-medium text-saffron">
+                  {heroContent.badge}
+                </span>
+              </div>
+            )}
 
             {/* TITLE */}
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-              <HighlightText
-                text={heroContent?.title || "Premium {Spices}"}
-              />
-            </h1>
+            {heroContent?.title && (
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+                <HighlightText text={heroContent.title} />
+              </h1>
+            )}
+
             {/* CONTENT */}
-            <p className="text-white/70 text-lg mb-10">
-              {heroContent?.content ||
-                "Explore our complete range of authentic South Indian spices, sourced directly from Kerala and Karnataka"}
-            </p>
+            {heroContent?.content && (
+              <p className="text-white/70 text-lg mb-10">
+                {heroContent.content}
+              </p>
+            )}
 
             {/* SEARCH */}
             <div className="max-w-xl mx-auto">
@@ -218,24 +227,15 @@ export default function ProductsPage() {
           </div>
 
           {/* RESULTS COUNT */}
-          <p className="text-sm text-muted-foreground mb-8">
+          <div className="text-sm text-muted-foreground mb-8">
             Showing {filteredProducts.length}{" "}
             {filteredProducts.length === 1
               ? "product"
               : "products"}
-          </p>
+          </div>
 
           {/* GRID */}
-          {loading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl aspect-[4/5] animate-pulse"
-                />
-              ))}
-            </div>
-          ) : filteredProducts.length > 0 ? (
+          {filteredProducts.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
                 <ProductCard

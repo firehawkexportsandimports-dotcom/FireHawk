@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { contentApi, enquiriesApi } from '@/services/api';
 import { ContactInfo } from '@/types';
 import { HighlightText } from '@/components/ui/HighlightText';
+import { ContactPageSkeleton } from '@/components/loading/PageSkeletons';
 
 export default function ContactPage() {
   const { toast } = useToast();
@@ -136,19 +137,7 @@ export default function ContactPage() {
   ];
 
   if (loading) {
-    return (
-      <PublicLayout>
-        <div className="py-20 bg-charcoal">
-          <div className="container text-center">
-            <div className="animate-pulse">
-              <div className="h-10 w-48 bg-white/10 rounded-full mx-auto mb-6" />
-              <div className="h-16 w-96 bg-white/10 rounded-lg mx-auto mb-6" />
-              <div className="h-6 w-72 bg-white/10 rounded mx-auto" />
-            </div>
-          </div>
-        </div>
-      </PublicLayout>
-    );
+    return <ContactPageSkeleton />;
   }
 
   return (

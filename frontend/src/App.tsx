@@ -29,14 +29,9 @@ const AdminContactContent   = lazy(() => import("./pages/admin/AdminContactConte
 const AdminUsers            = lazy(() => import("./pages/admin/AdminUsers"));
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { RouteSkeleton } from "@/components/loading/PageSkeletons";
 
 // ─── Minimal fallback — avoids layout shift, shows nothing while chunks load ─
-const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="w-8 h-8 border-2 border-ember border-t-transparent rounded-full animate-spin" />
-  </div>
-);
-
 // ─── QueryClient: aggressive caching to survive Aiven cold-start penalty ─────
 //  • staleTime 5 min  → data is reused without a new network call for 5 min
 //  • gcTime 30 min    → cached data stays in memory for 30 min after unmount
@@ -61,7 +56,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<RouteSkeleton />}>
           <Routes>
             {/* Public Routes */}
             <Route path="/"               element={<HomePage />} />

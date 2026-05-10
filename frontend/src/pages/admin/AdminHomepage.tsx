@@ -47,6 +47,7 @@ import {
   Testimonial,
   HomepageStat,
 } from "@/types";
+import { AdminPageSkeleton } from "@/components/loading/PageSkeletons";
 
 
 // All available icons
@@ -508,13 +509,7 @@ const handleDeleteTestimonial = async (id: string) => {
 
 
   if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <p>Loading...</p>
-        </div>
-      </AdminLayout>
-    );
+    return <AdminPageSkeleton cards={8} />;
   }
 
   return (

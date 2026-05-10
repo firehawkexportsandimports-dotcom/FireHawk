@@ -20,6 +20,7 @@ import { Edit, Image, Type, Save, Flame } from "lucide-react";
 
 import { contentApi, homepageApi } from "@/services/api";
 import { AboutContent, AboutSection, HomepageStat } from "@/types";
+import { AdminPageSkeleton } from "@/components/loading/PageSkeletons";
 
 /* =====================================================
    SECTION CONFIG
@@ -231,11 +232,7 @@ export default function AdminAbout() {
   =============================== */
 
   if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">Loading...</div>
-      </AdminLayout>
-    );
+    return <AdminPageSkeleton cards={8} />;
   }
 
   /* ===============================

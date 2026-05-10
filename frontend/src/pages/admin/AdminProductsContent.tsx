@@ -13,6 +13,7 @@ import {
 import { Edit, Save, Flame } from "lucide-react";
 
 import { productsContentApi } from "@/services/api";
+import { AdminPageSkeleton } from "@/components/loading/PageSkeletons";
 
 interface ProductsContent {
   section: string;
@@ -23,6 +24,7 @@ interface ProductsContent {
 
 export default function AdminProductsContent() {
   const [content, setContent] = useState<ProductsContent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editing, setEditing] =
     useState<ProductsContent | null>(null);
 
@@ -31,8 +33,14 @@ export default function AdminProductsContent() {
   }, []);
 
   const loadData = async () => {
-    const data = await productsContentApi.getAll();
-    setContent(data);
+    try {
+      const data = await productsContentApi.getAll();
+      setContent(data);
+    } catch (err) {
+      console.error("Products content fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
     const heroContent =
@@ -58,6 +66,10 @@ export default function AdminProductsContent() {
     setContent([updated]);
     setEditing(null);
   };
+
+  if (loading) {
+    return <AdminPageSkeleton cards={1} />;
+  }
 
   return (
     <AdminLayout>

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { contentApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
+import { AdminPageSkeleton } from "@/components/loading/PageSkeletons";
 import { 
   MapPin, 
   Phone, 
@@ -111,16 +112,7 @@ export default function AdminContactContent() {
   };
 
   if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">Loading contact content...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    );
+    return <AdminPageSkeleton cards={3} />;
   }
 
   return (

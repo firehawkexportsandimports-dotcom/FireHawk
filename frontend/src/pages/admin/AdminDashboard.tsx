@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { dashboardApi } from '@/services/api';
 import { DashboardStats } from '@/types';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const statCards = [
   { key: 'total_products', label: 'Total Products', icon: Package, color: 'from-ember to-burnt-orange' },
@@ -51,9 +52,13 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                    <p className="text-4xl font-display font-bold text-foreground mt-1">
-                      {loading ? '—' : (stat.key === 'total_products' ? stats?.total_products : stat.key === 'total_categories' ? stats?.total_categories : stat.key === 'total_enquiries' ? stats?.total_enquiries : stats?.featured_products) || 0}
-                    </p>
+                    {loading ? (
+                      <Skeleton className="mt-3 h-10 w-20" />
+                    ) : (
+                      <p className="text-4xl font-display font-bold text-foreground mt-1">
+                        {(stat.key === 'total_products' ? stats?.total_products : stat.key === 'total_categories' ? stats?.total_categories : stat.key === 'total_enquiries' ? stats?.total_enquiries : stats?.featured_products) || 0}
+                      </p>
+                    )}
                   </div>
                   <div className={cn('w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-md', stat.color)}>
                     <stat.icon className="w-7 h-7 text-white" />
@@ -83,7 +88,7 @@ export default function AdminDashboard() {
               {loading ? (
                 <div className="space-y-4">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-16 bg-sand rounded-xl animate-pulse" />
+                    <Skeleton key={i} className="h-16 rounded-xl" />
                   ))}
                 </div>
               ) : stats?.recent_enquiries && stats.recent_enquiries.length > 0 ? (
