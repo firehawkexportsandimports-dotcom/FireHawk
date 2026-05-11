@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { setPublicCache } from "../utils/cache";
 import * as productService from "../services/products.service";
 
 
@@ -6,6 +7,7 @@ import * as productService from "../services/products.service";
 export const getAll = async (_req: Request, res: Response) => {
   try {
     const products = await productService.getAllProducts();
+    setPublicCache(res);
     res.json(products);
   } catch (err) {
     console.error(err);
@@ -26,6 +28,7 @@ export const getBySlug = async (
     if (!product)
       return res.status(404).json({ message: "Product not found" });
 
+    setPublicCache(res);
     res.json(product);
   } catch (err) {
     console.error(err);
@@ -37,6 +40,7 @@ export const getBySlug = async (
 export const getFeatured = async (_req: Request, res: Response) => {
   try {
     const products = await productService.getFeaturedProducts();
+    setPublicCache(res);
     res.json(products);
   } catch (err) {
     console.error(err);
@@ -53,6 +57,7 @@ export const getByCategory = async (
     const products = await productService.getProductsByCategory(
       req.params.slug
     );
+    setPublicCache(res);
     res.json(products);
   } catch (err) {
     console.error(err);

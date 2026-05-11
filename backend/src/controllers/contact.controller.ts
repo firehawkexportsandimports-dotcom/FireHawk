@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
+import { setPublicCache } from "../utils/cache";
 import { contactService } from "../services/contact.service";
 
 export const getContactInfo = async (_req: Request, res: Response) => {
   try {
     const data = await contactService.get();
+    setPublicCache(res);
     res.json(data);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch contact info" });

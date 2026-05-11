@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { setPublicCache } from "../utils/cache";
 import { aboutService } from "../services/about.service";
 
 export const getAboutContent = async (
@@ -7,6 +8,7 @@ export const getAboutContent = async (
 ) => {
   try {
     const data = await aboutService.getAll();
+    setPublicCache(res);
     res.json(data);
   } catch (err) {
     console.error(err);

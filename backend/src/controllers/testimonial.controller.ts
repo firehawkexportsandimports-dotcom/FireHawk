@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { setPublicCache } from "../utils/cache";
 import { testimonialService } from "../services/testimonial.service";
 
 /* =====================================================
@@ -10,6 +11,7 @@ export const getTestimonials = async (
 ) => {
   try {
     const data = await testimonialService.getAll();
+    setPublicCache(res);
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -28,6 +30,7 @@ export const getFeaturedTestimonials = async (
 ) => {
   try {
     const data = await testimonialService.getFeatured();
+    setPublicCache(res);
     res.json(data);
   } catch (error) {
     console.error(error);

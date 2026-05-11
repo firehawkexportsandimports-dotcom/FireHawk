@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { setPublicCache } from "../utils/cache";
 import * as categoryService from "../services/categories.service";
 
 /* ======================================================
@@ -7,6 +8,7 @@ import * as categoryService from "../services/categories.service";
 export const getAll = async (_req: Request, res: Response) => {
   try {
     const categories = await categoryService.getAllCategories();
+    setPublicCache(res);
     res.json(categories);
   } catch (error) {
     console.error("GET CATEGORIES ERROR:", error);
@@ -24,6 +26,7 @@ export const getFeatured = async (_req: Request, res: Response) => {
     const categories =
       await categoryService.getFeaturedCategories();
 
+    setPublicCache(res);
     res.json(categories);
   } catch (error) {
     console.error("GET FEATURED CATEGORIES ERROR:", error);
@@ -49,6 +52,7 @@ export const getBySlug = async (req: Request, res: Response) => {
       });
     }
 
+    setPublicCache(res);
     res.json(category);
   } catch (error) {
     console.error("GET CATEGORY ERROR:", error);

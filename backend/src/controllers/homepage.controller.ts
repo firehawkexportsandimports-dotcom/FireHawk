@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/db";
 import { homepageService } from "../services/homepage.service";
+import { setPublicCache } from "../utils/cache";
 
 /* =====================================================
    GET FULL HOMEPAGE DATA
@@ -9,7 +10,7 @@ export const getHomepage = async (req: Request, res: Response) => {
   try {
     const page = (req.query.page as string) || "home";
     const data = await homepageService.getFullHomepage(page);
-    res.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=60");
+    setPublicCache(res);
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -68,6 +69,7 @@ export const getStats = async (req: Request, res: Response) => {
   try {
     const page = typeof req.query.page === "string" ? req.query.page : undefined;
     const stats = await homepageService.getStats(page);
+    setPublicCache(res);
     res.json(stats);
   } catch (error) {
     console.error(error);
@@ -78,6 +80,7 @@ export const getStats = async (req: Request, res: Response) => {
 export const getStatsByPage = async (req: Request, res: Response) => {
   try {
     const stats = await homepageService.getStats(String(req.params.page));
+    setPublicCache(res);
     res.json(stats);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch stats" });
